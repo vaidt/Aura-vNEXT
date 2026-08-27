@@ -1,13 +1,31 @@
 # Aura vNEXT
 
-**Status: GENESIS.** This repository contains no product implementation yet.
+**Status: M0 — canonical evidence domain implemented and gated.**
 
 Aura vNEXT is a **new product** and the **new canonical implementation** of Aura. It is
 not a fork, mirror, migration, or Git merge of the frozen `Aura-IDToken` repositories.
 
 ## What this repository is right now
 
-Genesis establishes the foundation required before any implementation is admitted:
+**M0 is implemented**: the canonical evidence domain, the audit chain binding, the
+portable Evidence Package, and an independent three-state verifier. See
+[`docs/contract/M0-EVIDENCE-CONTRACT.md`](docs/contract/M0-EVIDENCE-CONTRACT.md).
+
+> **M0's canonical form is defined here, not recovered.** The frozen `Aura-IDToken`
+> corpus is not reachable from this environment, so **no compatibility claim** is made
+> with any prior Aura implementation. See the contract §0 and OQ-8.
+
+### Try it
+
+```sh
+python3 -m app.verifier evidence/examples/aura-evidence-loan-001 --json   # -> VERIFIED
+python3 tools/independence_check.py    # VERIFIED / TAMPERED / INVALID, in isolation
+make check                             # every gate
+```
+
+### Genesis (still in force)
+
+Genesis established the foundation required before any implementation is admitted:
 
 - the repository boundary between the frozen source corpus and this canonical target,
 - the provenance policy that governs how any legacy artifact may enter,
@@ -16,8 +34,10 @@ Genesis establishes the foundation required before any implementation is admitte
 - the architecture decision records for the above,
 - a minimal CI baseline that enforces these invariants.
 
-No implementation modules have been transferred. No implementation modules are approved
-for transfer.
+No implementation modules have been transferred from the corpus, and none are approved
+for transfer. The register still holds **zero** entries. M0 is new implementation written
+against ADR-0005 and ADR-0006, not transferred material — the transfer gate is untouched
+by it.
 
 ## Intended direction (non-authorizing)
 
@@ -44,14 +64,18 @@ is explicitly **non-normative**: it describes direction, not authorization to im
 | [`governance/MODULE-ACCEPTANCE-CRITERIA.md`](governance/MODULE-ACCEPTANCE-CRITERIA.md) | The gate every candidate module must pass |
 | [`provenance/TRANSFER-REGISTER.md`](provenance/TRANSFER-REGISTER.md) | The register, its lifecycle, and how to amend it |
 | [`governance/DEVELOPMENT-RULES.md`](governance/DEVELOPMENT-RULES.md) | Contribution and development rules |
+| [`docs/contract/M0-EVIDENCE-CONTRACT.md`](docs/contract/M0-EVIDENCE-CONTRACT.md) | The normative M0 contract: canonical form, digest, package, verifier |
 | [`architecture/decisions/`](architecture/decisions/) | Architecture decision records |
 
 ## Repository layout
 
-Directories are **reserved**, not populated. Each carries a `README.md` stating its purpose
-and the gate that governs what may be placed in it.
+`core/`, `app/`, `conformance/vectors/`, and `evidence/examples/` are **populated by M0**
+(ADR-0006 §4). Every other domain directory remains **reserved** — `tests/test_structure.py`
+asserts they hold no implementation, so M0 cannot sprawl. Each directory carries a
+`README.md` stating its purpose and the gate governing what may be placed in it.
 
 ```
+app/             runnable applications — the M0 verifier
 architecture/    architecture records, decisions, product direction
 governance/      genesis, boundary, acceptance criteria, development rules
 provenance/      provenance policy, transfer register, per-module provenance records
@@ -69,19 +93,19 @@ tools/           repository tooling used by CI
 docs/            product and operator documentation
 ```
 
-## Baseline checks
+## Gates
 
-The Genesis baseline is dependency-free (Python 3.11 standard library only):
+Dependency-free throughout — Python 3.11 standard library only (ADR-0002, ADR-0004):
 
-```sh
-make check
-```
+| Gate | Command | What it establishes |
+| --- | --- | --- |
+| Structure | `make structure` | Layout, ADR index, boundary, M0 scope fence |
+| Register | `make register` | The transfer register is valid |
+| Fixtures | `make fixtures` | Committed canonical bytes match the implementation (P0-02, P0-03) |
+| Tests | `make test` | Governance invariants, conformance, mutation gate |
+| Independence | `make independence` | The verifier works from the package alone |
 
-or directly:
-
-```sh
-python3 -m unittest discover -s tests -v
-```
+`make check` runs all of them.
 
 ## Boundary reminder
 
