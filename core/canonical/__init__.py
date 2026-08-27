@@ -4,7 +4,8 @@ AURA-CANON/1 is a restricted profile of RFC 8785 (JSON Canonicalization Scheme):
 
   * output is UTF-8 with no insignificant whitespace;
   * object members are sorted by the UTF-16 code-unit sequence of their names;
-  * strings are escaped per RFC 8785 section 3.2.2.2 (minimal escaping);
+  * strings are escaped per RFC 8785 section 3.2.2.2 (minimal escaping), and a
+    lone surrogate is rejected rather than allowed to fail at encode time;
   * numbers are **integers only** -- the profile forbids floating point outright,
     so ECMAScript number formatting never enters the trust boundary;
   * null is forbidden -- an absent optional field is an absent member, which is
@@ -44,7 +45,30 @@ _SHORT_ESCAPES = {
 }
 
 
-def _escape_string(value: str) -> str:
+def _reject_surrogates(text: str, where: str) -> None:
+    """Reject a string carrying a surrogate code point.
+
+    A lone surrogate is not a character: it has no UTF-8 encoding, and therefore no
+    canonical byte form. Python permits such a str to exist, so left unchecked it
+    surfaces as a UnicodeEncodeError -- an implementation-level error escaping the
+    canonicalisation boundary. Raising here keeps the boundary's contract: a value
+    with no canonical form raises CanonicalisationError, which the verifier maps to
+    INVALID rather than crashing.
+
+    Member names are checked before they reach the UTF-16 sort key, which would
+    otherwise raise UnicodeEncodeError first.
+    """
+    for char in text:
+        code = ord(char)
+        if 0xD800 <= code <= 0xDFFF:
+            raise CanonicalisationError(
+                f"at {where}: lone surrogate U+{code:04X} has no UTF-8 encoding "
+                f"and therefore no canonical form"
+            )
+
+
+def _escape_string(value: str, where: str) -> str:
+    _reject_surrogates(value, where)
     out = ['"']
     for char in value:
         code = ord(char)
@@ -93,20 +117,26 @@ def _emit(value, path: list[str]) -> list[str]:
         return [str(value)]
 
     if isinstance(value, str):
-        return [_escape_string(value)]
+        return [_escape_string(value, where)]
 
     if isinstance(value, dict):
-        parts = ["{"]
-        first = True
-        for name in sorted(value, key=_member_sort_key):
+        # Names are validated before the sort: _member_sort_key encodes to UTF-16-BE,
+        # which raises on a non-string or a lone surrogate before any check inside
+        # the emit loop could run.
+        for name in value:
             if not isinstance(name, str):
                 raise CanonicalisationError(
                     f"at {where}: member name {name!r} is not a string"
                 )
+            _reject_surrogates(name, f"{where} member name")
+
+        parts = ["{"]
+        first = True
+        for name in sorted(value, key=_member_sort_key):
             if not first:
                 parts.append(",")
             first = False
-            parts.append(_escape_string(name))
+            parts.append(_escape_string(name, f"{where} member name"))
             parts.append(":")
             parts.extend(_emit(value[name], path + [name]))
         parts.append("}")
