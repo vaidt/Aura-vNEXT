@@ -62,6 +62,22 @@ them is detectable.
 A violation is `{ "rule": string, "action": string, "confidence": integer }`, all three
 protected. **Violation order is protected**: reordering is a mutation.
 
+**The schema is a closed world.** A verifier validates presence and type of every member
+above, and every violation member, **before canonical hashing**. A record that is missing
+a required member, carries a member of the wrong type, or carries **any member not named
+here** is `INVALID`: it is not an audit entry. M0 defines no extension mechanism and no
+forward-compatible schema negotiation — an unknown member cannot be ignored, because an
+ignored member is excluded from the preimage, which would let a record carrying
+undeclared content reach `VERIFIED`.
+
+Presence and type are structural; **value domains are not checked structurally**. The
+digest vocabulary, the decision vocabulary, and the timestamp spelling are bound by the
+canonical digest, so altering one is a **mutation** and classifies as `TAMPERED`, not
+`INVALID`. Structure decides interpretability; the digest decides integrity.
+
+On the wire a sealed record additionally carries `entry_hash` (string, required), which
+is the integrity value and is not part of the canonical representation (§5).
+
 `timestamp` is recorded input. No clock is read during canonicalisation.
 
 ## 3. The canonical form — AURA-CANON/1
@@ -83,6 +99,10 @@ Two further rules:
 - **No Unicode normalisation.** NFC and NFD spellings of the same rendered text are
   different evidence. Normalising would let a substitution pass because it looked the
   same to a human.
+- **Lone surrogates are rejected.** A surrogate code point (U+D800–U+DFFF) has no UTF-8
+  encoding and therefore no canonical byte form. It raises a canonicalisation error at
+  the boundary, which a verifier reports as `INVALID`. It must never surface as an
+  implementation-level encoding error escaping the boundary.
 
 ## 4. Confidence
 
@@ -124,9 +144,39 @@ tampered entry cannot re-link the chain around itself.
 │   ├── audit.jsonl        one sealed record per line
 │   ├── policy.json        the policy document the records are bound to
 │   └── genesis.json       the chain anchor
-├── expected/result.json   the verdict the package asserts about itself
+├── expected/result.json   NON-NORMATIVE fixture metadata (see 6.1)
 └── README.md
 ```
+
+The manifest declares the **verification contract** the package requires, and a verifier
+must check each declaration against what it implements rather than merely confirming the
+field is present:
+
+| Declaration | Supported value |
+| --- | --- |
+| `profile` | `aura.evidence.package/1` |
+| `audit_schema` | `aura.audit/1` |
+| `canonical_form` | `AURA-CANON/1` |
+| `digest` | `SHA-256` |
+
+A missing or unsupported declaration is `INVALID`. A package asking for a canonical form
+or digest this build does not implement is asking for a verification it cannot perform,
+and saying so is the only honest answer.
+
+### 6.1 `expected/result.json` is non-normative
+
+`expected/result.json` is **test fixture metadata**. It is **not** part of the protected
+evidence and **not** part of the verification contract.
+
+- The verifier **never reads it**. The verdict is derived from the evidence alone.
+- It is **not** listed among the required files, and it is **not** bound by the
+  manifest's digest set. Altering or deleting it cannot change any verdict.
+- It exists so a fixture can state what it is expected to verify as, which is what lets
+  a mutated copy serve as an unambiguous negative fixture in the test suite.
+
+A verifier that trusted this file could be told what to conclude by the package it is
+examining. `tests/conformance/` asserts the verifier ignores it — including when the
+file claims a verdict that contradicts the evidence.
 
 A verifier depends on the package and nothing else: not the producer runtime, the
 original database, a network, hidden state, policy-engine execution, or a developer
