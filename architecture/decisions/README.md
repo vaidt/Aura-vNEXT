@@ -9,7 +9,10 @@ consequences accepted. It is not a proposal and not a design document.
 | --- | --- | --- |
 | [ADR-0001](ADR-0001-new-canonical-repository.md) | Aura vNEXT is a new repository with independent canonical history | ACCEPTED |
 | [ADR-0002](ADR-0002-transfer-register-as-checked-data.md) | The transfer register is checked data, not prose | ACCEPTED |
-| [ADR-0003](ADR-0003-repository-layout.md) | Repository layout is reserved by domain, populated only on demand | ACCEPTED |
+| [ADR-0003](ADR-0003-repository-layout.md) | Repository layout is reserved by domain, populated only on demand | ACCEPTED (amended by ADR-0006) |
+| [ADR-0004](ADR-0004-m0-implementation-toolchain.md) | M0 is implemented in Python 3.11 using the standard library only | ACCEPTED |
+| [ADR-0005](ADR-0005-canonical-form-and-hashing.md) | AURA-CANON/1: the canonical form and the integrity binding | ACCEPTED |
+| [ADR-0006](ADR-0006-m0-evidence-package-and-verifier.md) | The M0 Evidence Package, the three-state verifier, and the M0 layout | ACCEPTED |
 
 ## When an ADR is required
 
