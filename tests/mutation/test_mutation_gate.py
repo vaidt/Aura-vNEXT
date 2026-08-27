@@ -268,6 +268,24 @@ class MutationGateTest(unittest.TestCase):
         refresh_manifest(self.package)
         self.assertTampered("records reordered")
 
+    def test_skipped_sequence(self):
+        """A gap in the sequence breaks the 0-based position invariant."""
+        self.mutate_record(2, seq=5)
+        self.assertTampered("skipped sequence")
+
+    def test_duplicate_sequence(self):
+        """Two records claiming the same position is not a readable chain."""
+        self.mutate_record(2, seq=1)
+        self.assertTampered("duplicate sequence")
+
+    def test_duplicated_record(self):
+        """Replaying a record cannot extend the chain: its seq and link are wrong."""
+        records = read_records(self.package)
+        records.append(json.loads(json.dumps(records[2])))
+        write_records(self.package, records)
+        refresh_manifest(self.package)
+        self.assertTampered("duplicated record")
+
     def test_record_appended_with_a_valid_self_digest(self):
         """A forged entry that is internally consistent must still fail to link."""
         records = read_records(self.package)
@@ -319,6 +337,10 @@ class MutationCoverageTest(unittest.TestCase):
         "prev_hash", "seq", "timestamp", "schema", "request_id", "violation_rule",
         "violation_action", "violation_confidence", "violation_ordering",
         "unicode_representation", "escaping", "injection_like_content",
+        "skipped_sequence", "duplicate_sequence", "duplicated_record",
+        "records_reordered", "record_deleted_from_the_chain",
+        "genesis_anchor_mutated", "policy_document_mutated",
+        "manifest_digest_left_stale",
     ]
 
     def test_a_test_exists_for_every_protected_element(self):
