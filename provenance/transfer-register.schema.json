@@ -1,0 +1,132 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/vaidt/Aura-vNEXT/provenance/transfer-register.schema.json",
+  "title": "Aura vNEXT Module Transfer Register",
+  "description": "Record of every artifact considered for transfer from the frozen Aura-IDToken corpus. Validated by tools/validate_register.py, which enforces both this shape and the conditional rules in provenance/TRANSFER-REGISTER.md.",
+  "type": "object",
+  "required": ["register_version", "status_at", "corpus_reachable", "entries"],
+  "additionalProperties": false,
+  "properties": {
+    "register_version": { "type": "string" },
+    "generated_note": { "type": "string" },
+    "status_at": { "type": "string", "description": "ISO-8601 date the register was last reviewed." },
+    "corpus_reachable": {
+      "type": "boolean",
+      "description": "Whether the frozen corpus was reachable at status_at. False means an empty entry list reflects absence of observation, not absence of artifacts."
+    },
+    "entries": { "type": "array", "items": { "$ref": "#/$defs/entry" } }
+  },
+  "$defs": {
+    "status": {
+      "enum": [
+        "DISCOVERED",
+        "UNDER_REVIEW",
+        "VERIFIED",
+        "TRANSFER_APPROVED",
+        "TRANSFERRED",
+        "REJECTED",
+        "SUPERSEDED",
+        "RETAIN_REFERENCE_ONLY",
+        "BLOCKED",
+        "CONFLICT"
+      ]
+    },
+    "criterion": {
+      "type": "object",
+      "required": ["state", "note"],
+      "additionalProperties": false,
+      "properties": {
+        "state": { "enum": ["PASS", "FAIL", "NOT_ASSESSED", "NOT_APPLICABLE"] },
+        "note": { "type": "string", "description": "Evidence for PASS/FAIL; justification for NOT_APPLICABLE. Never empty." }
+      }
+    },
+    "entry": {
+      "type": "object",
+      "required": ["id", "title", "artifact_class", "status", "provenance", "criteria", "history"],
+      "additionalProperties": false,
+      "properties": {
+        "id": { "type": "string", "pattern": "^[A-Z]{2,6}-[0-9]{4}$", "description": "Stable identifier, e.g. TR-0001. Never reused." },
+        "title": { "type": "string", "minLength": 1 },
+        "artifact_class": {
+          "enum": ["IMPLEMENTATION", "SPECIFICATION", "TEST", "FIXTURE", "EVIDENCE"]
+        },
+        "status": { "$ref": "#/$defs/status" },
+        "derivation": {
+          "enum": ["VERBATIM", "ADAPTED", "REIMPLEMENTED", "SPECIFICATION_ONLY"],
+          "description": "Required once status is TRANSFER_APPROVED or TRANSFERRED."
+        },
+        "blocked_reason": { "type": "string", "description": "Required when status is BLOCKED." },
+        "conflict_description": { "type": "string", "description": "Required when status is CONFLICT: the competing authorities and what they disagree about." },
+        "rejected_reason": { "type": "string", "description": "Required when status is REJECTED." },
+        "superseded_by": { "type": "string", "description": "Required when status is SUPERSEDED: the successor artifact or register id." },
+        "depends_on": { "type": "array", "items": { "type": "string" }, "description": "Register ids this entry depends on." },
+        "provenance": {
+          "type": "object",
+          "required": ["source_repository", "source_path", "source_ref", "source_commit"],
+          "additionalProperties": false,
+          "properties": {
+            "source_repository": { "type": "string", "minLength": 1 },
+            "source_path": { "type": "string", "minLength": 1 },
+            "source_ref": { "type": "string", "minLength": 1 },
+            "source_commit": {
+              "anyOf": [{ "type": "string", "pattern": "^[0-9a-f]{40}$" }, { "type": "null" }],
+              "description": "Immutable commit SHA. Null only while status is DISCOVERED, UNDER_REVIEW or BLOCKED."
+            },
+            "source_version": { "type": ["string", "null"] },
+            "source_sha256": {
+              "anyOf": [{ "type": "string", "pattern": "^[0-9a-f]{64}$" }, { "type": "null" }],
+              "description": "Required for FIXTURE and EVIDENCE classes once transferred."
+            },
+            "original_tests": { "type": "array", "items": { "type": "string" } },
+            "required_fixtures": { "type": "array", "items": { "type": "string" } },
+            "dependencies": { "type": "array", "items": { "type": "string" } }
+          }
+        },
+        "criteria": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "C1_provenance": { "$ref": "#/$defs/criterion" },
+            "C2_dependencies": { "$ref": "#/$defs/criterion" },
+            "C3_completeness": { "$ref": "#/$defs/criterion" },
+            "C4_buildability": { "$ref": "#/$defs/criterion" },
+            "C5_test_coverage": { "$ref": "#/$defs/criterion" },
+            "C6_determinism": { "$ref": "#/$defs/criterion" },
+            "C7_conformance": { "$ref": "#/$defs/criterion" },
+            "C8_security": { "$ref": "#/$defs/criterion" },
+            "C9_semantic_conflict": { "$ref": "#/$defs/criterion" },
+            "C10_licence": { "$ref": "#/$defs/criterion" },
+            "C11_no_proprietary_third_party": { "$ref": "#/$defs/criterion" }
+          }
+        },
+        "transfer_decision": {
+          "type": "object",
+          "required": ["decided_by", "decided_on", "reference"],
+          "additionalProperties": false,
+          "properties": {
+            "decided_by": { "type": "string" },
+            "decided_on": { "type": "string" },
+            "reference": { "type": "string", "description": "ADR path or governance decision reference." }
+          }
+        },
+        "target_path": { "type": ["string", "null"] },
+        "target_commit": { "type": ["string", "null"] },
+        "record": { "type": "string", "description": "Path to the per-module provenance record." },
+        "history": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "required": ["date", "status", "reason"],
+            "additionalProperties": false,
+            "properties": {
+              "date": { "type": "string" },
+              "status": { "$ref": "#/$defs/status" },
+              "reason": { "type": "string", "minLength": 1 }
+            }
+          }
+        }
+      }
+    }
+  }
+}

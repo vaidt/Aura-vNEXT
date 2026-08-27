@@ -1,0 +1,32 @@
+name: baseline
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  baseline:
+    name: governance invariants
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      # No dependency installation step: the Genesis baseline is standard library
+      # only (ADR-0002). Adding one would pre-empt the open dependency policy (OQ-4).
+
+      - name: Validate repository structure
+        run: python3 tools/validate_structure.py
+
+      - name: Validate module transfer register
+        run: python3 tools/validate_register.py
+
+      - name: Run governance invariant tests
+        run: python3 -m unittest discover -s tests -v

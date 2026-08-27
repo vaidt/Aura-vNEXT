@@ -1,0 +1,17 @@
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+venv/
+
+.DS_Store
+*.swp
+.idea/
+.vscode/
+
+# Never commit a working copy of the frozen corpus into this repository.
+# The corpus is read in place and cited by immutable reference
+# (governance/REPOSITORY-BOUNDARY.md, provenance/PROVENANCE-POLICY.md).
+/corpus/
+/.corpus/
+/Aura-IDToken*/
