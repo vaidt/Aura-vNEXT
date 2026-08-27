@@ -9,3 +9,4 @@ so that the list does not drift across restatements.
 M0_AUDIT_SCHEMA = "aura.audit/1"
 M0_PACKAGE_PROFILE = "aura.evidence.package/1"
 M0_CANONICAL_FORM = "AURA-CANON/1"
+M0_DIGEST = "SHA-256"

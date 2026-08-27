@@ -15,6 +15,11 @@ from core import M0_AUDIT_SCHEMA
 
 __all__ = [
     "ModelError",
+    "SchemaError",
+    "AUDIT_RECORD_FIELDS",
+    "AUDIT_RECORD_INTEGRITY_FIELD",
+    "VIOLATION_FIELDS",
+    "validate_audit_record",
     "DECISIONS",
     "CONFIDENCE_SCALE",
     "GENESIS_PREV_HASH",
@@ -26,6 +31,14 @@ __all__ = [
 
 class ModelError(ValueError):
     """A value is outside the M0 evidence domain."""
+
+
+class SchemaError(ModelError):
+    """A record cannot be interpreted as an M0 audit record.
+
+    Distinct from an integrity failure. This says "I cannot read this as evidence",
+    which a verifier reports as INVALID; it never means "this evidence was altered".
+    """
 
 
 # The externally meaningful outcomes M0 records. Held closed: an unrecognised
@@ -109,6 +122,101 @@ def _require_hex64(value, what: str) -> str:
     if not _HEX64.match(text):
         raise ModelError(f"{what} must be 64 lowercase hex characters, got {text!r}")
     return text
+
+
+# ---------------------------------------------------------------------------
+# The wire schema: a closed world.
+#
+# M0 is strict and deterministic. A member not named here cannot enter the
+# protected domain, because there is no extension mechanism and no forward
+# compatibility to negotiate. An unrecognised member therefore makes the record
+# uninterpretable rather than being ignored -- if it were ignored it would be
+# excluded from the preimage, and a record carrying undeclared content would still
+# reach VERIFIED.
+#
+# These declare presence and type only. Value domains (hex digests, the decision
+# vocabulary, the timestamp spelling) are deliberately not checked here: those are
+# bound by the canonical digest, so altering one is a *mutation* and must classify
+# as TAMPERED, not INVALID. Structure decides interpretability; the digest decides
+# integrity.
+# ---------------------------------------------------------------------------
+
+AUDIT_RECORD_INTEGRITY_FIELD = "entry_hash"
+
+# name -> (type, required)
+AUDIT_RECORD_FIELDS: dict[str, tuple[type, bool]] = {
+    "schema": (str, True),
+    "seq": (int, True),
+    "request_id": (str, True),
+    "timestamp": (str, True),
+    "decision": (str, True),
+    "policy_hash": (str, True),
+    "policy_repr": (str, True),
+    "input_hash": (str, True),
+    "prev_hash": (str, True),
+    "violations": (list, True),
+    "metadata": (dict, True),
+    "shadow_hash": (str, False),
+    AUDIT_RECORD_INTEGRITY_FIELD: (str, True),
+}
+
+VIOLATION_FIELDS: dict[str, tuple[type, bool]] = {
+    "rule": (str, True),
+    "action": (str, True),
+    "confidence": (int, True),
+}
+
+
+def _check_type(value, expected: type, what: str) -> None:
+    # bool is a subclass of int, so an unguarded isinstance would accept `true` as a
+    # sequence number or a confidence.
+    if expected is int and isinstance(value, bool):
+        raise SchemaError(f"{what} must be an integer, got bool")
+    if not isinstance(value, expected):
+        raise SchemaError(
+            f"{what} must be {expected.__name__}, got {type(value).__name__}"
+        )
+
+
+def _validate_against(record: dict, fields: dict, what: str) -> None:
+    if not isinstance(record, dict):
+        raise SchemaError(f"{what} must be a JSON object, got {type(record).__name__}")
+
+    for name, (expected, required) in fields.items():
+        if name not in record:
+            if required:
+                raise SchemaError(f"{what}: required field {name!r} is missing")
+            continue
+        _check_type(record[name], expected, f"{what}.{name}")
+
+    unknown = sorted(set(record) - set(fields))
+    if unknown:
+        raise SchemaError(
+            f"{what}: unknown field(s) {', '.join(repr(u) for u in unknown)}; "
+            f"M0 is a closed world and defines no extension mechanism"
+        )
+
+
+def validate_audit_record(record, *, where: str = "audit record") -> None:
+    """Validate a sealed audit record against the M0 wire schema.
+
+    Raises ``SchemaError`` on a missing required field, a wrong field type, or any
+    unknown field, at the record level and within every violation. Called before
+    canonical hashing, so a record that cannot be interpreted is never hashed and
+    never reaches an integrity verdict.
+    """
+    _validate_against(record, AUDIT_RECORD_FIELDS, where)
+
+    for index, violation in enumerate(record["violations"]):
+        _validate_against(violation, VIOLATION_FIELDS, f"{where}.violations[{index}]")
+
+    for key, value in record["metadata"].items():
+        if not isinstance(key, str):
+            raise SchemaError(f"{where}.metadata: key {key!r} is not a string")
+        if not isinstance(value, str):
+            raise SchemaError(
+                f"{where}.metadata[{key!r}] must be str, got {type(value).__name__}"
+            )
 
 
 @dataclass(frozen=True)

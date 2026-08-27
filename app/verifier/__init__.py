@@ -20,21 +20,40 @@ from __future__ import annotations
 
 import hashlib
 import json
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from pathlib import Path
 
-from core import M0_AUDIT_SCHEMA, M0_PACKAGE_PROFILE
+from core import M0_AUDIT_SCHEMA, M0_CANONICAL_FORM, M0_DIGEST, M0_PACKAGE_PROFILE
 from core.canonical import CanonicalisationError
 from core.chain import ChainError, verify_chain
+from core.models import SchemaError, validate_audit_record
 from core.policy import policy_hash
 
-__all__ = ["VERIFIED", "TAMPERED", "INVALID", "VerificationResult", "verify_package"]
+__all__ = ["VERIFIED", "TAMPERED", "INVALID", "DECLARED_CONTRACT",
+           "REQUIRED_FILES", "VerificationResult", "verify_package"]
 
 VERIFIED = "VERIFIED"
 TAMPERED = "TAMPERED"
 INVALID = "INVALID"
 
 REQUIRED_FILES = ("evidence/audit.jsonl", "evidence/policy.json", "evidence/genesis.json")
+
+# The verification contract a package declares in its manifest. The verifier must
+# reject a declaration it does not implement rather than proceeding on the
+# assumption that the package meant this one: a package declaring a different
+# canonical form or digest is asking for a verification this build cannot perform.
+DECLARED_CONTRACT = {
+    "profile": M0_PACKAGE_PROFILE,
+    "audit_schema": M0_AUDIT_SCHEMA,
+    "canonical_form": M0_CANONICAL_FORM,
+    "digest": M0_DIGEST,
+}
+
+# expected/result.json is NON-NORMATIVE test fixture metadata
+# (docs/contract/M0-EVIDENCE-CONTRACT.md section 6.1). It is deliberately absent
+# from REQUIRED_FILES and from the manifest's digest set: the verifier never reads
+# it, and a package's own claim about its verdict has no bearing on the verdict it
+# receives. A verifier that trusted it could be told what to conclude.
 
 
 @dataclass(frozen=True)
@@ -112,12 +131,15 @@ def _check_structure(root: Path) -> tuple[dict, list, dict, dict]:
     if not isinstance(manifest, dict):
         raise _Invalid("manifest.json: top level is not a JSON object")
 
-    profile = manifest.get("profile")
-    if profile != M0_PACKAGE_PROFILE:
-        raise _Invalid(
-            f"manifest.json: unsupported profile {profile!r} "
-            f"(this verifier implements {M0_PACKAGE_PROFILE})"
-        )
+    for name, supported in DECLARED_CONTRACT.items():
+        declared = manifest.get(name)
+        if declared is None:
+            raise _Invalid(f"manifest.json: does not declare {name!r}")
+        if declared != supported:
+            raise _Invalid(
+                f"manifest.json: unsupported {name} {declared!r} "
+                f"(this verifier implements {supported!r})"
+            )
 
     files = manifest.get("files")
     if not isinstance(files, dict):
@@ -147,8 +169,17 @@ def _check_structure(root: Path) -> tuple[dict, list, dict, dict]:
                 f"evidence/audit.jsonl: record {index} declares unsupported schema "
                 f"{schema!r} (this verifier implements {M0_AUDIT_SCHEMA})"
             )
-        if "entry_hash" not in record:
-            raise _Invalid(f"evidence/audit.jsonl: record {index} carries no entry_hash")
+        # Full schema validation before any canonicalisation or hashing. A record
+        # that is missing a required field, carries a wrong type, or carries an
+        # unknown field is not an AuditEntry, and must not be able to reach an
+        # integrity verdict -- in particular it must not reach VERIFIED by hashing
+        # consistently over the wrong member set.
+        try:
+            validate_audit_record(
+                record, where=f"evidence/audit.jsonl record {index}"
+            )
+        except SchemaError as exc:
+            raise _Invalid(str(exc)) from exc
 
     return manifest, records, policy, genesis
 
