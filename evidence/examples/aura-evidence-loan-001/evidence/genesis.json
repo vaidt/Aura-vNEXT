@@ -1,0 +1,5 @@
+{
+  "note": "Chain anchor. Not a digest of anything; a stated absence of predecessor.",
+  "package_id": "aura-evidence-loan-001",
+  "prev_hash": "0000000000000000000000000000000000000000000000000000000000000000"
+}

@@ -1,0 +1,12 @@
+{
+  "audit_schema": "aura.audit/1",
+  "canonical_form": "AURA-CANON/1",
+  "digest": "SHA-256",
+  "files": {
+    "evidence/audit.jsonl": "799049780c8e73c0c6b1e66e6a4796f47dda75611cea19152f353ebbfd53fdbe",
+    "evidence/genesis.json": "05beea3ed9708d7d89a494855458f26748366e313b19317c7a5d2d571f8f349c",
+    "evidence/policy.json": "bd5c8053b53766019eba9b3c1a53bdbf6c7507903b0e590fd44aa113f4a135b8"
+  },
+  "package_id": "aura-evidence-loan-001",
+  "profile": "aura.evidence.package/1"
+}

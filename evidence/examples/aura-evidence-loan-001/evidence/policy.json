@@ -1,0 +1,16 @@
+{
+  "policy_id": "loan.underwriting",
+  "rules": [
+    {
+      "action": "BLOCK",
+      "id": "LOAN.DTI_EXCEEDED",
+      "threshold_bp": 4300
+    },
+    {
+      "action": "FLAG",
+      "id": "LOAN.MANUAL_REVIEW",
+      "threshold_bp": 5000
+    }
+  ],
+  "version": 2
+}

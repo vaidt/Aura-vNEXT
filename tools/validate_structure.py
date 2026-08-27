@@ -73,6 +73,7 @@ REQUIRED_DOCS = [
     "architecture/decisions/ADR-0005-canonical-form-and-hashing.md",
     "architecture/decisions/ADR-0006-m0-evidence-package-and-verifier.md",
     "docs/contract/M0-EVIDENCE-CONTRACT.md",
+    "conformance/vectors/m0-canonical-vectors.json",
     "core/signing/README.md",
 ]
 

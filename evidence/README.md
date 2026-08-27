@@ -1,6 +1,10 @@
 # evidence — evidence construction, packaging, and verification
 
-**Status: RESERVED. No implementation admitted.**
+**Status: M0 REFERENCE PACKAGE ADMITTED (ADR-0006 §4).**
+
+[`examples/aura-evidence-loan-001/`](examples/aura-evidence-loan-001/) is the reference
+M0 Evidence Package. The verifier itself lives in `app/verifier/`; the construction
+semantics live in `core/`.
 
 ## Purpose
 
@@ -28,4 +32,4 @@ has a transfer register entry at `TRANSFER_APPROVED` or later
 New work written here still requires the decisions it depends on to exist first. See
 `governance/DEVELOPMENT-RULES.md` §4 and `governance/OPEN-QUESTIONS.md`.
 
-No primary implementation language has been chosen (OQ-2).
+M0 is Python 3.11, standard library only (ADR-0004). OQ-2 remains open for every other module.
