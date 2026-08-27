@@ -1,30 +1,33 @@
 # core — canonical domain model and core semantics
 
-**Status: RESERVED. No implementation admitted.**
+**Status: M0 IMPLEMENTATION ADMITTED (ADR-0006 §4).**
 
 ## Purpose
 
-The canonical definitions on which everything else depends: the domain model, identifiers,
-canonical forms, and the core semantics of the governed chain.
+The canonical definitions on which everything else depends: the domain model,
+identifiers, canonical forms, and the core semantics of the governed chain.
 
-A definition lives here exactly once. If two modules would each define the same concept,
-the concept belongs here and the modules refer to it.
+## What is here
 
-## What may be placed here
+| Package | Purpose |
+| --- | --- |
+| [`canonical/`](canonical/) | `AURA-CANON/1` — the canonical byte form (ADR-0005) |
+| [`models/`](models/) | The M0 evidence domain: decisions, violations, audit entries, confidence |
+| [`chain/`](chain/) | Entry digests and chain linkage |
+| [`policy/`](policy/) | Binding a policy document into the chain — **binding, not evaluation** |
+| [`signing/`](signing/) | Deliberately unpopulated: M0 defines no signature scheme |
 
-- canonical domain types and their invariants
-- canonical serialisation forms, once decided (OQ-7)
-- core semantics referenced by `policy/`, `runtime/`, `audit/`, and `evidence/`
-
-Not: policy evaluation, transport, storage, or integration concerns.
+The contract these implement is `docs/contract/M0-EVIDENCE-CONTRACT.md`. The normative
+vectors are `conformance/vectors/m0-canonical-vectors.json`; those vectors, not this
+code, are the contract.
 
 ## Gate
 
+Changing the canonical encoder, the protected member set, the ordering rules, the
+confidence scale, or the digest is a **breaking change**: it requires a new canonical
+form identifier and a superseding ADR (contract §9). Regenerating the vectors to make a
+test pass inverts the gate.
+
 Nothing may be placed here that derives from the frozen `Aura-IDToken` corpus unless it
-has a transfer register entry at `TRANSFER_APPROVED` or later
-(`provenance/transfer-register.json`).
-
-New work written here still requires the decisions it depends on to exist first. See
-`governance/DEVELOPMENT-RULES.md` §4 and `governance/OPEN-QUESTIONS.md`.
-
-No primary implementation language has been chosen (OQ-2).
+has a transfer register entry at `TRANSFER_APPROVED` or later. Nothing here does: M0 is
+new implementation written against ADR-0005.
