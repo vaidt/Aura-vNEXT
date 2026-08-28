@@ -34,6 +34,48 @@ MARKER = "<!-- operator-walkthrough:"
 NOT_IN_A_CHECKOUT = shutil.ignore_patterns(".git", "__pycache__", "*.pyc", "build")
 
 
+def walkthrough_outputs(walkthrough: str) -> set[str]:
+    """Return the top-level paths the walkthrough itself creates.
+
+    A checkout is clean by definition, so it cannot already hold the package the
+    operator is about to record. Without this the suite passes on a fresh clone and
+    fails on a working tree where someone has run the walkthrough by hand -- and
+    `aura record` is right to refuse: overwriting a package would discard evidence.
+    """
+    return {match.split("/")[0]
+            for match in re.findall(r"\./([A-Za-z0-9_.-]+(?:/[A-Za-z0-9_.-]+)*)",
+                                    walkthrough)}
+
+
+def clean_checkout(destination: Path, walkthrough: str) -> None:
+    """Copy the repository as a clean checkout of it would arrive.
+
+    Tracked files are the definition of a checkout, so `git ls-files` is asked
+    first. Where that cannot answer -- no git, or an exported tree with no
+    repository -- everything is copied except what a checkout demonstrably does not
+    contain: the ignore list above, and the walkthrough's own outputs.
+    """
+    tracked = subprocess.run(["git", "ls-files", "-z"], cwd=REPO_ROOT,
+                             capture_output=True, text=True)
+    if tracked.returncode == 0 and tracked.stdout:
+        destination.mkdir(parents=True)
+        for relative in filter(None, tracked.stdout.split("\0")):
+            source = REPO_ROOT / relative
+            if not source.is_file():        # a deleted-but-tracked path
+                continue
+            target = destination / relative
+            target.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copy2(source, target)
+        return
+
+    created = walkthrough_outputs(walkthrough)
+    shutil.copytree(
+        REPO_ROOT, destination,
+        ignore=lambda directory, names: set(NOT_IN_A_CHECKOUT(directory, names)) | (
+            created if Path(directory) == REPO_ROOT else set()),
+    )
+
+
 def extract_walkthrough(text: str) -> str:
     """Return the shell block the guide marks as the operator walkthrough."""
     start = text.index(MARKER)
@@ -57,7 +99,7 @@ class DocumentedWorkflowTest(unittest.TestCase):
         self._tmp = tempfile.TemporaryDirectory(prefix="aura-clean-checkout-")
         self.addCleanup(self._tmp.cleanup)
         self.checkout = Path(self._tmp.name) / "checkout"
-        shutil.copytree(REPO_ROOT, self.checkout, ignore=NOT_IN_A_CHECKOUT)
+        clean_checkout(self.checkout, self.walkthrough)
 
     def run_in_checkout(self, script: str) -> subprocess.CompletedProcess:
         """Run a shell script in the clean checkout, with nothing inherited."""
