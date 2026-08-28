@@ -2,6 +2,7 @@
 
 - **Status:** ACCEPTED
 - **Date:** 2026-08-27
+- **Amended by:** ADR-0006 (adds `app/`; admits M0 implementation into `core/`, `conformance/`, `evidence/`)
 
 ## Context
 

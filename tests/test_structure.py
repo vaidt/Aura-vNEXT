@@ -22,24 +22,48 @@ class StructureTest(unittest.TestCase):
             with self.subTest(directory=name):
                 self.assertIn(f"{name}/", adr)
 
-    def test_reserved_directories_hold_no_implementation(self):
-        """Genesis admits process, not product. A source file here means something was
-        added without passing the transfer gate, or scaffolding was introduced."""
-        product_dirs = ["core", "runtime", "policy", "audit", "evidence",
-                        "integrations", "packs", "cli", "conformance"]
-        suffixes = {".py", ".ts", ".js", ".go", ".rs", ".java", ".rb", ".c", ".h",
-                    ".cpp", ".cs", ".kt", ".swift"}
-        offenders = [
-            str(path.relative_to(REPO_ROOT))
-            for name in product_dirs
-            for path in (REPO_ROOT / name).rglob("*")
-            if path.is_file() and path.suffix in suffixes
-        ]
-        self.assertEqual(
-            [], offenders,
-            "implementation found in a reserved directory during Genesis; "
-            "see governance/REPOSITORY-BOUNDARY.md section 4:\n" + "\n".join(offenders),
-        )
+    def test_every_m0_directory_is_declared_in_adr_0006(self):
+        """A directory not named by the ADR that added it is an undeclared decision."""
+        adr = (REPO_ROOT / "architecture/decisions"
+               / "ADR-0006-m0-evidence-package-and-verifier.md").read_text(encoding="utf-8")
+        for name in validate_structure.M0_DIRS:
+            with self.subTest(directory=name):
+                self.assertIn(f"{name}/", adr)
+
+    def test_still_reserved_directories_hold_no_implementation(self):
+        """ADR-0006 admitted M0 into core/ and app/ and nowhere else.
+
+        The Genesis form of this test covered every domain directory. ADR-0006 narrowed
+        it by decision rather than by weakening it: the directories M0 did not touch are
+        still asserted empty, so M0 cannot sprawl into modules whose language, design,
+        and acceptance criteria have not been decided.
+        """
+        errors = validate_structure.check_reserved_dirs_are_empty(REPO_ROOT)
+        self.assertEqual([], errors, "\n".join(errors))
+
+    def test_reserved_emptiness_check_actually_detects_implementation(self):
+        """The guard must fail when the thing it guards against is present."""
+        import tempfile
+
+        with tempfile.TemporaryDirectory() as tmp:
+            fake = Path(tmp)
+            (fake / "runtime").mkdir()
+            (fake / "runtime" / "enforcer.py").write_text("x = 1", encoding="utf-8")
+            self.assertTrue(validate_structure.check_reserved_dirs_are_empty(fake))
+
+    def test_m0_implementation_stays_inside_the_m0_boundary(self):
+        """ADR-0006 section 5: M0 names none of the excluded concerns."""
+        errors = validate_structure.check_m0_scope(REPO_ROOT)
+        self.assertEqual([], errors, "\n".join(errors))
+
+    def test_m0_scope_check_actually_detects_an_excursion(self):
+        import tempfile
+
+        with tempfile.TemporaryDirectory() as tmp:
+            fake = Path(tmp)
+            (fake / "core").mkdir()
+            (fake / "core" / "x.py").write_text("# merkle tree sealing", encoding="utf-8")
+            self.assertTrue(validate_structure.check_m0_scope(fake))
 
     def test_no_frozen_corpus_wired_into_git(self):
         self.assertEqual([], validate_structure.check_git_boundary(REPO_ROOT))

@@ -1,0 +1,534 @@
+{
+  "vector_set": "M0 canonical evidence vectors (P0-02 bytes, P0-03 digests)",
+  "canonical_form": "AURA-CANON/1",
+  "digest": "SHA-256",
+  "audit_schema": "aura.audit/1",
+  "generated_by": "tools/build_m0_fixtures.py",
+  "authority": "Defined by ADR-0005 in this repository. NOT recovered from, and NOT claimed compatible with, any prior Aura implementation.",
+  "vectors": [
+    {
+      "name": "minimal",
+      "purpose": "Smallest well-formed entry: no violations, no metadata, no shadow hash.",
+      "input": {
+        "seq": 0,
+        "request_id": "req-0001",
+        "timestamp": "2026-08-27T10:00:00Z",
+        "decision": "DENY",
+        "policy_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "policy_repr": "loan.underwriting/2",
+        "input_hash": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "prev_hash": "0000000000000000000000000000000000000000000000000000000000000000",
+        "violations": [],
+        "metadata": {},
+        "shadow_hash": null,
+        "schema": "aura.audit/1"
+      },
+      "canonical_utf8": "{\"decision\":\"DENY\",\"input_hash\":\"bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\",\"metadata\":{},\"policy_hash\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\"policy_repr\":\"loan.underwriting/2\",\"prev_hash\":\"0000000000000000000000000000000000000000000000000000000000000000\",\"request_id\":\"req-0001\",\"schema\":\"aura.audit/1\",\"seq\":0,\"timestamp\":\"2026-08-27T10:00:00Z\",\"violations\":[]}",
+      "canonical_hex": "7b226465636973696f6e223a2244454e59222c22696e7075745f68617368223a2262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262222c226d65746164617461223a7b7d2c22706f6c6963795f68617368223a2261616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161222c22706f6c6963795f72657072223a226c6f616e2e756e64657277726974696e672f32222c22707265765f68617368223a2230303030303030303030303030303030303030303030303030303030303030303030303030303030303030303030303030303030303030303030303030303030222c22726571756573745f6964223a227265712d30303031222c22736368656d61223a22617572612e61756469742f31222c22736571223a302c2274696d657374616d70223a22323032362d30382d32375431303a30303a30305a222c2276696f6c6174696f6e73223a5b5d7d",
+      "canonical_length": 416,
+      "sha256": "a57453c0b46266c0c8f7528f08f7fa350f3ce77a058ee309a4e943e366acf6ef"
+    },
+    {
+      "name": "complete",
+      "purpose": "Representative entry with every optional member populated.",
+      "input": {
+        "seq": 7,
+        "request_id": "req-0007",
+        "timestamp": "2026-08-27T10:00:00Z",
+        "decision": "REQUIRE_APPROVAL",
+        "policy_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "policy_repr": "loan.underwriting/2",
+        "input_hash": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "prev_hash": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+        "violations": [
+          {
+            "rule": "LOAN.DTI_EXCEEDED",
+            "action": "BLOCK",
+            "confidence": "0.95"
+          },
+          {
+            "rule": "LOAN.MANUAL_REVIEW",
+            "action": "FLAG",
+            "confidence": "0.5"
+          }
+        ],
+        "metadata": {
+          "actor": "agent-17",
+          "channel": "batch",
+          "region": "eu-west-1"
+        },
+        "shadow_hash": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+        "schema": "aura.audit/1"
+      },
+      "canonical_utf8": "{\"decision\":\"REQUIRE_APPROVAL\",\"input_hash\":\"bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\",\"metadata\":{\"actor\":\"agent-17\",\"channel\":\"batch\",\"region\":\"eu-west-1\"},\"policy_hash\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\"policy_repr\":\"loan.underwriting/2\",\"prev_hash\":\"cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc\",\"request_id\":\"req-0007\",\"schema\":\"aura.audit/1\",\"seq\":7,\"shadow_hash\":\"cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc\",\"timestamp\":\"2026-08-27T10:00:00Z\",\"violations\":[{\"action\":\"BLOCK\",\"confidence\":9500,\"rule\":\"LOAN.DTI_EXCEEDED\"},{\"action\":\"FLAG\",\"confidence\":5000,\"rule\":\"LOAN.MANUAL_REVIEW\"}]}",
+      "canonical_hex": "7b226465636973696f6e223a22524551554952455f415050524f56414c222c22696e7075745f68617368223a2262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262222c226d65746164617461223a7b226163746f72223a226167656e742d3137222c226368616e6e656c223a226261746368222c22726567696f6e223a2265752d776573742d31227d2c22706f6c6963795f68617368223a2261616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161222c22706f6c6963795f72657072223a226c6f616e2e756e64657277726974696e672f32222c22707265765f68617368223a2263636363636363636363636363636363636363636363636363636363636363636363636363636363636363636363636363636363636363636363636363636363222c22726571756573745f6964223a227265712d30303037222c22736368656d61223a22617572612e61756469742f31222c22736571223a372c22736861646f775f68617368223a2263636363636363636363636363636363636363636363636363636363636363636363636363636363636363636363636363636363636363636363636363636363222c2274696d657374616d70223a22323032362d30382d32375431303a30303a30305a222c2276696f6c6174696f6e73223a5b7b22616374696f6e223a22424c4f434b222c22636f6e666964656e6365223a393530302c2272756c65223a224c4f414e2e4454495f4558434545444544227d2c7b22616374696f6e223a22464c4147222c22636f6e666964656e6365223a353030302c2272756c65223a224c4f414e2e4d414e55414c5f524556494557227d5d7d",
+      "canonical_length": 693,
+      "sha256": "2cdf792d34afdf13e47ebde2c3c707398955441f40e6508796aceccda145d630"
+    },
+    {
+      "name": "unicode-bmp",
+      "purpose": "Non-ASCII BMP text is emitted literally, carried by UTF-8.",
+      "input": {
+        "seq": 0,
+        "request_id": "req-0001",
+        "timestamp": "2026-08-27T10:00:00Z",
+        "decision": "DENY",
+        "policy_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "policy_repr": "policy éèü 中文 Ж",
+        "input_hash": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "prev_hash": "0000000000000000000000000000000000000000000000000000000000000000",
+        "violations": [],
+        "metadata": {
+          "note": "naïve résumé"
+        },
+        "shadow_hash": null,
+        "schema": "aura.audit/1"
+      },
+      "canonical_utf8": "{\"decision\":\"DENY\",\"input_hash\":\"bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\",\"metadata\":{\"note\":\"naïve résumé\"},\"policy_hash\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\"policy_repr\":\"policy éèü 中文 Ж\",\"prev_hash\":\"0000000000000000000000000000000000000000000000000000000000000000\",\"request_id\":\"req-0001\",\"schema\":\"aura.audit/1\",\"seq\":0,\"timestamp\":\"2026-08-27T10:00:00Z\",\"violations\":[]}",
+      "canonical_hex": "7b226465636973696f6e223a2244454e59222c22696e7075745f68617368223a2262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262222c226d65746164617461223a7b226e6f7465223a226e61c3af76652072c3a973756dc3a9227d2c22706f6c6963795f68617368223a2261616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161222c22706f6c6963795f72657072223a22706f6c69637920c3a9c3a8c3bc20e4b8ade6968720d096222c22707265765f68617368223a2230303030303030303030303030303030303030303030303030303030303030303030303030303030303030303030303030303030303030303030303030303030222c22726571756573745f6964223a227265712d30303031222c22736368656d61223a22617572612e61756469742f31222c22736571223a302c2274696d657374616d70223a22323032362d30382d32375431303a30303a30305a222c2276696f6c6174696f6e73223a5b5d7d",
+      "canonical_length": 444,
+      "sha256": "97c2caa029116cfdc8a3019e1dfb6604ca9fb076cacb65b81ea40a4c56f4800c"
+    },
+    {
+      "name": "unicode-astral",
+      "purpose": "Astral characters, including in member names, exercise the UTF-16 code-unit ordering required by RFC 8785.",
+      "input": {
+        "seq": 0,
+        "request_id": "req-0001",
+        "timestamp": "2026-08-27T10:00:00Z",
+        "decision": "DENY",
+        "policy_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "policy_repr": "emoji 🔐🧾",
+        "input_hash": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "prev_hash": "0000000000000000000000000000000000000000000000000000000000000000",
+        "violations": [],
+        "metadata": {
+          "🔐key": "astral name",
+          "�key": "replacement name",
+          "zkey": "ascii name"
+        },
+        "shadow_hash": null,
+        "schema": "aura.audit/1"
+      },
+      "canonical_utf8": "{\"decision\":\"DENY\",\"input_hash\":\"bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\",\"metadata\":{\"zkey\":\"ascii name\",\"🔐key\":\"astral name\",\"�key\":\"replacement name\"},\"policy_hash\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\"policy_repr\":\"emoji 🔐🧾\",\"prev_hash\":\"0000000000000000000000000000000000000000000000000000000000000000\",\"request_id\":\"req-0001\",\"schema\":\"aura.audit/1\",\"seq\":0,\"timestamp\":\"2026-08-27T10:00:00Z\",\"violations\":[]}",
+      "canonical_hex": "7b226465636973696f6e223a2244454e59222c22696e7075745f68617368223a2262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262222c226d65746164617461223a7b227a6b6579223a226173636969206e616d65222c22f09f94906b6579223a2261737472616c206e616d65222c22efbfbd6b6579223a227265706c6163656d656e74206e616d65227d2c22706f6c6963795f68617368223a2261616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161222c22706f6c6963795f72657072223a22656d6f6a6920f09f9490f09fa7be222c22707265765f68617368223a2230303030303030303030303030303030303030303030303030303030303030303030303030303030303030303030303030303030303030303030303030303030222c22726571756573745f6964223a227265712d30303031222c22736368656d61223a22617572612e61756469742f31222c22736571223a302c2274696d657374616d70223a22323032362d30382d32375431303a30303a30305a222c2276696f6c6174696f6e73223a5b5d7d",
+      "canonical_length": 482,
+      "sha256": "deb8cd5742f88527271bfdd54ca4913cb25824fc226a2938cb332cfb3774c1f7"
+    },
+    {
+      "name": "quotes",
+      "purpose": "Double quotes escape to \\\" and nothing else.",
+      "input": {
+        "seq": 0,
+        "request_id": "req-0001",
+        "timestamp": "2026-08-27T10:00:00Z",
+        "decision": "DENY",
+        "policy_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "policy_repr": "he said \"deny\" loudly",
+        "input_hash": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "prev_hash": "0000000000000000000000000000000000000000000000000000000000000000",
+        "violations": [],
+        "metadata": {
+          "quoted\"key": "quoted\"value"
+        },
+        "shadow_hash": null,
+        "schema": "aura.audit/1"
+      },
+      "canonical_utf8": "{\"decision\":\"DENY\",\"input_hash\":\"bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\",\"metadata\":{\"quoted\\\"key\":\"quoted\\\"value\"},\"policy_hash\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\"policy_repr\":\"he said \\\"deny\\\" loudly\",\"prev_hash\":\"0000000000000000000000000000000000000000000000000000000000000000\",\"request_id\":\"req-0001\",\"schema\":\"aura.audit/1\",\"seq\":0,\"timestamp\":\"2026-08-27T10:00:00Z\",\"violations\":[]}",
+      "canonical_hex": "7b226465636973696f6e223a2244454e59222c22696e7075745f68617368223a2262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262222c226d65746164617461223a7b2271756f7465645c226b6579223a2271756f7465645c2276616c7565227d2c22706f6c6963795f68617368223a2261616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161222c22706f6c6963795f72657072223a2268652073616964205c2264656e795c22206c6f75646c79222c22707265765f68617368223a2230303030303030303030303030303030303030303030303030303030303030303030303030303030303030303030303030303030303030303030303030303030222c22726571756573745f6964223a227265712d30303031222c22736368656d61223a22617572612e61756469742f31222c22736571223a302c2274696d657374616d70223a22323032362d30382d32375431303a30303a30305a222c2276696f6c6174696f6e73223a5b5d7d",
+      "canonical_length": 449,
+      "sha256": "afc1e6740cd4723129a0ca683de4663095b7c35781c740f9772c7290a870da65"
+    },
+    {
+      "name": "backslashes",
+      "purpose": "Backslashes escape to \\\\; a trailing backslash cannot run into the closing quote.",
+      "input": {
+        "seq": 0,
+        "request_id": "req-0001",
+        "timestamp": "2026-08-27T10:00:00Z",
+        "decision": "DENY",
+        "policy_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "policy_repr": "C:\\policies\\loan\\",
+        "input_hash": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "prev_hash": "0000000000000000000000000000000000000000000000000000000000000000",
+        "violations": [],
+        "metadata": {
+          "path": "a\\\\b"
+        },
+        "shadow_hash": null,
+        "schema": "aura.audit/1"
+      },
+      "canonical_utf8": "{\"decision\":\"DENY\",\"input_hash\":\"bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\",\"metadata\":{\"path\":\"a\\\\\\\\b\"},\"policy_hash\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\"policy_repr\":\"C:\\\\policies\\\\loan\\\\\",\"prev_hash\":\"0000000000000000000000000000000000000000000000000000000000000000\",\"request_id\":\"req-0001\",\"schema\":\"aura.audit/1\",\"seq\":0,\"timestamp\":\"2026-08-27T10:00:00Z\",\"violations\":[]}",
+      "canonical_hex": "7b226465636973696f6e223a2244454e59222c22696e7075745f68617368223a2262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262222c226d65746164617461223a7b2270617468223a22615c5c5c5c62227d2c22706f6c6963795f68617368223a2261616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161222c22706f6c6963795f72657072223a22433a5c5c706f6c69636965735c5c6c6f616e5c5c222c22707265765f68617368223a2230303030303030303030303030303030303030303030303030303030303030303030303030303030303030303030303030303030303030303030303030303030222c22726571756573745f6964223a227265712d30303031222c22736368656d61223a22617572612e61756469742f31222c22736571223a302c2274696d657374616d70223a22323032362d30382d32375431303a30303a30305a222c2276696f6c6174696f6e73223a5b5d7d",
+      "canonical_length": 432,
+      "sha256": "a36b820a4bc09aa1bd7f41f34b9c4480ea35d0e19fcfa4dabf745f14d6b9b9dc"
+    },
+    {
+      "name": "control-characters",
+      "purpose": "CR, LF, and tab take their short escapes; other C0 controls take \\u00xx.",
+      "input": {
+        "seq": 0,
+        "request_id": "req-0001",
+        "timestamp": "2026-08-27T10:00:00Z",
+        "decision": "DENY",
+        "policy_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "policy_repr": "line1\r\nline2\tend\u0000\u001f",
+        "input_hash": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "prev_hash": "0000000000000000000000000000000000000000000000000000000000000000",
+        "violations": [],
+        "metadata": {
+          "raw": "\b\f\u000b"
+        },
+        "shadow_hash": null,
+        "schema": "aura.audit/1"
+      },
+      "canonical_utf8": "{\"decision\":\"DENY\",\"input_hash\":\"bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\",\"metadata\":{\"raw\":\"\\b\\f\\u000b\"},\"policy_hash\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\"policy_repr\":\"line1\\r\\nline2\\tend\\u0000\\u001f\",\"prev_hash\":\"0000000000000000000000000000000000000000000000000000000000000000\",\"request_id\":\"req-0001\",\"schema\":\"aura.audit/1\",\"seq\":0,\"timestamp\":\"2026-08-27T10:00:00Z\",\"violations\":[]}",
+      "canonical_hex": "7b226465636973696f6e223a2244454e59222c22696e7075745f68617368223a2262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262222c226d65746164617461223a7b22726177223a225c625c665c7530303062227d2c22706f6c6963795f68617368223a2261616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161222c22706f6c6963795f72657072223a226c696e65315c725c6e6c696e65325c74656e645c75303030305c7530303166222c22707265765f68617368223a2230303030303030303030303030303030303030303030303030303030303030303030303030303030303030303030303030303030303030303030303030303030222c22726571756573745f6964223a227265712d30303031222c22736368656d61223a22617572612e61756469742f31222c22736571223a302c2274696d657374616d70223a22323032362d30382d32375431303a30303a30305a222c2276696f6c6174696f6e73223a5b5d7d",
+      "canonical_length": 446,
+      "sha256": "701795332de1bb9e6cf78ff9bd53795db15a84aa49dbaa00351f318743b8ebdb"
+    },
+    {
+      "name": "pipes",
+      "purpose": "Pipe characters are ordinary content and are never delimiters.",
+      "input": {
+        "seq": 0,
+        "request_id": "req-0001",
+        "timestamp": "2026-08-27T10:00:00Z",
+        "decision": "DENY",
+        "policy_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "policy_repr": "a|b||c|",
+        "input_hash": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "prev_hash": "0000000000000000000000000000000000000000000000000000000000000000",
+        "violations": [],
+        "metadata": {
+          "k|1": "v|1",
+          "k": "|"
+        },
+        "shadow_hash": null,
+        "schema": "aura.audit/1"
+      },
+      "canonical_utf8": "{\"decision\":\"DENY\",\"input_hash\":\"bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\",\"metadata\":{\"k\":\"|\",\"k|1\":\"v|1\"},\"policy_hash\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\"policy_repr\":\"a|b||c|\",\"prev_hash\":\"0000000000000000000000000000000000000000000000000000000000000000\",\"request_id\":\"req-0001\",\"schema\":\"aura.audit/1\",\"seq\":0,\"timestamp\":\"2026-08-27T10:00:00Z\",\"violations\":[]}",
+      "canonical_hex": "7b226465636973696f6e223a2244454e59222c22696e7075745f68617368223a2262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262222c226d65746164617461223a7b226b223a227c222c226b7c31223a22767c31227d2c22706f6c6963795f68617368223a2261616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161222c22706f6c6963795f72657072223a22617c627c7c637c222c22707265765f68617368223a2230303030303030303030303030303030303030303030303030303030303030303030303030303030303030303030303030303030303030303030303030303030222c22726571756573745f6964223a227265712d30303031222c22736368656d61223a22617572612e61756469742f31222c22736571223a302c2274696d657374616d70223a22323032362d30382d32375431303a30303a30305a222c2276696f6c6174696f6e73223a5b5d7d",
+      "canonical_length": 423,
+      "sha256": "10d204a51011f903e90acaa71487aadebf73ffb8de50c9392654f46548fc87cc"
+    },
+    {
+      "name": "literal-text-None",
+      "purpose": "The literal text \"None\" is content, not an absent value.",
+      "input": {
+        "seq": 0,
+        "request_id": "req-0001",
+        "timestamp": "2026-08-27T10:00:00Z",
+        "decision": "DENY",
+        "policy_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "policy_repr": "None",
+        "input_hash": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "prev_hash": "0000000000000000000000000000000000000000000000000000000000000000",
+        "violations": [],
+        "metadata": {
+          "opt": "None"
+        },
+        "shadow_hash": null,
+        "schema": "aura.audit/1"
+      },
+      "canonical_utf8": "{\"decision\":\"DENY\",\"input_hash\":\"bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\",\"metadata\":{\"opt\":\"None\"},\"policy_hash\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\"policy_repr\":\"None\",\"prev_hash\":\"0000000000000000000000000000000000000000000000000000000000000000\",\"request_id\":\"req-0001\",\"schema\":\"aura.audit/1\",\"seq\":0,\"timestamp\":\"2026-08-27T10:00:00Z\",\"violations\":[]}",
+      "canonical_hex": "7b226465636973696f6e223a2244454e59222c22696e7075745f68617368223a2262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262222c226d65746164617461223a7b226f7074223a224e6f6e65227d2c22706f6c6963795f68617368223a2261616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161222c22706f6c6963795f72657072223a224e6f6e65222c22707265765f68617368223a2230303030303030303030303030303030303030303030303030303030303030303030303030303030303030303030303030303030303030303030303030303030222c22726571756573745f6964223a227265712d30303031222c22736368656d61223a22617572612e61756469742f31222c22736571223a302c2274696d657374616d70223a22323032362d30382d32375431303a30303a30305a222c2276696f6c6174696f6e73223a5b5d7d",
+      "canonical_length": 413,
+      "sha256": "51d75ca23f0c5dcf9d207f61219b8608aefd2d084b467970e4b08c4b9cd516f9"
+    },
+    {
+      "name": "literal-text-Some-empty",
+      "purpose": "The literal text Some(\"\") is content, not an empty value.",
+      "input": {
+        "seq": 0,
+        "request_id": "req-0001",
+        "timestamp": "2026-08-27T10:00:00Z",
+        "decision": "DENY",
+        "policy_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "policy_repr": "Some(\"\")",
+        "input_hash": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "prev_hash": "0000000000000000000000000000000000000000000000000000000000000000",
+        "violations": [],
+        "metadata": {
+          "opt": "Some(\"\")"
+        },
+        "shadow_hash": null,
+        "schema": "aura.audit/1"
+      },
+      "canonical_utf8": "{\"decision\":\"DENY\",\"input_hash\":\"bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\",\"metadata\":{\"opt\":\"Some(\\\"\\\")\"},\"policy_hash\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\"policy_repr\":\"Some(\\\"\\\")\",\"prev_hash\":\"0000000000000000000000000000000000000000000000000000000000000000\",\"request_id\":\"req-0001\",\"schema\":\"aura.audit/1\",\"seq\":0,\"timestamp\":\"2026-08-27T10:00:00Z\",\"violations\":[]}",
+      "canonical_hex": "7b226465636973696f6e223a2244454e59222c22696e7075745f68617368223a2262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262222c226d65746164617461223a7b226f7074223a22536f6d65285c225c2229227d2c22706f6c6963795f68617368223a2261616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161222c22706f6c6963795f72657072223a22536f6d65285c225c2229222c22707265765f68617368223a2230303030303030303030303030303030303030303030303030303030303030303030303030303030303030303030303030303030303030303030303030303030222c22726571756573745f6964223a227265712d30303031222c22736368656d61223a22617572612e61756469742f31222c22736571223a302c2274696d657374616d70223a22323032362d30382d32375431303a30303a30305a222c2276696f6c6174696f6e73223a5b5d7d",
+      "canonical_length": 425,
+      "sha256": "f1a2e18e6d86ccd0ee1e6f9d8669404c651368e7d03f2132215941246d0ea843"
+    },
+    {
+      "name": "optional-absent",
+      "purpose": "An absent shadow hash contributes no member at all. Pairs with optional-present, from which it differs in that member alone.",
+      "input": {
+        "seq": 0,
+        "request_id": "req-optional",
+        "timestamp": "2026-08-27T10:00:00Z",
+        "decision": "DENY",
+        "policy_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "policy_repr": "loan.underwriting/2",
+        "input_hash": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "prev_hash": "0000000000000000000000000000000000000000000000000000000000000000",
+        "violations": [],
+        "metadata": {},
+        "shadow_hash": null,
+        "schema": "aura.audit/1"
+      },
+      "canonical_utf8": "{\"decision\":\"DENY\",\"input_hash\":\"bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\",\"metadata\":{},\"policy_hash\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\"policy_repr\":\"loan.underwriting/2\",\"prev_hash\":\"0000000000000000000000000000000000000000000000000000000000000000\",\"request_id\":\"req-optional\",\"schema\":\"aura.audit/1\",\"seq\":0,\"timestamp\":\"2026-08-27T10:00:00Z\",\"violations\":[]}",
+      "canonical_hex": "7b226465636973696f6e223a2244454e59222c22696e7075745f68617368223a2262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262222c226d65746164617461223a7b7d2c22706f6c6963795f68617368223a2261616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161222c22706f6c6963795f72657072223a226c6f616e2e756e64657277726974696e672f32222c22707265765f68617368223a2230303030303030303030303030303030303030303030303030303030303030303030303030303030303030303030303030303030303030303030303030303030222c22726571756573745f6964223a227265712d6f7074696f6e616c222c22736368656d61223a22617572612e61756469742f31222c22736571223a302c2274696d657374616d70223a22323032362d30382d32375431303a30303a30305a222c2276696f6c6174696f6e73223a5b5d7d",
+      "canonical_length": 420,
+      "sha256": "4b9d6218cba6ba571c886aa28294af7e092f73c003d1adb2dd64af1bf8865a9d"
+    },
+    {
+      "name": "optional-present",
+      "purpose": "A present shadow hash contributes a member; compare with optional-absent.",
+      "input": {
+        "seq": 0,
+        "request_id": "req-optional",
+        "timestamp": "2026-08-27T10:00:00Z",
+        "decision": "DENY",
+        "policy_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "policy_repr": "loan.underwriting/2",
+        "input_hash": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "prev_hash": "0000000000000000000000000000000000000000000000000000000000000000",
+        "violations": [],
+        "metadata": {},
+        "shadow_hash": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+        "schema": "aura.audit/1"
+      },
+      "canonical_utf8": "{\"decision\":\"DENY\",\"input_hash\":\"bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\",\"metadata\":{},\"policy_hash\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\"policy_repr\":\"loan.underwriting/2\",\"prev_hash\":\"0000000000000000000000000000000000000000000000000000000000000000\",\"request_id\":\"req-optional\",\"schema\":\"aura.audit/1\",\"seq\":0,\"shadow_hash\":\"cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc\",\"timestamp\":\"2026-08-27T10:00:00Z\",\"violations\":[]}",
+      "canonical_hex": "7b226465636973696f6e223a2244454e59222c22696e7075745f68617368223a2262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262222c226d65746164617461223a7b7d2c22706f6c6963795f68617368223a2261616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161222c22706f6c6963795f72657072223a226c6f616e2e756e64657277726974696e672f32222c22707265765f68617368223a2230303030303030303030303030303030303030303030303030303030303030303030303030303030303030303030303030303030303030303030303030303030222c22726571756573745f6964223a227265712d6f7074696f6e616c222c22736368656d61223a22617572612e61756469742f31222c22736571223a302c22736861646f775f68617368223a2263636363636363636363636363636363636363636363636363636363636363636363636363636363636363636363636363636363636363636363636363636363222c2274696d657374616d70223a22323032362d30382d32375431303a30303a30305a222c2276696f6c6174696f6e73223a5b5d7d",
+      "canonical_length": 501,
+      "sha256": "4178d46f37dcbe04fdfc614aea6a5a8f024b0f6f44f1edbdea1033eeced68c3d"
+    },
+    {
+      "name": "metadata-key-absent",
+      "purpose": "Absent metadata key. Compare with metadata-key-empty: this is the None / Some(\"\") distinction.",
+      "input": {
+        "seq": 0,
+        "request_id": "req-metadata",
+        "timestamp": "2026-08-27T10:00:00Z",
+        "decision": "DENY",
+        "policy_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "policy_repr": "loan.underwriting/2",
+        "input_hash": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "prev_hash": "0000000000000000000000000000000000000000000000000000000000000000",
+        "violations": [],
+        "metadata": {
+          "present": "x"
+        },
+        "shadow_hash": null,
+        "schema": "aura.audit/1"
+      },
+      "canonical_utf8": "{\"decision\":\"DENY\",\"input_hash\":\"bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\",\"metadata\":{\"present\":\"x\"},\"policy_hash\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\"policy_repr\":\"loan.underwriting/2\",\"prev_hash\":\"0000000000000000000000000000000000000000000000000000000000000000\",\"request_id\":\"req-metadata\",\"schema\":\"aura.audit/1\",\"seq\":0,\"timestamp\":\"2026-08-27T10:00:00Z\",\"violations\":[]}",
+      "canonical_hex": "7b226465636973696f6e223a2244454e59222c22696e7075745f68617368223a2262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262222c226d65746164617461223a7b2270726573656e74223a2278227d2c22706f6c6963795f68617368223a2261616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161222c22706f6c6963795f72657072223a226c6f616e2e756e64657277726974696e672f32222c22707265765f68617368223a2230303030303030303030303030303030303030303030303030303030303030303030303030303030303030303030303030303030303030303030303030303030222c22726571756573745f6964223a227265712d6d65746164617461222c22736368656d61223a22617572612e61756469742f31222c22736571223a302c2274696d657374616d70223a22323032362d30382d32375431303a30303a30305a222c2276696f6c6174696f6e73223a5b5d7d",
+      "canonical_length": 433,
+      "sha256": "83e7d888505d3cfba1b3e144864fff56c4b50b140a36ae9c1a2b8f8b953cff2e"
+    },
+    {
+      "name": "metadata-key-empty",
+      "purpose": "Metadata key present with an empty value. Must not canonicalise to the same bytes as metadata-key-absent.",
+      "input": {
+        "seq": 0,
+        "request_id": "req-metadata",
+        "timestamp": "2026-08-27T10:00:00Z",
+        "decision": "DENY",
+        "policy_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "policy_repr": "loan.underwriting/2",
+        "input_hash": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "prev_hash": "0000000000000000000000000000000000000000000000000000000000000000",
+        "violations": [],
+        "metadata": {
+          "present": "x",
+          "opt": ""
+        },
+        "shadow_hash": null,
+        "schema": "aura.audit/1"
+      },
+      "canonical_utf8": "{\"decision\":\"DENY\",\"input_hash\":\"bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\",\"metadata\":{\"opt\":\"\",\"present\":\"x\"},\"policy_hash\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\"policy_repr\":\"loan.underwriting/2\",\"prev_hash\":\"0000000000000000000000000000000000000000000000000000000000000000\",\"request_id\":\"req-metadata\",\"schema\":\"aura.audit/1\",\"seq\":0,\"timestamp\":\"2026-08-27T10:00:00Z\",\"violations\":[]}",
+      "canonical_hex": "7b226465636973696f6e223a2244454e59222c22696e7075745f68617368223a2262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262222c226d65746164617461223a7b226f7074223a22222c2270726573656e74223a2278227d2c22706f6c6963795f68617368223a2261616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161222c22706f6c6963795f72657072223a226c6f616e2e756e64657277726974696e672f32222c22707265765f68617368223a2230303030303030303030303030303030303030303030303030303030303030303030303030303030303030303030303030303030303030303030303030303030222c22726571756573745f6964223a227265712d6d65746164617461222c22736368656d61223a22617572612e61756469742f31222c22736571223a302c2274696d657374616d70223a22323032362d30382d32375431303a30303a30305a222c2276696f6c6174696f6e73223a5b5d7d",
+      "canonical_length": 442,
+      "sha256": "0645e66a4851834108a28139e9c038b5a727e10ef9cb23ff59ec17e0a2a3ad43"
+    },
+    {
+      "name": "violations-empty",
+      "purpose": "An empty violation array is a member, not an absence.",
+      "input": {
+        "seq": 0,
+        "request_id": "req-violations",
+        "timestamp": "2026-08-27T10:00:00Z",
+        "decision": "DENY",
+        "policy_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "policy_repr": "loan.underwriting/2",
+        "input_hash": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "prev_hash": "0000000000000000000000000000000000000000000000000000000000000000",
+        "violations": [],
+        "metadata": {},
+        "shadow_hash": null,
+        "schema": "aura.audit/1"
+      },
+      "canonical_utf8": "{\"decision\":\"DENY\",\"input_hash\":\"bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\",\"metadata\":{},\"policy_hash\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\"policy_repr\":\"loan.underwriting/2\",\"prev_hash\":\"0000000000000000000000000000000000000000000000000000000000000000\",\"request_id\":\"req-violations\",\"schema\":\"aura.audit/1\",\"seq\":0,\"timestamp\":\"2026-08-27T10:00:00Z\",\"violations\":[]}",
+      "canonical_hex": "7b226465636973696f6e223a2244454e59222c22696e7075745f68617368223a2262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262222c226d65746164617461223a7b7d2c22706f6c6963795f68617368223a2261616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161222c22706f6c6963795f72657072223a226c6f616e2e756e64657277726974696e672f32222c22707265765f68617368223a2230303030303030303030303030303030303030303030303030303030303030303030303030303030303030303030303030303030303030303030303030303030222c22726571756573745f6964223a227265712d76696f6c6174696f6e73222c22736368656d61223a22617572612e61756469742f31222c22736571223a302c2274696d657374616d70223a22323032362d30382d32375431303a30303a30305a222c2276696f6c6174696f6e73223a5b5d7d",
+      "canonical_length": 422,
+      "sha256": "adde72ca0adb462e082ede7a7148a55a3f9c1f1056d6b58bf5a8d7c8b09c25df"
+    },
+    {
+      "name": "violations-ordered-ab",
+      "purpose": "Two violations in producer order A, B.",
+      "input": {
+        "seq": 0,
+        "request_id": "req-violations",
+        "timestamp": "2026-08-27T10:00:00Z",
+        "decision": "DENY",
+        "policy_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "policy_repr": "loan.underwriting/2",
+        "input_hash": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "prev_hash": "0000000000000000000000000000000000000000000000000000000000000000",
+        "violations": [
+          {
+            "rule": "RULE.A",
+            "action": "BLOCK",
+            "confidence": "0.25"
+          },
+          {
+            "rule": "RULE.B",
+            "action": "FLAG",
+            "confidence": "0.75"
+          }
+        ],
+        "metadata": {},
+        "shadow_hash": null,
+        "schema": "aura.audit/1"
+      },
+      "canonical_utf8": "{\"decision\":\"DENY\",\"input_hash\":\"bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\",\"metadata\":{},\"policy_hash\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\"policy_repr\":\"loan.underwriting/2\",\"prev_hash\":\"0000000000000000000000000000000000000000000000000000000000000000\",\"request_id\":\"req-violations\",\"schema\":\"aura.audit/1\",\"seq\":0,\"timestamp\":\"2026-08-27T10:00:00Z\",\"violations\":[{\"action\":\"BLOCK\",\"confidence\":2500,\"rule\":\"RULE.A\"},{\"action\":\"FLAG\",\"confidence\":7500,\"rule\":\"RULE.B\"}]}",
+      "canonical_hex": "7b226465636973696f6e223a2244454e59222c22696e7075745f68617368223a2262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262222c226d65746164617461223a7b7d2c22706f6c6963795f68617368223a2261616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161222c22706f6c6963795f72657072223a226c6f616e2e756e64657277726974696e672f32222c22707265765f68617368223a2230303030303030303030303030303030303030303030303030303030303030303030303030303030303030303030303030303030303030303030303030303030222c22726571756573745f6964223a227265712d76696f6c6174696f6e73222c22736368656d61223a22617572612e61756469742f31222c22736571223a302c2274696d657374616d70223a22323032362d30382d32375431303a30303a30305a222c2276696f6c6174696f6e73223a5b7b22616374696f6e223a22424c4f434b222c22636f6e666964656e6365223a323530302c2272756c65223a2252554c452e41227d2c7b22616374696f6e223a22464c4147222c22636f6e666964656e6365223a373530302c2272756c65223a2252554c452e42227d5d7d",
+      "canonical_length": 526,
+      "sha256": "649714c14acd8a5455371311c7b030c67b4058100094cf171de06dd2eb4ec3ca"
+    },
+    {
+      "name": "violations-ordered-ba",
+      "purpose": "The same two violations in order B, A. Ordering is protected, so these bytes must differ from violations-ordered-ab.",
+      "input": {
+        "seq": 0,
+        "request_id": "req-violations",
+        "timestamp": "2026-08-27T10:00:00Z",
+        "decision": "DENY",
+        "policy_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "policy_repr": "loan.underwriting/2",
+        "input_hash": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "prev_hash": "0000000000000000000000000000000000000000000000000000000000000000",
+        "violations": [
+          {
+            "rule": "RULE.B",
+            "action": "FLAG",
+            "confidence": "0.75"
+          },
+          {
+            "rule": "RULE.A",
+            "action": "BLOCK",
+            "confidence": "0.25"
+          }
+        ],
+        "metadata": {},
+        "shadow_hash": null,
+        "schema": "aura.audit/1"
+      },
+      "canonical_utf8": "{\"decision\":\"DENY\",\"input_hash\":\"bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\",\"metadata\":{},\"policy_hash\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\"policy_repr\":\"loan.underwriting/2\",\"prev_hash\":\"0000000000000000000000000000000000000000000000000000000000000000\",\"request_id\":\"req-violations\",\"schema\":\"aura.audit/1\",\"seq\":0,\"timestamp\":\"2026-08-27T10:00:00Z\",\"violations\":[{\"action\":\"FLAG\",\"confidence\":7500,\"rule\":\"RULE.B\"},{\"action\":\"BLOCK\",\"confidence\":2500,\"rule\":\"RULE.A\"}]}",
+      "canonical_hex": "7b226465636973696f6e223a2244454e59222c22696e7075745f68617368223a2262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262222c226d65746164617461223a7b7d2c22706f6c6963795f68617368223a2261616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161222c22706f6c6963795f72657072223a226c6f616e2e756e64657277726974696e672f32222c22707265765f68617368223a2230303030303030303030303030303030303030303030303030303030303030303030303030303030303030303030303030303030303030303030303030303030222c22726571756573745f6964223a227265712d76696f6c6174696f6e73222c22736368656d61223a22617572612e61756469742f31222c22736571223a302c2274696d657374616d70223a22323032362d30382d32375431303a30303a30305a222c2276696f6c6174696f6e73223a5b7b22616374696f6e223a22464c4147222c22636f6e666964656e6365223a373530302c2272756c65223a2252554c452e42227d2c7b22616374696f6e223a22424c4f434b222c22636f6e666964656e6365223a323530302c2272756c65223a2252554c452e41227d5d7d",
+      "canonical_length": 526,
+      "sha256": "600cf7d2ddbf3d5cedff78ea6fdcd5de1516ff706644a34ee5c7fbbeea564189"
+    },
+    {
+      "name": "confidence-boundaries",
+      "purpose": "The four required confidence conversions: 0.0->0, 0.5->5000, 0.95->9500, 1.0->10000.",
+      "input": {
+        "seq": 0,
+        "request_id": "req-0001",
+        "timestamp": "2026-08-27T10:00:00Z",
+        "decision": "DENY",
+        "policy_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "policy_repr": "loan.underwriting/2",
+        "input_hash": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "prev_hash": "0000000000000000000000000000000000000000000000000000000000000000",
+        "violations": [
+          {
+            "rule": "C.ZERO",
+            "action": "LOG",
+            "confidence": "0.0"
+          },
+          {
+            "rule": "C.HALF",
+            "action": "LOG",
+            "confidence": "0.5"
+          },
+          {
+            "rule": "C.NINETYFIVE",
+            "action": "LOG",
+            "confidence": "0.95"
+          },
+          {
+            "rule": "C.ONE",
+            "action": "LOG",
+            "confidence": "1.0"
+          }
+        ],
+        "metadata": {},
+        "shadow_hash": null,
+        "schema": "aura.audit/1"
+      },
+      "canonical_utf8": "{\"decision\":\"DENY\",\"input_hash\":\"bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\",\"metadata\":{},\"policy_hash\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\"policy_repr\":\"loan.underwriting/2\",\"prev_hash\":\"0000000000000000000000000000000000000000000000000000000000000000\",\"request_id\":\"req-0001\",\"schema\":\"aura.audit/1\",\"seq\":0,\"timestamp\":\"2026-08-27T10:00:00Z\",\"violations\":[{\"action\":\"LOG\",\"confidence\":0,\"rule\":\"C.ZERO\"},{\"action\":\"LOG\",\"confidence\":5000,\"rule\":\"C.HALF\"},{\"action\":\"LOG\",\"confidence\":9500,\"rule\":\"C.NINETYFIVE\"},{\"action\":\"LOG\",\"confidence\":10000,\"rule\":\"C.ONE\"}]}",
+      "canonical_hex": "7b226465636973696f6e223a2244454e59222c22696e7075745f68617368223a2262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262222c226d65746164617461223a7b7d2c22706f6c6963795f68617368223a2261616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161222c22706f6c6963795f72657072223a226c6f616e2e756e64657277726974696e672f32222c22707265765f68617368223a2230303030303030303030303030303030303030303030303030303030303030303030303030303030303030303030303030303030303030303030303030303030222c22726571756573745f6964223a227265712d30303031222c22736368656d61223a22617572612e61756469742f31222c22736571223a302c2274696d657374616d70223a22323032362d30382d32375431303a30303a30305a222c2276696f6c6174696f6e73223a5b7b22616374696f6e223a224c4f47222c22636f6e666964656e6365223a302c2272756c65223a22432e5a45524f227d2c7b22616374696f6e223a224c4f47222c22636f6e666964656e6365223a353030302c2272756c65223a22432e48414c46227d2c7b22616374696f6e223a224c4f47222c22636f6e666964656e6365223a393530302c2272756c65223a22432e4e494e45545946495645227d2c7b22616374696f6e223a224c4f47222c22636f6e666964656e6365223a31303030302c2272756c65223a22432e4f4e45227d5d7d",
+      "canonical_length": 622,
+      "sha256": "894c82c1a7707482f291c96eebe1c24c1d0c8837cd3d9159d2f2b8ad00aa5218"
+    },
+    {
+      "name": "decision-allow",
+      "purpose": "Decision participates in the preimage; compare with minimal.",
+      "input": {
+        "seq": 0,
+        "request_id": "req-0001",
+        "timestamp": "2026-08-27T10:00:00Z",
+        "decision": "ALLOW",
+        "policy_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "policy_repr": "loan.underwriting/2",
+        "input_hash": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "prev_hash": "0000000000000000000000000000000000000000000000000000000000000000",
+        "violations": [],
+        "metadata": {},
+        "shadow_hash": null,
+        "schema": "aura.audit/1"
+      },
+      "canonical_utf8": "{\"decision\":\"ALLOW\",\"input_hash\":\"bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\",\"metadata\":{},\"policy_hash\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\"policy_repr\":\"loan.underwriting/2\",\"prev_hash\":\"0000000000000000000000000000000000000000000000000000000000000000\",\"request_id\":\"req-0001\",\"schema\":\"aura.audit/1\",\"seq\":0,\"timestamp\":\"2026-08-27T10:00:00Z\",\"violations\":[]}",
+      "canonical_hex": "7b226465636973696f6e223a22414c4c4f57222c22696e7075745f68617368223a2262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262222c226d65746164617461223a7b7d2c22706f6c6963795f68617368223a2261616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161222c22706f6c6963795f72657072223a226c6f616e2e756e64657277726974696e672f32222c22707265765f68617368223a2230303030303030303030303030303030303030303030303030303030303030303030303030303030303030303030303030303030303030303030303030303030222c22726571756573745f6964223a227265712d30303031222c22736368656d61223a22617572612e61756469742f31222c22736571223a302c2274696d657374616d70223a22323032362d30382d32375431303a30303a30305a222c2276696f6c6174696f6e73223a5b5d7d",
+      "canonical_length": 417,
+      "sha256": "a3cb9bb47a05fb26d1a75d5ef87203a57125820e44d8a60fed456d63fd2505fa"
+    },
+    {
+      "name": "injection-shaped-content",
+      "purpose": "Content shaped like canonical syntax is escaped as data and cannot restructure the preimage.",
+      "input": {
+        "seq": 0,
+        "request_id": "req-0001",
+        "timestamp": "2026-08-27T10:00:00Z",
+        "decision": "DENY",
+        "policy_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "policy_repr": "\",\"entry_hash\":\"deadbeef",
+        "input_hash": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "prev_hash": "0000000000000000000000000000000000000000000000000000000000000000",
+        "violations": [],
+        "metadata": {
+          "x": "\"}],\"seq\":99,\"z\":\""
+        },
+        "shadow_hash": null,
+        "schema": "aura.audit/1"
+      },
+      "canonical_utf8": "{\"decision\":\"DENY\",\"input_hash\":\"bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\",\"metadata\":{\"x\":\"\\\"}],\\\"seq\\\":99,\\\"z\\\":\\\"\"},\"policy_hash\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\"policy_repr\":\"\\\",\\\"entry_hash\\\":\\\"deadbeef\",\"prev_hash\":\"0000000000000000000000000000000000000000000000000000000000000000\",\"request_id\":\"req-0001\",\"schema\":\"aura.audit/1\",\"seq\":0,\"timestamp\":\"2026-08-27T10:00:00Z\",\"violations\":[]}",
+      "canonical_hex": "7b226465636973696f6e223a2244454e59222c22696e7075745f68617368223a2262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262222c226d65746164617461223a7b2278223a225c227d5d2c5c227365715c223a39392c5c227a5c223a5c22227d2c22706f6c6963795f68617368223a2261616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161222c22706f6c6963795f72657072223a225c222c5c22656e7472795f686173685c223a5c226465616462656566222c22707265765f68617368223a2230303030303030303030303030303030303030303030303030303030303030303030303030303030303030303030303030303030303030303030303030303030222c22726571756573745f6964223a227265712d30303031222c22736368656d61223a22617572612e61756469742f31222c22736571223a302c2274696d657374616d70223a22323032362d30382d32375431303a30303a30305a222c2276696f6c6174696f6e73223a5b5d7d",
+      "canonical_length": 455,
+      "sha256": "aaca7341db505d66bb453aba983fb067e542752dcf85ed216371d3ef491802ad"
+    }
+  ]
+}

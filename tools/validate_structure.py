@@ -27,6 +27,31 @@ RESERVED_DIRS = [
     "docs",
 ]
 
+# ADR-0006 -- added by the M0 layout amendment. Runnable applications, as distinct
+# from core/ (semantics) and cli/ (the operator surface, still reserved).
+M0_DIRS = ["app"]
+
+ALL_DIRS = RESERVED_DIRS + M0_DIRS
+
+# ADR-0006 section 4: M0 admits implementation into core/, app/, conformance/vectors/,
+# and evidence/examples/. Every other domain directory stays reserved and empty, so
+# that M0 cannot sprawl into modules whose decisions have not been taken.
+STILL_RESERVED_DIRS = [
+    "runtime", "policy", "audit", "integrations", "packs", "cli",
+]
+
+SOURCE_SUFFIXES = {".py", ".ts", ".js", ".go", ".rs", ".java", ".rb", ".c", ".h",
+                   ".cpp", ".cs", ".kt", ".swift"}
+
+# The M0 product boundary. M0 establishes evidence representation, canonical binding,
+# chain integrity, the package, and independent verification -- and nothing else.
+OUT_OF_SCOPE_TERMS = [
+    "poca", "trustmath", "reputation", "rfc3161", "rfc 3161", "pkix",
+    "merkle", "dashboard", "marketplace",
+]
+
+M0_IMPLEMENTATION_DIRS = ["core", "app"]
+
 REQUIRED_DOCS = [
     "README.md",
     "CONTRIBUTING.md",
@@ -44,6 +69,12 @@ REQUIRED_DOCS = [
     "architecture/PRODUCT-DIRECTION.md",
     "architecture/decisions/README.md",
     "architecture/decisions/ADR-0001-new-canonical-repository.md",
+    "architecture/decisions/ADR-0004-m0-implementation-toolchain.md",
+    "architecture/decisions/ADR-0005-canonical-form-and-hashing.md",
+    "architecture/decisions/ADR-0006-m0-evidence-package-and-verifier.md",
+    "docs/contract/M0-EVIDENCE-CONTRACT.md",
+    "conformance/vectors/m0-canonical-vectors.json",
+    "core/signing/README.md",
 ]
 
 ADR_DIR = Path("architecture/decisions")
@@ -56,7 +87,7 @@ FORBIDDEN_REMOTE = re.compile(r"aura[-_]?idtoken", re.IGNORECASE)
 def check_structure(root: Path) -> list[str]:
     errors: list[str] = []
 
-    for name in RESERVED_DIRS:
+    for name in ALL_DIRS:
         directory = root / name
         if not directory.is_dir():
             errors.append(f"reserved directory {name}/ is missing (ADR-0003)")
@@ -69,6 +100,44 @@ def check_structure(root: Path) -> list[str]:
 
     errors += check_adr_index(root)
     errors += check_git_boundary(root)
+    errors += check_reserved_dirs_are_empty(root)
+    errors += check_m0_scope(root)
+    return errors
+
+
+def check_reserved_dirs_are_empty(root: Path) -> list[str]:
+    """Directories ADR-0006 left reserved must still hold no implementation."""
+    errors: list[str] = []
+    for name in STILL_RESERVED_DIRS:
+        directory = root / name
+        if not directory.is_dir():
+            continue
+        for path in sorted(directory.rglob("*")):
+            if path.is_file() and path.suffix in SOURCE_SUFFIXES:
+                errors.append(
+                    f"{path.relative_to(root)}: {name}/ is still reserved by ADR-0006 "
+                    f"section 4; implementation there needs its own decision first"
+                )
+    return errors
+
+
+def check_m0_scope(root: Path) -> list[str]:
+    """The M0 implementation must not name a concern ADR-0006 section 5 excludes."""
+    errors: list[str] = []
+    for name in M0_IMPLEMENTATION_DIRS:
+        directory = root / name
+        if not directory.is_dir():
+            continue
+        for path in sorted(directory.rglob("*.py")):
+            lowered = path.read_text(encoding="utf-8").lower()
+            for term in OUT_OF_SCOPE_TERMS:
+                # The scope fence in core/signing/README.md names the excluded items
+                # in order to exclude them; only source files are checked.
+                if term in lowered:
+                    errors.append(
+                        f"{path.relative_to(root)}: names {term!r}, which ADR-0006 "
+                        f"section 5 places outside M0"
+                    )
     return errors
 
 
@@ -148,7 +217,7 @@ def main(argv: list[str] | None = None) -> int:
             print(f"  - {err}", file=sys.stderr)
         return 1
 
-    print(f"repository structure: OK -- {len(RESERVED_DIRS)} reserved directories, "
+    print(f"repository structure: OK -- {len(ALL_DIRS)} directories, "
           f"{len(REQUIRED_DOCS)} required documents")
     return 0
 
