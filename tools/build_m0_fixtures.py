@@ -29,13 +29,14 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(REPO_ROOT))
 
-from core import M0_AUDIT_SCHEMA, M0_PACKAGE_PROFILE  # noqa: E402
-from core.chain import entry_hash, entry_preimage, seal  # noqa: E402
+from app.producer import DecisionEvent, build_package as produce_package  # noqa: E402
+from core import M0_AUDIT_SCHEMA  # noqa: E402
+from core.chain import entry_preimage  # noqa: E402
 from core.models import GENESIS_PREV_HASH, AuditEntry, Violation  # noqa: E402
-from core.policy import policy_hash  # noqa: E402
 
 VECTORS_PATH = REPO_ROOT / "conformance/vectors/m0-canonical-vectors.json"
 PACKAGE_ROOT = REPO_ROOT / "evidence/examples/aura-evidence-loan-001"
+PACKAGE_ID = "aura-evidence-loan-001"
 
 H_A = "a" * 64
 H_B = "b" * 64
@@ -191,86 +192,72 @@ def build_vectors() -> dict:
     }
 
 
+# The reference scenario, stated once. `tests/_product.py` imports these, so the
+# product-loop suites exercise the producer against the same events the committed
+# reference package is built from, rather than a second, slightly different loan
+# scenario that would quietly diverge from it.
+LOAN_POLICY = {
+    "policy_id": "loan.underwriting",
+    "version": 2,
+    "rules": [
+        {"id": "LOAN.DTI_EXCEEDED", "action": "BLOCK", "threshold_bp": 4300},
+        {"id": "LOAN.MANUAL_REVIEW", "action": "FLAG", "threshold_bp": 5000},
+    ],
+}
+
+# The loan scenario as application input: what a decision engine would hand the
+# producer. Everything protected -- sequence numbers, chain links, digests, the
+# manifest terminus -- is computed from these by `app.producer`, not stated here.
+LOAN_EVENTS = [
+    DecisionEvent(
+        request_id="loan-001-intake", timestamp="2026-08-27T09:15:00Z",
+        decision="ALLOW", input_hash=H_B, policy_repr="loan.underwriting/2",
+        metadata={"actor": "agent-17", "stage": "intake"},
+    ),
+    DecisionEvent(
+        request_id="loan-001-assess", timestamp="2026-08-27T09:15:04Z",
+        decision="REQUIRE_APPROVAL", input_hash=H_C,
+        policy_repr="loan.underwriting/2", shadow_hash=H_A,
+        violations=[_violation("LOAN.DTI_EXCEEDED", "BLOCK", "0.95"),
+                    _violation("LOAN.MANUAL_REVIEW", "FLAG", "0.5")],
+        # Deliberately awkward text: a pipe, escaped quotes, and a backslash, so the
+        # reference package exercises canonical escaping rather than only plain ASCII.
+        metadata={"actor": "agent-17", "stage": "assess",
+                  "note": 'ratio 0.47 | flagged "high" \\ review'},
+    ),
+    DecisionEvent(
+        request_id="loan-001-settle", timestamp="2026-08-27T09:16:31Z",
+        decision="DENY", input_hash=H_A, policy_repr="loan.underwriting/2",
+        violations=[_violation("LOAN.DTI_EXCEEDED", "BLOCK", "1.0")],
+        # An empty metadata value is a present member, not an absent one.
+        metadata={"actor": "reviewer-3", "stage": "settle", "note": ""},
+    ),
+]
+
+
 def build_package() -> dict[str, bytes]:
-    """Build the reference evidence package as a path -> bytes mapping."""
-    policy = {
-        "policy_id": "loan.underwriting",
-        "version": 2,
-        "rules": [
-            {"id": "LOAN.DTI_EXCEEDED", "action": "BLOCK", "threshold_bp": 4300},
-            {"id": "LOAN.MANUAL_REVIEW", "action": "FLAG", "threshold_bp": 5000},
-        ],
-    }
-    computed_policy_hash = policy_hash(policy)
+    """Build the reference evidence package as a path -> bytes mapping.
 
-    specs = [
-        _entry(seq=0, request_id="loan-001-intake", timestamp="2026-08-27T09:15:00Z",
-               decision="ALLOW", policy_hash=computed_policy_hash,
-               policy_repr="loan.underwriting/2", input_hash=H_B,
-               prev_hash=GENESIS_PREV_HASH,
-               metadata={"actor": "agent-17", "stage": "intake"}),
-        _entry(seq=1, request_id="loan-001-assess", timestamp="2026-08-27T09:15:04Z",
-               decision="REQUIRE_APPROVAL", policy_hash=computed_policy_hash,
-               policy_repr="loan.underwriting/2", input_hash=H_C, shadow_hash=H_A,
-               violations=[_violation("LOAN.DTI_EXCEEDED", "BLOCK", "0.95"),
-                           _violation("LOAN.MANUAL_REVIEW", "FLAG", "0.5")],
-               metadata={"actor": "agent-17", "stage": "assess",
-                         "note": 'ratio 0.47 | flagged "high" \\ review'}),
-        _entry(seq=2, request_id="loan-001-settle", timestamp="2026-08-27T09:16:31Z",
-               decision="DENY", policy_hash=computed_policy_hash,
-               policy_repr="loan.underwriting/2", input_hash=H_A,
-               violations=[_violation("LOAN.DTI_EXCEEDED", "BLOCK", "1.0")],
-               metadata={"actor": "reviewer-3", "stage": "settle", "note": ""}),
-    ]
+    The package is produced by ``app.producer`` -- the same code path an application
+    uses through ``aura record`` -- rather than by a construction private to this
+    generator. That is the point: a reference package assembled by a second,
+    fixture-only implementation would prove that the fixtures agree with themselves,
+    not that the product produces conformant evidence.
+    """
+    policy, events = LOAN_POLICY, LOAN_EVENTS
 
-    records = []
-    previous = GENESIS_PREV_HASH
-    for spec in specs:
-        spec["prev_hash"] = previous
-        entry = build_entry(spec)
-        record = seal(entry)
-        records.append(record)
-        previous = record["entry_hash"]
+    files = dict(produce_package(PACKAGE_ID, policy, events))
 
-    audit_bytes = ("\n".join(
-        json.dumps(r, sort_keys=True, ensure_ascii=False, separators=(",", ":"))
-        for r in records
-    ) + "\n").encode("utf-8")
-    policy_bytes = (json.dumps(policy, sort_keys=True, indent=2) + "\n").encode("utf-8")
-    genesis_bytes = (json.dumps({
-        "package_id": "aura-evidence-loan-001",
-        "prev_hash": GENESIS_PREV_HASH,
-        "note": "Chain anchor. Not a digest of anything; a stated absence of predecessor.",
-    }, sort_keys=True, indent=2) + "\n").encode("utf-8")
-
-    files = {
-        "evidence/audit.jsonl": audit_bytes,
-        "evidence/policy.json": policy_bytes,
-        "evidence/genesis.json": genesis_bytes,
-    }
-
-    manifest = {
-        "profile": M0_PACKAGE_PROFILE,
-        "package_id": "aura-evidence-loan-001",
-        "audit_schema": M0_AUDIT_SCHEMA,
-        "canonical_form": "AURA-CANON/1",
-        "digest": "SHA-256",
-        # The chain terminus. prev_hash binds each record to its predecessor, but
-        # nothing binds the end of the chain, so without these two the last record
-        # can be rewritten -- or records dropped from the end -- and the package
-        # still reconciles. chain_head is the final record's own entry_hash: no new
-        # hashing domain, and the AuditEntry integrity domain is untouched.
-        "chain_head": records[-1]["entry_hash"],
-        "entry_count": len(records),
-        "files": {p: hashlib.sha256(b).hexdigest() for p, b in files.items()},
-    }
-    files["manifest.json"] = (
-        json.dumps(manifest, sort_keys=True, indent=2) + "\n"
-    ).encode("utf-8")
+    # expected/result.json is NON-NORMATIVE fixture metadata (contract section 6.2):
+    # the verifier never reads it, and the manifest does not bind it. It is added
+    # here, by the fixture generator, and deliberately not by the producer -- a
+    # package an application produces should carry evidence, not an assertion about
+    # the verdict it expects to receive.
+    entry_count = json.loads(files["manifest.json"])["entry_count"]
     files["expected/result.json"] = (json.dumps({
         "status": "VERIFIED",
-        "package_id": "aura-evidence-loan-001",
-        "entries": len(records),
+        "package_id": PACKAGE_ID,
+        "entries": entry_count,
         "reasons": [],
     }, sort_keys=True, indent=2) + "\n").encode("utf-8")
 
