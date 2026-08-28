@@ -14,6 +14,14 @@ decision for the product.
 
 - `validate_register.py` — transfer register schema and rule enforcement
 - `validate_structure.py` — repository structure and ADR index enforcement
+- `build_m0_fixtures.py` — regenerates the conformance vectors and the reference
+  evidence package; `--check` reports drift without writing. The package is built by
+  `app.producer`, so the fixture and the product cannot diverge
+- `independence_check.py` — runs the verifier in an isolated environment holding only
+  `core/` and `app/verifier/`, and prints an execution record
+- `product_loop_check.py` — runs the acceptance experiment end to end (event →
+  `aura record` → package → clean-room verifier → `VERIFIED`, then `TAMPERED` and
+  `INVALID`) and prints an execution record
 
 A rule documented in governance but not checked here is a gap. Add the check.
 
