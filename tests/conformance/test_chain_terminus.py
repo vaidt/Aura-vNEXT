@@ -29,10 +29,22 @@ evidence no longer matches what it committed to -- TAMPERED.
 These tests repair the file digests after every mutation and never restate the
 terminus, so a failure can only come from the terminus binding, never from a stale
 outer checksum.
+
+**Withdrawn case (Custodian adjudication).** An adversarial matrix proposed "tail
+mutation + restate chain_head only, leaving entry_count" as a case expecting
+TAMPERED on an entry_count mismatch. It was withdrawn as a matrix error: a tail
+*mutation* adds and removes no record, so entry_count is unchanged and still
+correct, and restating chain_head alone is already a *complete* restatement of the
+terminus. That construction is byte-identical to the full-rewrite case, which must
+verify. A partial restatement only leaves something to detect when the record count
+actually changes -- truncation and append -- which
+``PartialTerminusRestatementTest`` covers. ``PackageByteIdentityInvariantTest``
+pins the invariant that made this decidable.
 """
 
 import hashlib
 import json
+import shutil
 import tempfile
 import unittest
 from pathlib import Path
@@ -87,6 +99,34 @@ class _TerminusCase(unittest.TestCase):
         )
         self.assertTrue(result.reasons, f"{note}: TAMPERED with no stated reason")
         return result
+
+    def set_terminus(self, package: Path, *, head=None, count=None) -> None:
+        """Restate part or all of the committed terminus."""
+        manifest = self.manifest_of(package)
+        if head is not None:
+            manifest["chain_head"] = head
+        if count is not None:
+            manifest["entry_count"] = count
+        self.write_manifest(package, manifest)
+
+    def truncate_tail(self, package: Path) -> list:
+        records = read_records(package)
+        del records[-1]
+        write_records(package, records)
+        refresh_manifest(package)
+        return records
+
+    def append_record(self, package: Path) -> list:
+        records = read_records(package)
+        forged = json.loads(json.dumps(records[-1]))
+        forged["seq"] = len(records)
+        forged["request_id"] = "loan-001-appended"
+        forged["prev_hash"] = records[-1]["entry_hash"]
+        forged["entry_hash"] = entry_hash_of(forged)
+        records.append(forged)
+        write_records(package, records)
+        refresh_manifest(package)
+        return records
 
     def assertCausedByTerminus(self, result, note: str):
         """The failure must come from the terminus, not an unrelated check."""
@@ -370,3 +410,182 @@ class ExistingClassificationsPreservedTest(_TerminusCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class PartialTerminusRestatementTest(_TerminusCase):
+    """A partial restatement of the terminus must still be caught.
+
+    This is the restated form of the withdrawn case. A partial restatement is only
+    *partial* when the record count actually changes -- truncation and append. Then
+    updating one declaration leaves the other disagreeing with the evidence, and the
+    remaining declaration catches it.
+    """
+
+    def test_truncation_restating_only_chain_head_is_tampered(self):
+        package = self.package("trunc-head")
+        survivors = self.truncate_tail(package)
+        self.set_terminus(package, head=survivors[-1]["entry_hash"])
+        result = self.assertTerminusRefused(package, "truncation, chain_head only")
+        self.assertTrue(any("entry_count" in r for r in result.reasons), result.reasons)
+
+    def test_truncation_restating_only_entry_count_is_tampered(self):
+        package = self.package("trunc-count")
+        survivors = self.truncate_tail(package)
+        self.set_terminus(package, count=len(survivors))
+        result = self.assertTerminusRefused(package, "truncation, entry_count only")
+        self.assertTrue(any("chain_head" in r for r in result.reasons), result.reasons)
+
+    def test_append_restating_only_chain_head_is_tampered(self):
+        package = self.package("append-head")
+        records = self.append_record(package)
+        self.set_terminus(package, head=records[-1]["entry_hash"])
+        result = self.assertTerminusRefused(package, "append, chain_head only")
+        self.assertTrue(any("entry_count" in r for r in result.reasons), result.reasons)
+
+    def test_append_restating_only_entry_count_is_tampered(self):
+        package = self.package("append-count")
+        records = self.append_record(package)
+        self.set_terminus(package, count=len(records))
+        result = self.assertTerminusRefused(package, "append, entry_count only")
+        self.assertTrue(any("chain_head" in r for r in result.reasons), result.reasons)
+
+    def test_a_tail_mutation_leaves_no_partial_terminus_state(self):
+        """Why the withdrawn case could not exist.
+
+        A tail mutation changes no record count, so entry_count stays correct and
+        restating chain_head alone restates the whole terminus. There is no partial
+        state here to detect, and the result is the full-rewrite limitation.
+        """
+        package = self.package("no-partial")
+        before = self.manifest_of(package)["entry_count"]
+
+        records = read_records(package)
+        records[-1]["decision"] = "ALLOW"
+        write_records(package, records)
+        self.reseal_record(package, len(records) - 1)
+
+        self.assertEqual(before, len(read_records(package)),
+                         "a tail mutation must not change the record count")
+        self.assertEqual(before, self.manifest_of(package)["entry_count"],
+                         "entry_count is therefore still correct and has nothing to catch")
+
+        self.set_terminus(package, head=read_records(package)[-1]["entry_hash"])
+        self.assertEqual(VERIFIED, verify_package(package).status)
+
+
+class FullTerminusRestatementLimitTest(_TerminusCase):
+    """Restating the whole terminus verifies. This is the documented limitation.
+
+    The manifest is unsigned, so a party willing to rewrite the evidence *and*
+    restate what the package commits to produces a self-consistent package. The
+    terminus raises the cost of a forgery; it does not make one impossible. These
+    results are required, not defects: VERIFIED means internally consistent, never
+    authentic or authored by anyone in particular.
+    """
+
+    def test_tail_mutation_with_full_restatement_verifies(self):
+        package = self.package("full-tail")
+        records = read_records(package)
+        records[-1]["decision"] = "ALLOW"
+        write_records(package, records)
+        self.reseal_record(package, len(records) - 1)
+        records = read_records(package)
+        self.set_terminus(package, head=records[-1]["entry_hash"], count=len(records))
+        self.assertEqual(VERIFIED, verify_package(package).status)
+
+    def test_truncation_with_full_restatement_verifies(self):
+        package = self.package("full-trunc")
+        survivors = self.truncate_tail(package)
+        self.set_terminus(package, head=survivors[-1]["entry_hash"],
+                          count=len(survivors))
+        self.assertEqual(VERIFIED, verify_package(package).status)
+
+    def test_append_with_full_restatement_verifies(self):
+        package = self.package("full-append")
+        records = self.append_record(package)
+        self.set_terminus(package, head=records[-1]["entry_hash"], count=len(records))
+        self.assertEqual(VERIFIED, verify_package(package).status)
+
+
+class PackageByteIdentityInvariantTest(_TerminusCase):
+    """Invariant: identical package bytes produce an identical verifier result.
+
+    The verifier is a pure function of the bytes in the package directory. It reads
+    nothing else -- no clock, no environment, no network, no path-dependent state --
+    so two packages that are byte-identical cannot receive different verdicts, and
+    the same package cannot receive different verdicts on two runs.
+
+    This is what made the withdrawn case decidable: two procedures described as
+    different attacks produced byte-identical packages, so no implementation could
+    have given them opposite verdicts.
+    """
+
+    FILES = ("manifest.json", "evidence/audit.jsonl", "evidence/policy.json",
+             "evidence/genesis.json")
+
+    def assertByteIdentical(self, left: Path, right: Path):
+        for relative in self.FILES:
+            self.assertEqual((left / relative).read_bytes(),
+                             (right / relative).read_bytes(),
+                             f"{relative} differs between the two packages")
+
+    def forge_tail_then_restate(self, name: str, *, also_set_count: bool) -> Path:
+        """Two procedures that differ only by a no-op on entry_count."""
+        package = self.package(name)
+        records = read_records(package)
+        records[-1]["decision"] = "ALLOW"
+        write_records(package, records)
+        self.reseal_record(package, len(records) - 1)
+
+        records = read_records(package)
+        self.set_terminus(package, head=records[-1]["entry_hash"],
+                          count=len(records) if also_set_count else None)
+        return package
+
+    def test_the_two_withdrawn_procedures_are_byte_identical(self):
+        left = self.forge_tail_then_restate("identity-a", also_set_count=False)
+        right = self.forge_tail_then_restate("identity-b", also_set_count=True)
+        self.assertByteIdentical(left, right)
+
+    def test_byte_identical_packages_receive_the_same_verdict(self):
+        left = self.forge_tail_then_restate("verdict-a", also_set_count=False)
+        right = self.forge_tail_then_restate("verdict-b", also_set_count=True)
+        self.assertByteIdentical(left, right)
+        self.assertEqual(verify_package(left).status, verify_package(right).status)
+
+    def test_the_invariant_holds_across_the_three_states(self):
+        """A copy of any package, in any state, verifies identically."""
+        cases = []
+
+        verified = self.package("inv-verified")
+        cases.append(("VERIFIED", verified))
+
+        tampered = self.package("inv-tampered")
+        records = read_records(tampered)
+        records[-1]["decision"] = "ALLOW"
+        write_records(tampered, records)
+        self.reseal_record(tampered, len(records) - 1)
+        cases.append(("TAMPERED", tampered))
+
+        invalid = self.package("inv-invalid")
+        self.set_terminus(invalid, head="xyz")
+        cases.append(("INVALID", invalid))
+
+        observed = set()
+        for label, package in cases:
+            with self.subTest(state=label):
+                copy = self.tmp / f"copy-{label}"
+                shutil.copytree(package, copy)
+                self.assertByteIdentical(package, copy)
+                first, second = verify_package(package), verify_package(copy)
+                self.assertEqual(first.status, second.status)
+                self.assertEqual(first.reasons, second.reasons)
+                observed.add(first.status)
+
+        self.assertEqual({VERIFIED, TAMPERED, INVALID}, observed,
+                         "the invariant must be exercised in all three states")
+
+    def test_verifying_the_same_package_twice_is_stable(self):
+        package = self.package("stable")
+        results = [verify_package(package).as_dict() for _ in range(3)]
+        self.assertEqual([results[0]] * 3, results)
