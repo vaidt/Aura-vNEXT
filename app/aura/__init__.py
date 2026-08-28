@@ -36,6 +36,24 @@ EXIT_USAGE = 64        # the command line could not be understood
 EXIT_REFUSED = 65      # the command was understood; the event is not recordable
 
 
+class _Parser(argparse.ArgumentParser):
+    """An argument parser that reports a usage error as EXIT_USAGE, not 2.
+
+    argparse exits 2 on a command line it cannot parse. For this program 2 is not
+    free: it is the verdict TAMPERED. A caller that reads only the exit status --
+    which `verify` explicitly invites, since the verdict is carried there -- would
+    otherwise read `aura verify --typo pkg` as evidence that a package failed
+    integrity. The two are not the same event and must not share a code.
+
+    Both the top-level parser and every subparser use this class, so the mapping
+    holds wherever the failure is detected.
+    """
+
+    def error(self, message: str) -> "None":
+        self.print_usage(sys.stderr)
+        self.exit(EXIT_USAGE, f"{self.prog}: error: {message}\n")
+
+
 def _utc_now() -> str:
     """Return the current instant in the single spelling M0 accepts."""
     return datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
@@ -226,11 +244,11 @@ def _cmd_verify(args) -> int:
 
 
 def build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(
+    parser = _Parser(
         prog="aura",
         description="Record application decisions as M0 evidence, and verify it.",
     )
-    sub = parser.add_subparsers(dest="command", required=True)
+    sub = parser.add_subparsers(dest="command", required=True, parser_class=_Parser)
 
     record = sub.add_parser(
         "record",
