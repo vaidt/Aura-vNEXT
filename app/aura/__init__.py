@@ -1,9 +1,15 @@
-"""The `aura` operator surface: record a decision, verify a package.
+"""The `aura` operator surface: record a decision, inspect a package, verify it.
 
-Two commands, one for each end of the M0 product loop:
+Three commands, covering the loop an operator actually walks:
 
-    aura record   application event -> Evidence Package
-    aura verify   Evidence Package  -> VERIFIED / TAMPERED / INVALID
+    aura record    application event -> Evidence Package
+    aura package   Evidence Package  -> what it contains, in plain terms
+    aura verify    Evidence Package  -> VERIFIED / TAMPERED / INVALID
+
+`package` is the inspection step between producing a package and trusting one. It
+describes; it does not judge. Only `verify` returns a verdict, and only `verify`
+uses the verdict exit statuses, so reading a description can never be mistaken for
+having verified anything.
 
 The command layer parses arguments, reads files, and prints results. It computes
 nothing that is protected: `record` delegates to `app.producer`, which delegates to
@@ -17,12 +23,14 @@ from __future__ import annotations
 import argparse
 import json
 import sys
+import textwrap
 from datetime import datetime, timezone
 from pathlib import Path
 
 from app.producer import (DecisionEvent, ProducerError, append_event, build_package,
                           derive_policy_repr, input_digest, write_package)
-from app.verifier import INVALID, TAMPERED, VERIFIED, verify_package
+from app.verifier import (INVALID, REQUIRED_FILES, TAMPERED, VERIFIED,
+                          verify_package)
 from core import M0_PACKAGE_PROFILE
 
 __all__ = ["main", "EXIT_STATUS", "EXIT_OK", "EXIT_USAGE", "EXIT_REFUSED"]
@@ -224,6 +232,161 @@ def _cmd_record(args) -> int:
     return EXIT_OK
 
 
+# What each file in a package is *for*, in the words an operator needs. The verifier
+# already knows which files are required (REQUIRED_FILES); this table adds only the
+# human-facing role, which is presentation and not part of the package contract.
+_FILE_ROLES = {
+    "manifest.json": (
+        "THE COMMITMENT",
+        "what this package claims to be, where its record chain ends, "
+        "and a digest for every declared file",
+    ),
+    "evidence/audit.jsonl": (
+        "THE EVIDENCE",
+        "the sealed decision records, one per line, each linked to the one before",
+    ),
+    "evidence/policy.json": (
+        "THE POLICY",
+        "the policy document the decisions were taken under",
+    ),
+    "evidence/genesis.json": (
+        "THE ANCHOR",
+        "where the record chain starts; the trust anchor for record 0",
+    ),
+}
+
+_CARRIED = ("carried", "declared by the manifest, and not one of the required files")
+_UNDECLARED = ("not evidence",
+               "present in the directory, not declared by the manifest; "
+               "the verifier does not read it")
+
+
+def _describe_package(root: Path) -> dict:
+    """Read a package for description only. Nothing here decides a verdict."""
+    manifest = _read_json_document(root / "manifest.json", "manifest.json")
+    if not isinstance(manifest, dict):
+        raise ProducerError("manifest.json: top level is not a JSON object")
+
+    declared = manifest.get("files")
+    if not isinstance(declared, dict):
+        raise ProducerError("manifest.json: 'files' is missing or is not an object")
+
+    audit = root / "evidence/audit.jsonl"
+    decisions = []
+    if audit.is_file():
+        for line in audit.read_text(encoding="utf-8").splitlines():
+            if not line.strip():
+                continue
+            try:
+                record = json.loads(line)
+            except json.JSONDecodeError:
+                # A record this command cannot read is still reported, as a gap the
+                # operator can see. Judging it is `verify`'s job, not this one's.
+                decisions.append(None)
+                continue
+            decisions.append(record if isinstance(record, dict) else None)
+
+    manifest_label, manifest_explains = _FILE_ROLES["manifest.json"]
+    files = [{
+        "path": "manifest.json",
+        "role": manifest_label,
+        "explains": manifest_explains,
+        "required": True,
+        "declared": True,
+        "present": True,
+    }]
+    for relative in sorted(declared):
+        path = root / relative
+        label, explanation = _FILE_ROLES.get(relative, _CARRIED)
+        files.append({
+            "path": relative,
+            "role": label,
+            "explains": explanation,
+            "required": relative in REQUIRED_FILES,
+            "declared": True,
+            "present": path.is_file(),
+        })
+
+    # Anything present but not committed to by the manifest. An operator inspecting a
+    # package someone handed them should be able to see that such a file is not
+    # covered, without reading the contract to work out why.
+    for path in sorted(root.rglob("*")):
+        if not path.is_file():
+            continue
+        relative = path.relative_to(root).as_posix()
+        if relative == "manifest.json" or relative in declared:
+            continue
+        files.append({
+            "path": relative,
+            "role": _UNDECLARED[0],
+            "explains": _UNDECLARED[1],
+            "required": False,
+            "declared": False,
+            "present": True,
+        })
+
+    return {
+        "package": str(root),
+        "package_id": manifest.get("package_id"),
+        "profile": manifest.get("profile"),
+        "entry_count": manifest.get("entry_count"),
+        "chain_head": manifest.get("chain_head"),
+        "files": files,
+        "decisions": decisions,
+    }
+
+
+def _cmd_package(args) -> int:
+    root = Path(args.package)
+    if not root.is_dir():
+        raise ProducerError(f"{root}: not a directory")
+
+    described = _describe_package(root)
+
+    if args.json:
+        print(json.dumps(described, indent=2, sort_keys=True))
+        return EXIT_OK
+
+    print("AURA EVIDENCE PACKAGE")
+    print(f"Profile:    {described['profile']}")
+    print(f"Package:    {described['package']}")
+    print(f"Package id: {described['package_id']}")
+    print(f"Entries:    {described['entry_count']}")
+    print(f"Chain head: {described['chain_head']}")
+
+    print()
+    print("Contents")
+    path_width = max(len(entry["path"]) for entry in described["files"])
+    role_width = max(len(entry["role"]) for entry in described["files"])
+    indent = " " * (path_width + 4)
+    for entry in described["files"]:
+        note = "" if entry["present"] else "  (MISSING)"
+        role = f"{entry['role'].ljust(role_width)}{note}".rstrip()
+        print(f"  {entry['path'].ljust(path_width)}  {role}")
+        for line in textwrap.wrap(entry["explains"], width=78 - len(indent)):
+            print(f"{indent}{line}")
+
+    decisions = described["decisions"]
+    if decisions:
+        print()
+        print("Decisions recorded")
+        for index, record in enumerate(decisions):
+            if record is None:
+                print(f"  {index}  (this record could not be read)")
+                continue
+            violations = record.get("violations")
+            count = len(violations) if isinstance(violations, list) else 0
+            suffix = f"  {count} violation(s)" if count else ""
+            print(f"  {index}  {record.get('timestamp')}  "
+                  f"{str(record.get('decision')).ljust(16)}  "
+                  f"{record.get('request_id')}{suffix}")
+
+    print()
+    print("This is a description, not a verdict. To establish whether the evidence")
+    print(f"is intact, run:  aura verify {described['package']}")
+    return EXIT_OK
+
+
 def _cmd_verify(args) -> int:
     result = verify_package(args.package)
 
@@ -286,6 +449,16 @@ def build_parser() -> argparse.ArgumentParser:
                         help="extend the chain of an existing package")
     record.add_argument("--json", action="store_true", help="emit the result as JSON")
     record.set_defaults(handler=_cmd_record)
+
+    package = sub.add_parser(
+        "package",
+        help="describe what an M0 Evidence Package contains",
+        description="Show what a package holds, and what each file in it is for. "
+                    "This command never returns a verdict; use `aura verify` for that.",
+    )
+    package.add_argument("package", help="path to the evidence package directory")
+    package.add_argument("--json", action="store_true", help="emit the description as JSON")
+    package.set_defaults(handler=_cmd_package)
 
     verify = sub.add_parser(
         "verify",
