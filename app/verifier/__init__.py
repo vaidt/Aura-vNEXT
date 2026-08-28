@@ -26,7 +26,8 @@ from pathlib import Path, PurePosixPath
 from core import M0_AUDIT_SCHEMA, M0_CANONICAL_FORM, M0_DIGEST, M0_PACKAGE_PROFILE
 from core.canonical import CanonicalisationError
 from core.chain import ChainError, verify_chain
-from core.models import SchemaError, validate_audit_record
+from core.models import (SchemaError, validate_audit_record,
+                         validate_audit_semantics)
 from core.policy import policy_hash
 
 __all__ = ["VERIFIED", "TAMPERED", "INVALID", "DECLARED_CONTRACT",
@@ -249,15 +250,21 @@ def _check_structure(root: Path) -> tuple[dict, list, dict, dict]:
                 f"evidence/audit.jsonl: record {index} declares unsupported schema "
                 f"{schema!r} (this verifier implements {M0_AUDIT_SCHEMA})"
             )
-        # Full schema validation before any canonicalisation or hashing. A record
-        # that is missing a required field, carries a wrong type, or carries an
-        # unknown field is not an AuditEntry, and must not be able to reach an
-        # integrity verdict -- in particular it must not reach VERIFIED by hashing
-        # consistently over the wrong member set.
+        # Both interpretability layers run before any canonicalisation or hashing,
+        # so a record that is not an M0 AuditEntry never reaches an integrity
+        # verdict -- in particular it cannot reach VERIFIED by being sealed
+        # correctly over content M0 does not define.
+        #
+        #   layer 1  structure  presence, type, closed world
+        #   layer 2  semantics  value domains of the entry table
+        #
+        # Both are prerequisites for the record being an AuditEntry at all, so both
+        # are INVALID. TAMPERED belongs to the integrity checks further down, and
+        # applies only to a record that is already a valid AuditEntry.
+        where = f"evidence/audit.jsonl record {index}"
         try:
-            validate_audit_record(
-                record, where=f"evidence/audit.jsonl record {index}"
-            )
+            validate_audit_record(record, where=where)
+            validate_audit_semantics(record, where=where)
         except SchemaError as exc:
             raise _Invalid(str(exc)) from exc
 

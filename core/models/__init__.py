@@ -20,6 +20,7 @@ __all__ = [
     "AUDIT_RECORD_INTEGRITY_FIELD",
     "VIOLATION_FIELDS",
     "validate_audit_record",
+    "validate_audit_semantics",
     "DECISIONS",
     "CONFIDENCE_SCALE",
     "GENESIS_PREV_HASH",
@@ -134,11 +135,12 @@ def _require_hex64(value, what: str) -> str:
 # excluded from the preimage, and a record carrying undeclared content would still
 # reach VERIFIED.
 #
-# These declare presence and type only. Value domains (hex digests, the decision
-# vocabulary, the timestamp spelling) are deliberately not checked here: those are
-# bound by the canonical digest, so altering one is a *mutation* and must classify
-# as TAMPERED, not INVALID. Structure decides interpretability; the digest decides
-# integrity.
+# AUDIT_RECORD_FIELDS declares presence and type only -- structural
+# interpretability. The value domains are enforced separately, by
+# validate_audit_semantics() below. Both are prerequisites for interpreting a
+# record as an M0 AuditEntry at all, and both therefore classify as INVALID; the
+# digest and the chain decide TAMPERED, and only for a record that is already a
+# valid AuditEntry.
 # ---------------------------------------------------------------------------
 
 AUDIT_RECORD_INTEGRITY_FIELD = "entry_hash"
@@ -198,12 +200,14 @@ def _validate_against(record: dict, fields: dict, what: str) -> None:
 
 
 def validate_audit_record(record, *, where: str = "audit record") -> None:
-    """Validate a sealed audit record against the M0 wire schema.
+    """Layer 1 -- structural interpretability: presence, type, closed world.
 
     Raises ``SchemaError`` on a missing required field, a wrong field type, or any
     unknown field, at the record level and within every violation. Called before
     canonical hashing, so a record that cannot be interpreted is never hashed and
     never reaches an integrity verdict.
+
+    This layer says nothing about *values*; see ``validate_audit_semantics``.
     """
     _validate_against(record, AUDIT_RECORD_FIELDS, where)
 
@@ -217,6 +221,66 @@ def validate_audit_record(record, *, where: str = "audit record") -> None:
             raise SchemaError(
                 f"{where}.metadata[{key!r}] must be str, got {type(value).__name__}"
             )
+
+
+def validate_audit_semantics(record: dict, *, where: str = "audit record") -> None:
+    """Layer 2 -- the semantic AuditEntry domain.
+
+    Every member of an M0 audit entry has a value domain, stated in the contract's
+    entry table: a closed decision vocabulary, one timestamp spelling, 64 lowercase
+    hex for every digest, a non-negative sequence number, non-empty identifiers, and
+    confidence in [0, CONFIDENCE_SCALE]. A record violating one of them is not an
+    M0 AuditEntry, whatever its shape.
+
+    Such a record is INVALID, not TAMPERED. Being hashable is not the same as being
+    interpretable: a record carrying ``decision = "WHATEVER"`` can be canonicalised,
+    sealed with a correct digest, and linked into a chain, and it would then present
+    as intact evidence for a decision M0 does not define. TAMPERED is reserved for a
+    record that *is* a valid AuditEntry whose protected content no longer matches
+    its committed binding.
+
+    Assumes ``validate_audit_record`` has already passed, so presence and types are
+    established and only values are examined here.
+
+    Raises ``SchemaError``.
+    """
+    def fail(detail: str) -> None:
+        raise SchemaError(f"{where}: {detail}")
+
+    if record["decision"] not in DECISIONS:
+        fail(f"decision {record['decision']!r} is not one of {', '.join(DECISIONS)}")
+
+    if not _TIMESTAMP.match(record["timestamp"]):
+        fail(f"timestamp {record['timestamp']!r} is not RFC 3339 UTC to the second "
+             f"(YYYY-MM-DDThh:mm:ssZ)")
+
+    for name in ("policy_hash", "input_hash", "prev_hash",
+                 AUDIT_RECORD_INTEGRITY_FIELD):
+        if not _HEX64.match(record[name]):
+            fail(f"{name} {record[name]!r} is not 64 lowercase hex characters")
+
+    # Optional, but constrained when present.
+    if "shadow_hash" in record and not _HEX64.match(record["shadow_hash"]):
+        fail(f"shadow_hash {record['shadow_hash']!r} is not 64 lowercase hex characters")
+
+    if record["seq"] < 0:
+        fail(f"seq {record['seq']} is negative")
+
+    if not record["request_id"]:
+        fail("request_id is empty")
+
+    if not record["schema"]:
+        fail("schema is empty")
+
+    for index, violation in enumerate(record["violations"]):
+        at = f"violations[{index}]"
+        if not violation["rule"]:
+            fail(f"{at}.rule is empty")
+        if not violation["action"]:
+            fail(f"{at}.action is empty")
+        confidence = violation["confidence"]
+        if not 0 <= confidence <= CONFIDENCE_SCALE:
+            fail(f"{at}.confidence {confidence} is outside [0, {CONFIDENCE_SCALE}]")
 
 
 @dataclass(frozen=True)

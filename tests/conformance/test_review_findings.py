@@ -412,11 +412,15 @@ class ClassificationSeparationTest(_PackageCase):
         self.assertEqual({VERIFIED, TAMPERED, INVALID}, observed)
 
     def test_value_domain_changes_remain_tampered_not_invalid(self):
-        """Structure decides interpretability; the digest decides integrity.
+        """Interpretability decides INVALID; the digest decides TAMPERED.
 
-        A decision, digest or timestamp altered to another well-typed value is a
-        mutation of protected content, and must stay TAMPERED. Structural validation
-        must not have quietly reclassified these.
+        Every replacement below is itself inside the M0 value domain -- a defined
+        decision, a well-formed digest, a valid timestamp spelling -- so each record
+        remains a valid AuditEntry and the failure is one of integrity.
+
+        Restated for P0-R6, which added the semantic layer: the assertions are
+        unchanged, but the reason they hold is no longer "value domains are not
+        checked". They are checked; these values simply satisfy them.
         """
         for field, value in (("decision", "DENY"), ("policy_hash", "f" * 64),
                              ("timestamp", "2026-08-27T09:15:01Z"),

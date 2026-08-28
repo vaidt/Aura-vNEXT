@@ -70,10 +70,29 @@ forward-compatible schema negotiation — an unknown member cannot be ignored, b
 ignored member is excluded from the preimage, which would let a record carrying
 undeclared content reach `VERIFIED`.
 
-Presence and type are structural; **value domains are not checked structurally**. The
-digest vocabulary, the decision vocabulary, and the timestamp spelling are bound by the
-canonical digest, so altering one is a **mutation** and classifies as `TAMPERED`, not
-`INVALID`. Structure decides interpretability; the digest decides integrity.
+**Value domains are enforced too, and separately.** A verifier checks, in order:
+
+1. **structural interpretability** — presence, type, closed world, supported schema;
+2. **the semantic AuditEntry domain** — the value domains in the table above: the closed
+   decision vocabulary, the single timestamp spelling, 64 lowercase hex for every digest
+   (`policy_hash`, `input_hash`, `prev_hash`, `shadow_hash` when present, and
+   `entry_hash`), a non-negative `seq`, non-empty `request_id`, `schema`, and violation
+   `rule` and `action`, and `confidence` in `[0, 10000]`;
+3. **integrity** — canonical bytes, SHA-256, chain linkage, policy binding.
+
+Layers 1 and 2 both decide whether the record is an M0 AuditEntry at all, so both yield
+`INVALID`. Only layer 3 yields `TAMPERED`, and only for a record that is already a valid
+AuditEntry whose protected content no longer matches its committed binding.
+
+**Being hashable is not being interpretable.** A record carrying `decision =
+"WHATEVER"` can be canonicalised, sealed with a correct digest, linked into a chain and
+listed in a repaired manifest — and would then present as intact evidence for a decision
+M0 does not define. It is refused before it is hashed.
+
+Replacing a value with *another value inside the domain* — one defined decision for
+another, one well-formed digest for another — leaves a valid AuditEntry, so that remains
+a **mutation** and classifies as `TAMPERED`. `policy_repr` has no value constraint and
+may be empty.
 
 On the wire a sealed record additionally carries `entry_hash` (string, required), which
 is the integrity value and is not part of the canonical representation (§5).
