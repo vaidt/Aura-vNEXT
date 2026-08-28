@@ -4,9 +4,14 @@
 This is the acceptance experiment, executed rather than described:
 
     APPLICATION EVENT -> aura record -> Evidence Package -> aura verify -> VERIFIED
-                         mutate the decision   -> TAMPERED
-                         malform the package   -> INVALID
+                         mutate the decision   -> aura verify -> TAMPERED
+                         malform the package   -> aura verify -> INVALID
                          copy to a clean room  -> VERIFIED
+
+Every verdict is taken twice: once through `aura verify`, the interface an operator
+actually has, and once in the clean room, where the producer does not exist. The two
+must agree. A verdict only ever reproduced by internal machinery would be a property
+of this repository rather than of the product.
 
 Environment A produces the package by running the `aura` command line as a separate
 process, exactly as an application would. Environment B is built by
@@ -109,6 +114,35 @@ def produce(environment_a: Path) -> Path:
     return package
 
 
+EXPECTED_STATUS = {"VERIFIED": 0, "TAMPERED": 2, "INVALID": 3}
+
+
+def _verify_through_the_cli(package: Path, expected: str) -> list[str]:
+    """Run `aura verify` and check both halves of the published contract.
+
+    The verdict is carried on stdout and in the exit status, and the documentation
+    invites an operator to read either. Checking only one would leave the other free
+    to drift.
+    """
+    completed = _aura("verify", str(package))
+    verdict = "?"
+    for line in completed.stdout.splitlines():
+        if line.startswith("Result: "):
+            verdict = line.split(": ", 1)[1].strip()
+
+    print(f"  aura verify             -> {verdict} (exit {completed.returncode})")
+
+    problems = []
+    if verdict != expected:
+        problems.append(f"aura verify reported {verdict}, expected {expected}")
+    if completed.returncode != EXPECTED_STATUS[expected]:
+        problems.append(
+            f"aura verify exited {completed.returncode} for {expected}, "
+            f"expected {EXPECTED_STATUS[expected]}"
+        )
+    return problems
+
+
 def _mutate_decision(package: Path) -> None:
     """Flip the recorded outcome and repair the manifest digests.
 
@@ -171,18 +205,49 @@ def main(argv: list[str] | None = None) -> int:
         print(f"  reproduces reference    -> "
               f"{'yes' if not divergent else 'NO (' + ', '.join(divergent) + ')'}")
 
-        # 3. PACKAGE -> VERIFIER (the product surface)
-        verified = _aura("verify", str(package))
-        print(f"  aura verify             -> {verified.stdout.strip().splitlines()[-1]}")
-        if verified.returncode != 0:
-            failures.append(f"aura verify returned {verified.returncode}")
+        # 3. CASE 1 -- ORIGINAL. PACKAGE -> VERIFIER, through the product surface.
+        print()
+        print("  CASE 1 -- ORIGINAL")
+        inspected = _aura("package", str(package))
+        print(f"  aura package            -> exit {inspected.returncode}, "
+              f"{len(inspected.stdout.splitlines())} line description")
+        if inspected.returncode != 0:
+            failures.append(f"aura package returned {inspected.returncode}")
+        failures.extend(_verify_through_the_cli(package, "VERIFIED"))
 
-        # 4. The same package, verified where the producer is not.
         env = independence_check.build_environment(environment_b)
+
+        # 5. CASE 2 -- TAMPERING. Modify protected evidence.
+        print()
+        print("  CASE 2 -- TAMPERING (recorded decision DENY -> ALLOW)")
+        mutated = environment_b / "mutated"
+        shutil.copytree(package, mutated)
+        _mutate_decision(mutated)
+        failures.extend(_verify_through_the_cli(mutated, "TAMPERED"))
+        result = independence_check.run(env, mutated)
+        print(f"  clean-room verdict      -> {result['status']}")
+        if result["status"] != "TAMPERED":
+            failures.append(f"mutated package returned {result['status']}")
+
+        # 6. CASE 3 -- INVALID PACKAGE. Break the manifest.
+        print()
+        print("  CASE 3 -- INVALID PACKAGE (manifest is not readable)")
+        malformed = environment_b / "malformed"
+        shutil.copytree(package, malformed)
+        (malformed / "manifest.json").write_text("{ not json", encoding="utf-8")
+        failures.extend(_verify_through_the_cli(malformed, "INVALID"))
+        result = independence_check.run(env, malformed)
+        print(f"  clean-room verdict      -> {result['status']}")
+        if result["status"] != "INVALID":
+            failures.append(f"malformed package returned {result['status']}")
+
+        # 7. CASE 4 -- the same package, verified where the producer is not.
+        print()
+        print("  CASE 4 -- CLEAN VERIFIER ENVIRONMENT (no producer present)")
         delivered = environment_b / "delivered"
         shutil.copytree(package, delivered)
         result = independence_check.run(env, delivered)
-        print(f"  clean-room package      -> {result['status']}")
+        print(f"  clean-room verdict      -> {result['status']}")
         if result["status"] != "VERIFIED":
             failures.append(f"clean-room package returned {result['status']}")
         if result["_environment"]["repo_importable"]:
@@ -194,24 +259,6 @@ def main(argv: list[str] | None = None) -> int:
         if (env / "app" / "producer").exists() or (env / "app" / "aura").exists():
             failures.append("the producer was present in the clean-room environment")
 
-        # 5. Mutate the recorded decision.
-        mutated = environment_b / "mutated"
-        shutil.copytree(package, mutated)
-        _mutate_decision(mutated)
-        result = independence_check.run(env, mutated)
-        print(f"  decision DENY -> ALLOW  -> {result['status']}")
-        if result["status"] != "TAMPERED":
-            failures.append(f"mutated package returned {result['status']}")
-
-        # 6. Malform the package.
-        malformed = environment_b / "malformed"
-        shutil.copytree(package, malformed)
-        (malformed / "manifest.json").write_text("{ not json", encoding="utf-8")
-        result = independence_check.run(env, malformed)
-        print(f"  malformed package       -> {result['status']}")
-        if result["status"] != "INVALID":
-            failures.append(f"malformed package returned {result['status']}")
-
         if args.keep:
             shutil.copytree(package, args.keep, dirs_exist_ok=True)
             print(f"\n  produced package kept at {args.keep}")
@@ -222,8 +269,8 @@ def main(argv: list[str] | None = None) -> int:
         for failure in failures:
             print(f"  - {failure}")
         return 1
-    print("RESULT: PASS -- event -> package -> VERIFIED, "
-          "and TAMPERED / INVALID both reproduced")
+    print("RESULT: PASS -- event -> package -> VERIFIED, and TAMPERED / INVALID "
+          "both reproduced,\n        through `aura verify` and in the clean room alike")
     return 0
 
 
