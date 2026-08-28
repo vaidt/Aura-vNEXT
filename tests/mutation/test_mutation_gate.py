@@ -225,10 +225,14 @@ class MutationGateTest(unittest.TestCase):
     def test_m0_seals_integrity_not_authenticity(self):
         """A recorded limitation, asserted so it cannot be forgotten or overclaimed.
 
-        An attacker who can rewrite every record and the manifest produces a
-        self-consistent package that verifies. M0 defines no signature scheme, so
-        VERIFIED means the evidence is internally consistent -- not that this
-        producer sealed it. The verifier must never be documented as proving origin.
+        An attacker who rewrites every record and restates the manifest -- including
+        its declared chain terminus -- produces a self-consistent package that
+        verifies. M0 defines no signature scheme and the manifest is unsigned, so
+        VERIFIED means the evidence is internally consistent, not that this producer
+        sealed it. The verifier must never be documented as proving origin.
+
+        The terminus binding raises the cost of this forgery from one record to the
+        whole chain plus the manifest; it does not remove it.
         """
         records = read_records(self.package)
         records[2]["decision"] = "ALLOW"
@@ -260,6 +264,35 @@ class MutationGateTest(unittest.TestCase):
         write_records(self.package, records)
         refresh_manifest(self.package)
         self.assertTampered("record deleted")
+
+    def test_tail_record_deleted_from_the_chain(self):
+        """Truncation. Deleting the tail leaves every surviving link intact, so
+        only the manifest's declared terminus can catch it (F-1)."""
+        records = read_records(self.package)
+        del records[-1]
+        write_records(self.package, records)
+        refresh_manifest(self.package)
+        self.assertTampered("tail record deleted")
+
+    def test_tail_record_mutated_and_resealed(self):
+        """The F-1 exploit: rewrite the final record and reseal that one record.
+
+        Nothing links forward from the tail, so before the terminus binding this
+        reached VERIFIED.
+        """
+        import hashlib
+
+        from core.canonical import canonical_bytes
+
+        records = read_records(self.package)
+        records[-1]["decision"] = "ALLOW"
+        protected = {k: v for k, v in records[-1].items() if k != "entry_hash"}
+        records[-1]["entry_hash"] = hashlib.sha256(
+            canonical_bytes(protected)
+        ).hexdigest()
+        write_records(self.package, records)
+        refresh_manifest(self.package)
+        self.assertTampered("tail record mutated and resealed")
 
     def test_records_reordered(self):
         records = read_records(self.package)
@@ -339,6 +372,8 @@ class MutationCoverageTest(unittest.TestCase):
         "unicode_representation", "escaping", "injection_like_content",
         "skipped_sequence", "duplicate_sequence", "duplicated_record",
         "records_reordered", "record_deleted_from_the_chain",
+        "tail_record_deleted_from_the_chain", "tail_record_mutated_and_resealed",
+        "record_appended_with_a_valid_self_digest",
         "genesis_anchor_mutated", "policy_document_mutated",
         "manifest_digest_left_stale",
     ]

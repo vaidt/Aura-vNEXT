@@ -204,6 +204,23 @@ omit, and the digest is attached outside it. A verifier recomputes by dropping
 package's genesis anchor. Linking uses the **claimed** digest of the predecessor, so a
 tampered entry cannot re-link the chain around itself.
 
+**Chain terminus.** `prev_hash` binds the chain only *backwards*. The final record has
+nothing linking forward from it, and the links alone say nothing about how many records
+there should be — so without a further binding the tail could be rewritten and resealed,
+or records dropped from the end, with every surviving link still consistent. The manifest
+therefore commits to both ends:
+
+| Declaration | Meaning |
+| --- | --- |
+| `chain_head` | the `entry_hash` of the **final** AuditEntry in the package |
+| `entry_count` | the exact number of AuditEntry records in `evidence/audit.jsonl` |
+
+`chain_head` is the final record's own `entry_hash`. It is **not** a digest of the file
+and introduces **no new hashing domain**; the AuditEntry canonical domain is unchanged.
+
+A verifier checks both *after* verifying the chain, and reaches `VERIFIED` only if
+`len(records) == entry_count` and `records[-1].entry_hash == chain_head`.
+
 ## 6. The Evidence Package
 
 ```
@@ -227,6 +244,13 @@ field is present:
 | `audit_schema` | `aura.audit/1` |
 | `canonical_form` | `AURA-CANON/1` |
 | `digest` | `SHA-256` |
+
+It also declares the chain terminus, `chain_head` and `entry_count` (§5). These are
+checked against the parsed chain rather than against a fixed supported value, so their
+classification differs: a **malformed or missing** declaration is `INVALID` — the
+manifest cannot be interpreted — while a **well-formed declaration that disagrees with
+the evidence** is `TAMPERED`, because the package is recognisable and its evidence no
+longer matches what it committed to.
 
 A missing or unsupported declaration is `INVALID`. A package asking for a canonical form
 or digest this build does not implement is asking for a verification it cannot perform,
@@ -302,11 +326,18 @@ CLI exit status: `0` VERIFIED, `2` TAMPERED, `3` INVALID.
 `VERIFIED` establishes **integrity**: the evidence is internally consistent and has not
 been altered since it was sealed.
 
-It does **not** establish **authenticity**. M0 defines no signature scheme
-(`core/signing/README.md`), so a party able to rewrite every record and the manifest can
-produce a self-consistent package. `tests/mutation/` asserts this limit explicitly, so it
-cannot be quietly overclaimed. Any document stating or implying that M0 proves origin is
-wrong.
+It does **not** establish **authenticity or authorship**. M0 defines no signature scheme
+(`core/signing/README.md`), and the manifest is unsigned, so a party willing to rewrite
+the chain *and* restate the manifest's declared terminus still produces a self-consistent
+package that verifies. `tests/conformance/test_chain_terminus.py` asserts this remaining
+limit explicitly, so it cannot be quietly overclaimed.
+
+State the limit accurately. The terminus binding (§5) raises the cost of a forgery from
+**one record** — before it, rewriting the tail alone, or simply deleting records from the
+end, produced a package that verified — to the whole chain plus the manifest. It does not
+eliminate that forgery. What `VERIFIED` means is: *this package is internally consistent
+with the evidence it declares and binds.* It says nothing about who produced it. Any
+document stating or implying that M0 proves origin is wrong.
 
 ## 8. Conformance vectors — what they are and are not
 

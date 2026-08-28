@@ -1,7 +1,9 @@
 {
   "audit_schema": "aura.audit/1",
   "canonical_form": "AURA-CANON/1",
+  "chain_head": "4c24fc4871ace52f73ae6c9e108c9f06ee7c8ee1eddc958eba352dc945576739",
   "digest": "SHA-256",
+  "entry_count": 3,
   "files": {
     "evidence/audit.jsonl": "799049780c8e73c0c6b1e66e6a4796f47dda75611cea19152f353ebbfd53fdbe",
     "evidence/genesis.json": "05beea3ed9708d7d89a494855458f26748366e313b19317c7a5d2d571f8f349c",

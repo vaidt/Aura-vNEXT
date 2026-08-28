@@ -20,6 +20,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import re
 from dataclasses import dataclass
 from pathlib import Path, PurePosixPath
 
@@ -38,6 +39,8 @@ TAMPERED = "TAMPERED"
 INVALID = "INVALID"
 
 REQUIRED_FILES = ("evidence/audit.jsonl", "evidence/policy.json", "evidence/genesis.json")
+
+_HEX64 = re.compile(r"\A[0-9a-f]{64}\Z")
 
 # The verification contract a package declares in its manifest. The verifier must
 # reject a declaration it does not implement rather than proceeding on the
@@ -221,6 +224,27 @@ def _check_structure(root: Path) -> tuple[dict, list, dict, dict]:
     if not isinstance(files, dict):
         raise _Invalid("manifest.json: 'files' is missing or is not an object")
 
+    # The chain terminus declarations. Malformed or missing is a manifest this
+    # verifier cannot interpret (INVALID); a well-formed declaration that does not
+    # match the evidence is checked later, against the parsed chain (TAMPERED).
+    chain_head = manifest.get("chain_head")
+    if not isinstance(chain_head, str) or not _HEX64.match(chain_head):
+        raise _Invalid(
+            f"manifest.json: 'chain_head' is missing or is not 64 lowercase hex "
+            f"characters (got {chain_head!r})"
+        )
+    entry_count = manifest.get("entry_count")
+    if isinstance(entry_count, bool) or not isinstance(entry_count, int):
+        raise _Invalid(
+            f"manifest.json: 'entry_count' is missing or is not an integer "
+            f"(got {entry_count!r})"
+        )
+    if entry_count < 1:
+        raise _Invalid(
+            f"manifest.json: 'entry_count' is {entry_count}; a package declaring no "
+            f"audit records is not an M0 Evidence Package"
+        )
+
     # Every manifest-declared path is checked for containment before anything is
     # read, so a path that escapes the package can never reach a digest.
     for declared in sorted(files):
@@ -336,6 +360,24 @@ def verify_package(package_root) -> VerificationResult:
                 f"record {index}: policy_hash {record.get('policy_hash')!r} does not "
                 f"match the policy document in this package ({expected_policy})"
             )
+
+    # 5. The declared chain terminus. Without this the chain is bound only
+    #    backwards: the final record has nothing linking forward from it, so it can
+    #    be rewritten and resealed, and records can be dropped from the end, with
+    #    every remaining link still consistent. Both declarations are compared
+    #    against the parsed chain, so a mismatch is a recognisable M0 package whose
+    #    evidence no longer matches what it committed to -- TAMPERED, not INVALID.
+    if len(records) != manifest["entry_count"]:
+        failures.append(
+            f"evidence/audit.jsonl: contains {len(records)} record(s), manifest "
+            f"declares entry_count {manifest['entry_count']}"
+        )
+    if records[-1]["entry_hash"] != manifest["chain_head"]:
+        failures.append(
+            f"evidence/audit.jsonl: final record entry_hash "
+            f"{records[-1]['entry_hash']} does not match the declared chain_head "
+            f"{manifest['chain_head']}"
+        )
 
     if failures:
         return VerificationResult(

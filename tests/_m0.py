@@ -64,6 +64,11 @@ def refresh_manifest(package: Path) -> None:
     by the manifest digest alone, and the suite would never exercise the canonical
     binding it exists to test. Refreshing the manifest models the stronger attacker:
     one who edits the evidence *and* repairs the obvious outer checksum.
+
+    It updates the file digests only. It deliberately leaves ``chain_head`` and
+    ``entry_count`` alone, so a mutation test that repairs the outer checksum still
+    has to get past the declared chain terminus. Use ``reseal_chain`` to model an
+    attacker who rewrites the committed terminus as well.
     """
     manifest_path = package / "manifest.json"
     manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
@@ -79,14 +84,17 @@ def refresh_manifest(package: Path) -> None:
 def reseal_chain(package: Path) -> None:
     """Recompute every entry digest and relink the chain, then refresh the manifest.
 
-    Turns an edited package back into a *legitimately sealed* one. Used to build a
-    package that carries specific content before a test mutates that content, so a
-    mutation test isolates the change it names instead of riding on an earlier edit.
+    Turns an edited package back into a *legitimately sealed* one -- including the
+    manifest's declared chain terminus. Used to build a package that carries specific
+    content before a test mutates that content, so a mutation test isolates the
+    change it names instead of riding on an earlier edit.
 
     That this is possible at all is the honest limit of M0: the seal establishes
-    integrity, not authenticity. Anyone who can rewrite the whole chain can produce a
-    self-consistent package, and M0 defines no signature that would distinguish them
-    from the original producer (see core/signing/README.md).
+    integrity, not authenticity. The terminus binding raises the cost of a forgery
+    from one record to the whole chain plus the manifest, but the manifest is
+    unsigned, so a party willing to rewrite all of it still produces a
+    self-consistent package. M0 defines no signature that would distinguish them from
+    the original producer (see core/signing/README.md).
     """
     import hashlib
 
@@ -102,3 +110,13 @@ def reseal_chain(package: Path) -> None:
         previous = record["entry_hash"]
     write_records(package, records)
     refresh_manifest(package)
+
+    # Re-commit the terminus: this helper models a party rewriting the whole chain,
+    # who would naturally restate what the package commits to.
+    manifest_path = package / "manifest.json"
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    manifest["chain_head"] = records[-1]["entry_hash"]
+    manifest["entry_count"] = len(records)
+    manifest_path.write_text(
+        json.dumps(manifest, sort_keys=True, indent=2) + "\n", encoding="utf-8"
+    )

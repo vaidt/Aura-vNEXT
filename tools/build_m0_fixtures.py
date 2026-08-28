@@ -255,6 +255,13 @@ def build_package() -> dict[str, bytes]:
         "audit_schema": M0_AUDIT_SCHEMA,
         "canonical_form": "AURA-CANON/1",
         "digest": "SHA-256",
+        # The chain terminus. prev_hash binds each record to its predecessor, but
+        # nothing binds the end of the chain, so without these two the last record
+        # can be rewritten -- or records dropped from the end -- and the package
+        # still reconciles. chain_head is the final record's own entry_hash: no new
+        # hashing domain, and the AuditEntry integrity domain is untouched.
+        "chain_head": records[-1]["entry_hash"],
+        "entry_count": len(records),
         "files": {p: hashlib.sha256(b).hexdigest() for p, b in files.items()},
     }
     files["manifest.json"] = (
