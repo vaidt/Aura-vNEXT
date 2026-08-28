@@ -343,7 +343,12 @@ def verify_package(package_root) -> VerificationResult:
             reasons=(f"evidence/audit.jsonl: {exc}",),
             package_id=package_id,
         )
-    failures.extend(verdict.failures)
+    # verify_chain reports a failure against a record index ("record 2: ..."), which
+    # is unambiguous inside core.chain and not to an operator holding a package of
+    # four files. Every reason this verifier emits names the file it concerns, so
+    # the chain's findings are given the same treatment here rather than in
+    # core.chain, which has no notion of a package to name a file within.
+    failures.extend(f"evidence/audit.jsonl: {failure}" for failure in verdict.failures)
 
     # 4. Every entry names the policy document this package actually carries.
     try:
@@ -357,8 +362,9 @@ def verify_package(package_root) -> VerificationResult:
     for index, record in enumerate(records):
         if record.get("policy_hash") != expected_policy:
             failures.append(
-                f"record {index}: policy_hash {record.get('policy_hash')!r} does not "
-                f"match the policy document in this package ({expected_policy})"
+                f"evidence/audit.jsonl: record {index}: policy_hash "
+                f"{record.get('policy_hash')!r} does not match the policy document "
+                f"in this package ({expected_policy})"
             )
 
     # 5. The declared chain terminus. Without this the chain is bound only
