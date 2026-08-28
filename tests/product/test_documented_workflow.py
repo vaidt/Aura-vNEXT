@@ -190,7 +190,7 @@ class DocumentedWorkflowTest(unittest.TestCase):
                           f"{disclaimed}")
 
     def test_the_guide_makes_no_regulatory_or_legal_claim(self):
-        """The one place a claim like this would be tempting is the one place it is refused."""
+        """Where a claim like this would be tempting, it is refused instead."""
         self.assertIn("makes no regulatory or legal claim", self.guide)
 
     def test_the_guide_keeps_the_single_platform_claim(self):
