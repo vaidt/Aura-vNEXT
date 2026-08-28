@@ -21,7 +21,7 @@ from __future__ import annotations
 import hashlib
 import json
 from dataclasses import dataclass
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 
 from core import M0_AUDIT_SCHEMA, M0_CANONICAL_FORM, M0_DIGEST, M0_PACKAGE_PROFILE
 from core.canonical import CanonicalisationError
@@ -50,7 +50,7 @@ DECLARED_CONTRACT = {
 }
 
 # expected/result.json is NON-NORMATIVE test fixture metadata
-# (docs/contract/M0-EVIDENCE-CONTRACT.md section 6.1). It is deliberately absent
+# (docs/contract/M0-EVIDENCE-CONTRACT.md section 6.2). It is deliberately absent
 # from REQUIRED_FILES and from the manifest's digest set: the verifier never reads
 # it, and a package's own claim about its verdict has no bearing on the verdict it
 # receives. A verifier that trusted it could be told what to conclude.
@@ -122,6 +122,81 @@ def _digest(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
+def _package_file(root: Path, relative, label: str) -> Path:
+    """Resolve a manifest-declared path, refusing anything outside the package.
+
+    The manifest is untrusted input: it travels with the evidence and is written
+    by whoever produced or last touched the package. A declared path is therefore
+    an instruction from the package about which files to read, and M0's claim is
+    that a verifier operates from the package alone. A path that escapes the
+    package root breaks that claim before any digest is computed -- the verifier
+    would already have read something outside the trust boundary.
+
+    ``root / relative`` alone is not containment. ``Path("/pkg") / "../x"`` stays
+    lexically inside but resolves out, and ``Path("/pkg") / "/etc/x"`` discards
+    the root entirely and yields ``/etc/x``.
+
+    Two checks, both required:
+
+      * the spelling must be a plain relative POSIX path with no traversal
+        component -- refused without touching the filesystem;
+      * the resolved target must lie strictly inside the resolved root, which is
+        what catches a symlink whose target leaves the package.
+
+    An escape is INVALID, not TAMPERED: a package instructing the verifier to
+    read outside itself is not a recognisable M0 Evidence Package whose evidence
+    happens to fail integrity. It is not one at all.
+    """
+    if not isinstance(relative, str) or not relative:
+        raise _Invalid(f"{label}: declared file path is empty or not a string")
+
+    # Backslash is a separator on some platforms; a path carrying one is not the
+    # plain POSIX relative path the package format specifies.
+    if "\\" in relative:
+        raise _Invalid(
+            f"{label}: declared file path {relative!r} contains a backslash; "
+            f"package paths are relative POSIX paths"
+        )
+
+    pure = PurePosixPath(relative)
+    if pure.is_absolute():
+        raise _Invalid(
+            f"{label}: declared file path {relative!r} is absolute; package paths "
+            f"must be relative to the package root"
+        )
+    for part in pure.parts:
+        if part == "..":
+            raise _Invalid(
+                f"{label}: declared file path {relative!r} contains a '..' "
+                f"component; package paths must not traverse"
+            )
+
+    # The spelling must already be canonical. PurePosixPath silently drops '.'
+    # segments, duplicate slashes and trailing slashes, so a component scan alone
+    # does not see them -- './evidence/policy.json' reaches this point looking
+    # like a plain path. They are refused rather than normalised because a
+    # manifest is a map keyed by these strings: two spellings of one file would
+    # be two entries able to declare two different digests for the same bytes,
+    # and REQUIRED_FILES membership is tested by exact string.
+    if str(pure) != relative:
+        raise _Invalid(
+            f"{label}: declared file path {relative!r} is not in canonical form "
+            f"(expected {str(pure)!r}); package paths carry no '.' segments, "
+            f"repeated separators, or trailing separator"
+        )
+
+    base = root.resolve()
+    # resolve() follows symlinks, so a package-local link pointing outside the
+    # package resolves to its real target and fails the containment check below.
+    target = (root / pure).resolve()
+    if target == base or not target.is_relative_to(base):
+        raise _Invalid(
+            f"{label}: declared file path {relative!r} resolves to {target}, "
+            f"which is outside the evidence package at {base}"
+        )
+    return target
+
+
 def _check_structure(root: Path) -> tuple[dict, list, dict, dict]:
     """Establish that this is an M0 package. Every failure here means INVALID."""
     if not root.is_dir():
@@ -144,6 +219,11 @@ def _check_structure(root: Path) -> tuple[dict, list, dict, dict]:
     files = manifest.get("files")
     if not isinstance(files, dict):
         raise _Invalid("manifest.json: 'files' is missing or is not an object")
+
+    # Every manifest-declared path is checked for containment before anything is
+    # read, so a path that escapes the package can never reach a digest.
+    for declared in sorted(files):
+        _package_file(root, declared, "manifest.json")
 
     for required in REQUIRED_FILES:
         if required not in files:
@@ -197,16 +277,26 @@ def verify_package(package_root) -> VerificationResult:
     failures: list[str] = []
 
     # 1. The manifest binds the bytes of every declared file.
-    for relative, expected in sorted(manifest["files"].items()):
-        target = root / relative
-        if not target.is_file():
-            failures.append(f"{relative}: declared in the manifest but not present")
-            continue
-        actual = _digest(target)
-        if actual != expected:
-            failures.append(
-                f"{relative}: sha256 is {actual}, manifest declares {expected}"
-            )
+    #
+    # _check_structure has already refused any path that escapes the package, so
+    # the re-resolution below cannot fail. It is kept, and its failure handled,
+    # so that the digest is always taken from a contained path: if the two checks
+    # ever drift apart, the result is INVALID rather than a crash or a read
+    # outside the package.
+    try:
+        for relative, expected in sorted(manifest["files"].items()):
+            target = _package_file(root, relative, "manifest.json")
+            if not target.is_file():
+                failures.append(f"{relative}: declared in the manifest but not present")
+                continue
+            actual = _digest(target)
+            if actual != expected:
+                failures.append(
+                    f"{relative}: sha256 is {actual}, manifest declares {expected}"
+                )
+    except _Invalid as exc:
+        return VerificationResult(status=INVALID, reasons=(exc.reason,),
+                                  package_id=package_id)
 
     # 2. The chain is anchored to the package's genesis record.
     anchor = genesis["prev_hash"]

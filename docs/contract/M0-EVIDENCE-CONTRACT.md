@@ -213,7 +213,36 @@ A missing or unsupported declaration is `INVALID`. A package asking for a canoni
 or digest this build does not implement is asking for a verification it cannot perform,
 and saying so is the only honest answer.
 
-### 6.1 `expected/result.json` is non-normative
+### 6.1 Declared paths must stay inside the package
+
+The manifest travels with the evidence and is **untrusted input**. Each key in
+`files` is an instruction about which file to read, so a verifier must guarantee that
+no declared path escapes the package root — otherwise the claim below, that a verifier
+depends on the package and nothing else, is simply false.
+
+A declared path is accepted only if **all** of the following hold:
+
+- it is a **relative POSIX path** — not absolute, no backslash separator;
+- it contains **no `..` component**;
+- it is in **canonical form** — no `.` segment, no repeated separator, no trailing
+  separator. Refused rather than normalised, because `files` is a digest map keyed by
+  these strings: two spellings of one file would be two entries free to declare two
+  different digests for the same bytes;
+- its **resolved** target lies strictly inside the **resolved** package root. This is
+  the check that catches a package-local symlink whose target leaves the package.
+  Containment, not a ban on symlinks: a link resolving inside the package is fine.
+
+The check runs **before any file is read**, so an escaping path never reaches a digest.
+
+A path outside the package makes the package **`INVALID`, not `TAMPERED`**. Tampering
+means recognisable evidence that fails its cryptographic binding; a package directing
+the verifier to read outside itself is not an M0 Evidence Package at all.
+
+Note the trap this closes: `Path(root) / "../outside"` stays lexically inside but
+resolves out, and `Path(root) / "/etc/passwd"` discards the root entirely and yields
+`/etc/passwd`. Joining is not containment.
+
+### 6.2 `expected/result.json` is non-normative
 
 `expected/result.json` is **test fixture metadata**. It is **not** part of the protected
 evidence and **not** part of the verification contract.

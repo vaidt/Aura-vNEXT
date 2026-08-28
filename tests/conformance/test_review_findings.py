@@ -339,7 +339,7 @@ class P0R4LoneSurrogateTest(unittest.TestCase):
 class P0R5ExpectedResultSemanticsTest(_PackageCase):
     """expected/result.json is non-normative test fixture metadata (Option A).
 
-    Contract section 6.1. The verifier never reads it; a package's own claim about
+    Contract section 6.2. The verifier never reads it; a package's own claim about
     its verdict has no bearing on the verdict it receives.
     """
 
