@@ -22,6 +22,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import sys
 import textwrap
 from datetime import datetime, timezone
@@ -33,7 +34,8 @@ from app.verifier import (INVALID, REQUIRED_FILES, TAMPERED, VERIFIED,
                           verify_package)
 from core import M0_PACKAGE_PROFILE
 
-__all__ = ["main", "EXIT_STATUS", "EXIT_OK", "EXIT_USAGE", "EXIT_REFUSED"]
+__all__ = ["main", "EXIT_STATUS", "EXIT_OK", "EXIT_USAGE", "EXIT_REFUSED",
+           "EXIT_PIPE"]
 
 # `verify` reports the verdict through its exit status, so a caller that never reads
 # stdout still gets the answer. The three states keep the values ADR-0006 fixed.
@@ -41,7 +43,8 @@ EXIT_STATUS = {VERIFIED: 0, TAMPERED: 2, INVALID: 3}
 
 EXIT_OK = 0
 EXIT_USAGE = 64        # the command line could not be understood
-EXIT_REFUSED = 65      # the command was understood; the event is not recordable
+EXIT_REFUSED = 65      # the command was understood; the thing was not done
+EXIT_PIPE = 141        # the reader closed the pipe before the output was written
 
 
 class _Parser(argparse.ArgumentParser):
@@ -479,3 +482,16 @@ def main(argv: list[str] | None = None) -> int:
     except ProducerError as exc:
         print(f"aura {args.command}: {exc}", file=sys.stderr)
         return EXIT_REFUSED
+    except BrokenPipeError:
+        # `aura package pkg | head` is an ordinary thing to type, and the reader
+        # closing the pipe is not an error in this program. Without this the
+        # operator gets a Python traceback for having paged the output.
+        #
+        # stdout still holds buffered bytes that interpreter shutdown would try to
+        # flush, raising again where nothing can catch it; pointing the file
+        # descriptor at the null device discards them quietly. 141 is the shell's
+        # own spelling of a process ended by SIGPIPE (128 + 13), and collides with
+        # none of the statuses above -- in particular, output cut short by a pager
+        # can never be read as a verdict.
+        os.dup2(os.open(os.devnull, os.O_WRONLY), sys.stdout.fileno())
+        return EXIT_PIPE
