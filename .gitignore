@@ -4,6 +4,10 @@ __pycache__/
 .venv/
 venv/
 
+# `make record` writes a demonstration package here. Generated output, not evidence:
+# the committed reference package lives in evidence/examples/.
+/build/
+
 .DS_Store
 *.swp
 .idea/

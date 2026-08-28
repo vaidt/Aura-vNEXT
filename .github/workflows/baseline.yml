@@ -39,9 +39,18 @@ jobs:
         run: python3 -m unittest discover -s tests -v
 
       # The verifier must work from the package alone. This runs it in a directory
-      # holding only core/ and app/, isolated, with the network disabled.
+      # holding only core/ and app/verifier/, isolated, with the network disabled.
+      # The producer is excluded: an environment containing it could not show that
+      # verification does not need it.
       - name: Independent verification
         run: python3 tools/independence_check.py
 
+      # The product loop, executed rather than described: an application event is
+      # recorded by `aura record` in one environment, and the resulting package is
+      # verified in another that holds no producer. Also asserts the package the
+      # command line produces is the accepted reference package, byte for byte.
+      - name: Product loop end to end
+        run: python3 tools/product_loop_check.py
+
       - name: Verify the reference evidence package
-        run: python3 -m app.verifier evidence/examples/aura-evidence-loan-001 --json
+        run: python3 -m app.aura verify evidence/examples/aura-evidence-loan-001

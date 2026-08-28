@@ -37,8 +37,11 @@ Profile `aura.evidence.package/1`; audit schema `aura.audit/1`.
 The package, and nothing else. A verifier **must not** require the producer runtime, the
 original database, a network, hidden state, policy-engine execution, or a developer
 environment. `tools/independence_check.py` runs the verifier in a directory holding only
-`core/` and `app/`, in isolated mode, with `socket` disabled, and
-`tests/test_independence.py` asserts the result.
+`core/` and the verifier itself (`app/verifier/`), in isolated mode, with `socket`
+disabled, and `tests/test_independence.py` asserts the result. `app/` also holds the
+producer and the command line; both are **excluded** from that directory, because an
+environment containing the producer could not distinguish a verifier that reads the
+package from one that reached back into producer-side code.
 
 M0 binds the policy document; it does **not** evaluate it. A verifier establishes *which*
 policy the evidence refers to, never whether the decision was correct under it.
@@ -68,7 +71,10 @@ CLI exit status is the machine-readable result: `0` VERIFIED, `2` TAMPERED, `3` 
 
 - `app/` is added as a top-level directory: **runnable applications**, as distinct from
   `core/` (semantics) and `cli/` (the operator surface, still reserved). It carries a
-  `README.md` like every other top-level directory.
+  `README.md` like every other top-level directory. It holds `verifier/`, and — as
+  applications on the producing side of the same loop — `producer/` and `aura/`, the
+  command line over both. None of them restates a decision taken in `core/`; the
+  producer is an adapter whose protected values are all computed by `core/`.
 - Implementation is admitted into `core/` (the M0 domain), `conformance/vectors/` (the
   normative vectors), and `evidence/examples/` (the reference package).
 - `runtime/`, `policy/`, `audit/`, `integrations/`, `packs/`, and `cli/` **remain

@@ -4,18 +4,20 @@
 
 PYTHON ?= python3
 
-.PHONY: check structure register fixtures independence test verify help
+.PHONY: check structure register fixtures independence product test verify record help
 
 help:
-	@echo "make check         run every gate (structure, register, fixtures, tests, independence)"
+	@echo "make check         run every gate (structure, register, fixtures, tests, independence, product)"
 	@echo "make structure     validate the repository structure and ADR index"
 	@echo "make register      validate the module transfer register"
 	@echo "make fixtures      check the M0 conformance vectors match the implementation"
 	@echo "make test          run the full test suite"
 	@echo "make independence  verify the reference package in an isolated environment"
+	@echo "make product       run the product loop end to end: event -> package -> verdict"
 	@echo "make verify        verify the reference evidence package"
+	@echo "make record        record a demonstration package into ./build/"
 
-check: structure register fixtures test independence
+check: structure register fixtures test independence product
 
 structure:
 	$(PYTHON) tools/validate_structure.py
@@ -32,5 +34,11 @@ test:
 independence:
 	$(PYTHON) tools/independence_check.py
 
+product:
+	$(PYTHON) tools/product_loop_check.py
+
 verify:
-	$(PYTHON) -m app.verifier evidence/examples/aura-evidence-loan-001 --json
+	$(PYTHON) -m app.aura verify evidence/examples/aura-evidence-loan-001
+
+record:
+	$(PYTHON) tools/product_loop_check.py --keep build/aura-evidence-loan-001

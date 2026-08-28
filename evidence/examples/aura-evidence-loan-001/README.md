@@ -3,20 +3,31 @@
 A minimal, complete, reproducible Evidence Package. It exists to be verified by someone
 who has none of the machinery that produced it.
 
+It is **produced, not hand-written**: `tools/build_m0_fixtures.py` builds it by calling
+`app.producer` — the same code path `aura record` uses — so this package is an example of
+what the product emits rather than a fixture that merely resembles one.
+
 ## Verify it
 
 ```sh
-python3 -m app.verifier evidence/examples/aura-evidence-loan-001 --json
+python3 -m app.aura verify evidence/examples/aura-evidence-loan-001
 ```
 
 Expected: `VERIFIED`. Exit status `0`. The package states this about itself in
 [`expected/result.json`](expected/result.json).
 
 To verify it the way a third party would — in a directory holding only `core/` and
-`app/`, in isolated mode, with the network disabled:
+`app/verifier/`, in isolated mode, with the network disabled and the producer absent:
 
 ```sh
 python3 tools/independence_check.py
+```
+
+To reproduce this package from the application events it records, and watch the whole
+loop run with the producer and the verifier in separate environments:
+
+```sh
+python3 tools/product_loop_check.py
 ```
 
 ## Contents
@@ -48,6 +59,10 @@ able to rewrite every record and the manifest can produce a self-consistent pack
 ```sh
 python3 tools/build_m0_fixtures.py
 ```
+
+The loan scenario is stated once, as application events, in that script
+(`LOAN_POLICY` and `LOAN_EVENTS`); everything protected here — sequence numbers, chain
+links, digests, the manifest terminus — is computed from them by `app.producer`.
 
 Regenerate only when the canonical form has genuinely changed — which is a breaking
 change requiring a superseding ADR and a new form identifier
