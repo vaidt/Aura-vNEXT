@@ -46,6 +46,28 @@ class IsolatedEnvironmentTest(unittest.TestCase):
             self.assertFalse((self.env / forbidden).exists(),
                              f"{forbidden} leaked into the verifier environment")
 
+    def test_the_producer_is_absent_from_the_verifier_environment(self):
+        """app/ carries both halves of the loop; only the verifier half may be copied.
+
+        The claim under test is that a package verifies without the producer. An
+        environment that happened to contain `app/producer/` could not distinguish a
+        verifier that reads the package from one that reached back into producer-side
+        code, so the exclusion is asserted rather than assumed.
+        """
+        self.assertTrue((self.env / "app" / "verifier").is_dir(),
+                        "the verifier itself must be present")
+        for application in independence_check.EXCLUDED_APPLICATIONS:
+            with self.subTest(application=application):
+                self.assertFalse(
+                    (self.env / "app" / application).exists(),
+                    f"app/{application}/ leaked into the verifier environment",
+                )
+        self.assertEqual(
+            [], [path.name for path in (self.env / "app").iterdir()
+                 if path.is_dir() and path.name != "verifier"],
+            "an application other than the verifier is present in the environment",
+        )
+
     def test_pristine_package_verifies_in_isolation(self):
         result = independence_check.run(self.env, self.stage("pristine"))
         self.assertEqual("VERIFIED", result["status"])

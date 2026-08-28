@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 """Run the M0 verifier in an isolated environment and report what it produced.
 
-Builds a fresh directory containing **only** `core/` and `app/` plus a copy of the
-package under test, then runs the verifier there as a separate process with:
+Builds a fresh directory containing **only** `core/` and the verifier half of `app/`,
+plus a copy of the package under test, then runs the verifier there as a separate
+process with:
 
   * ``-I``  -- isolated mode: PYTHONPATH and the user site directory are ignored,
                and the repository is not importable;
@@ -11,8 +12,9 @@ package under test, then runs the verifier there as a separate process with:
   * ``socket`` disabled before the verifier is imported, so any network access
     raises instead of succeeding quietly.
 
-The producer is not present in that directory. Neither are `tools/`, `tests/`, the
-fixture generator, or the repository itself.
+The producer is not present in that directory: `app/producer/` and `app/aura/` are
+excluded when the environment is built. Neither are `tools/`, `tests/`, the fixture
+generator, or the repository itself.
 
 Usage:
     python3 tools/independence_check.py [--package PATH]
@@ -39,8 +41,8 @@ RUNNER = '''
 import json, os, sys
 
 # -I (isolated mode) strips the script directory from sys.path, so the one importable
-# location is added back explicitly. It holds only core/ and app/: no producer, no
-# fixture generator, no test support, and not the repository.
+# location is added back explicitly. It holds core/ and the verifier half of app/: no
+# producer, no fixture generator, no test support, and not the repository.
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 # Disable the network before the verifier is imported. If verification needed a
@@ -68,14 +70,45 @@ print(json.dumps(result))
 '''
 
 
+# Applications under app/ that verification must not need. app/ holds runnable
+# applications on both sides of the loop, so copying it wholesale would place the
+# producer and the operator surface inside the environment that exists to prove
+# verification does not depend on them. They are named here, and excluded, rather
+# than the environment being trusted to contain only the verifier by accident.
+EXCLUDED_APPLICATIONS = ("producer", "aura")
+
+
 def build_environment(root: Path) -> Path:
-    """Create a verifier environment holding only what verification may use."""
+    """Create a verifier environment holding only what verification may use.
+
+    `core/` is copied whole -- the verifier legitimately depends on the M0 domain,
+    and so does the producer; that shared dependency is the single source of truth,
+    not a leak. `app/` is copied selectively: the verifier and nothing else. A
+    package that could only be verified with the producer present would not be
+    independent evidence, and an environment holding the producer could not show
+    the difference.
+    """
     env = root / "verifier-env"
     env.mkdir()
-    for package in ("core", "app"):
-        shutil.copytree(REPO_ROOT / package, env / package)
+    shutil.copytree(REPO_ROOT / "core", env / "core")
+    shutil.copytree(
+        REPO_ROOT / "app", env / "app",
+        ignore=shutil.ignore_patterns(*EXCLUDED_APPLICATIONS, "__pycache__"),
+    )
     (env / "runner.py").write_text(RUNNER, encoding="utf-8")
     return env
+
+
+def _display(package: Path) -> str:
+    """Name the package relative to the repository when it lives inside it.
+
+    A package produced into a temporary directory is outside the repository, so
+    ``relative_to`` would raise. The execution record must still say what was run.
+    """
+    try:
+        return str(package.relative_to(REPO_ROOT))
+    except ValueError:
+        return str(package)
 
 
 def run(env: Path, package: Path) -> dict:
@@ -99,7 +132,7 @@ def main(argv: list[str] | None = None) -> int:
     print("M0 INDEPENDENT VERIFICATION -- EXECUTION RECORD")
     print(f"  python   : {platform.python_implementation()} {platform.python_version()}")
     print(f"  platform : {platform.system()} {platform.machine()}")
-    print(f"  package  : {args.package.relative_to(REPO_ROOT)}")
+    print(f"  package  : {_display(args.package)}")
     print("  note     : single-platform run. No cross-platform claim is made.")
     print()
 
