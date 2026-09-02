@@ -293,7 +293,9 @@ python3 -m app.aura package DIR [--json]
 for, which files the manifest declares, and the decisions recorded. A declared file that is
 absent is marked `(MISSING)`; a file the manifest does not declare is marked as not
 evidence. Errors on stderr. **Exit:** `0` described, `64` command line, `65` could not be
-read. **Never `2` or `3`** — this command does not return a verdict.
+read, or the manifest declares a path outside the package (section 6.1 of the evidence
+contract — the same boundary `verify` enforces, refused here rather than described).
+**Never `2` or `3`** — this command does not return a verdict.
 
 ### `aura verify`
 

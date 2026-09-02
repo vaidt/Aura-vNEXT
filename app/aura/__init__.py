@@ -31,7 +31,7 @@ from pathlib import Path
 from app.producer import (DecisionEvent, ProducerError, append_event, build_package,
                           derive_policy_repr, input_digest, write_package)
 from app.verifier import (INVALID, REQUIRED_FILES, TAMPERED, VERIFIED,
-                          verify_package)
+                          PackageBoundaryError, package_file, verify_package)
 from core import M0_PACKAGE_PROFILE
 
 __all__ = ["main", "EXIT_STATUS", "EXIT_OK", "EXIT_USAGE", "EXIT_REFUSED",
@@ -274,6 +274,28 @@ def _describe_package(root: Path) -> dict:
     if not isinstance(declared, dict):
         raise ProducerError("manifest.json: 'files' is missing or is not an object")
 
+    # A manifest is untrusted input, so a declared path is an instruction from the
+    # package about which file to look at. `root / relative` is a join, not
+    # containment: '../outside' stays lexically inside and resolves out, an
+    # absolute path discards the root entirely, and a package-local symlink can
+    # point anywhere. Inspection reads less than verification does, but it still
+    # reports on what it is pointed at, so an escape here would let a package have
+    # `aura package` describe a file outside itself.
+    #
+    # The rule is the verifier's, applied through the verifier's own helper: one
+    # implementation, so the two commands cannot come to disagree about what a
+    # package path is. Containment is established for every declared path before
+    # anything is read, and the resolved targets are what the description is built
+    # from afterwards.
+    targets = {}
+    try:
+        for relative in sorted(declared):
+            targets[relative] = package_file(root, relative, "manifest.json")
+    except PackageBoundaryError as exc:
+        # A refusal, not a verdict. `package` describes; the boundary failure is
+        # reported the way every other thing this command will not do is reported.
+        raise ProducerError(exc.reason) from exc
+
     audit = root / "evidence/audit.jsonl"
     decisions = []
     if audit.is_file():
@@ -299,7 +321,7 @@ def _describe_package(root: Path) -> dict:
         "present": True,
     }]
     for relative in sorted(declared):
-        path = root / relative
+        path = targets[relative]
         label, explanation = _FILE_ROLES.get(relative, _CARRIED)
         files.append({
             "path": relative,
