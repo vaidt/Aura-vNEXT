@@ -4,7 +4,7 @@
 
 PYTHON ?= python3
 
-.PHONY: check structure register fixtures independence product test verify record help
+.PHONY: check structure register fixtures independence product test verify inspect record help
 
 help:
 	@echo "make check         run every gate (structure, register, fixtures, tests, independence, product)"
@@ -15,6 +15,7 @@ help:
 	@echo "make independence  verify the reference package in an isolated environment"
 	@echo "make product       run the product loop end to end: event -> package -> verdict"
 	@echo "make verify        verify the reference evidence package"
+	@echo "make inspect       describe the reference evidence package"
 	@echo "make record        record a demonstration package into ./build/"
 
 check: structure register fixtures test independence product
@@ -39,6 +40,9 @@ product:
 
 verify:
 	$(PYTHON) -m app.aura verify evidence/examples/aura-evidence-loan-001
+
+inspect:
+	$(PYTHON) -m app.aura package evidence/examples/aura-evidence-loan-001
 
 record:
 	$(PYTHON) tools/product_loop_check.py --keep build/aura-evidence-loan-001

@@ -17,8 +17,10 @@ anyone hand-writing a fixture.
 
 ```
 AI / APPLICATION EVENT -> aura record -> Evidence Package -> aura verify -> VERIFIED
-                                                                            TAMPERED
-                                                                            INVALID
+                                              |                             TAMPERED
+                                         aura package                       INVALID
+                                     (what is in it, and
+                                      what each file is)
 ```
 
 The producer is an adapter over the accepted M0 implementation, not a second evidence
@@ -32,17 +34,30 @@ fixtures and the product cannot drift apart.
 
 ### Try it
 
-Record a decision, then verify the package it produced:
+Copy and paste this. It runs from a clean checkout exactly as written — Python 3.11,
+no dependencies to install, no network, no configuration.
 
 ```sh
-python3 -m app.aura record --output ./aura-evidence-loan-001 \
-    --policy policy.json --decision DENY --request-id loan-001 \
-    --input-hash <sha256> --violation LOAN.DTI_EXCEEDED:BLOCK:0.95
+# CREATE -- record a decision an application reached
+python3 -m app.aura record --output ./my-first-package \
+    --policy evidence/examples/aura-evidence-loan-001/evidence/policy.json \
+    --decision DENY --request-id loan-001 --input-file README.md \
+    --violation LOAN.DTI_EXCEEDED:BLOCK:0.95
 
-python3 -m app.aura record --append --output ./aura-evidence-loan-001 ...   # next decision
+# INSPECT -- what is in the package, and what each file is for
+python3 -m app.aura package ./my-first-package
 
-python3 -m app.aura verify ./aura-evidence-loan-001                         # -> VERIFIED
+# COPY -- a package is an ordinary directory
+cp -r ./my-first-package ./delivered-package
+
+# VERIFY -- from the copy alone
+python3 -m app.aura verify ./delivered-package        # -> VERIFIED, exit 0
 ```
+
+**[`docs/OPERATING-M0.md`](docs/OPERATING-M0.md) is the operator's guide**: the whole
+workflow, what a package contains, what each of the three results means, every exit
+status, what to do when something goes wrong, and what Aura does *not* claim. An
+engineer needs that document and nothing else.
 
 Or run the checks:
 
@@ -54,7 +69,8 @@ make check                            # every gate
 ```
 
 `aura verify` reports the verdict in its exit status as well as its output:
-`0` VERIFIED, `2` TAMPERED, `3` INVALID.
+`0` VERIFIED, `2` TAMPERED, `3` INVALID. A command line that could not be understood
+is `64` and a refusal is `65`, so neither can be mistaken for a verdict.
 
 ### Genesis (still in force)
 
@@ -97,6 +113,7 @@ is explicitly **non-normative**: it describes direction, not authorization to im
 | [`governance/MODULE-ACCEPTANCE-CRITERIA.md`](governance/MODULE-ACCEPTANCE-CRITERIA.md) | The gate every candidate module must pass |
 | [`provenance/TRANSFER-REGISTER.md`](provenance/TRANSFER-REGISTER.md) | The register, its lifecycle, and how to amend it |
 | [`governance/DEVELOPMENT-RULES.md`](governance/DEVELOPMENT-RULES.md) | Contribution and development rules |
+| [`docs/OPERATING-M0.md`](docs/OPERATING-M0.md) | **How to operate M0**: the workflow, the three results, exit statuses, and what Aura does not claim |
 | [`docs/contract/M0-EVIDENCE-CONTRACT.md`](docs/contract/M0-EVIDENCE-CONTRACT.md) | The normative M0 contract: canonical form, digest, package, verifier |
 | [`architecture/decisions/`](architecture/decisions/) | Architecture decision records |
 

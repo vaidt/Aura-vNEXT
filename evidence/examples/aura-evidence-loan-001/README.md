@@ -7,11 +7,16 @@ It is **produced, not hand-written**: `tools/build_m0_fixtures.py` builds it by 
 `app.producer` — the same code path `aura record` uses — so this package is an example of
 what the product emits rather than a fixture that merely resembles one.
 
-## Verify it
+## Inspect it, then verify it
 
 ```sh
-python3 -m app.aura verify evidence/examples/aura-evidence-loan-001
+python3 -m app.aura package evidence/examples/aura-evidence-loan-001
+python3 -m app.aura verify  evidence/examples/aura-evidence-loan-001
 ```
+
+`package` describes what is here and what each file is for; `verify` is what returns a
+verdict. [`docs/OPERATING-M0.md`](../../../docs/OPERATING-M0.md) is the operator's guide
+to both.
 
 Expected: `VERIFIED`. Exit status `0`. The package states this about itself in
 [`expected/result.json`](expected/result.json).

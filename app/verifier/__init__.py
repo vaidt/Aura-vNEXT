@@ -32,7 +32,8 @@ from core.models import (SchemaError, validate_audit_record,
 from core.policy import policy_hash
 
 __all__ = ["VERIFIED", "TAMPERED", "INVALID", "DECLARED_CONTRACT",
-           "REQUIRED_FILES", "VerificationResult", "verify_package"]
+           "REQUIRED_FILES", "PackageBoundaryError", "VerificationResult",
+           "package_file", "verify_package"]
 
 VERIFIED = "VERIFIED"
 TAMPERED = "TAMPERED"
@@ -84,6 +85,20 @@ class _Invalid(Exception):
         self.reason = reason
 
 
+class PackageBoundaryError(_Invalid):
+    """A manifest-declared path that the package root does not contain.
+
+    The package-boundary invariant is one rule with more than one caller: the
+    verifier enforces it before it reads anything, and `aura package` enforces it
+    before it inspects anything. Raising a named subclass lets a caller outside
+    this module recognise a boundary refusal and report it in its own vocabulary,
+    without reimplementing the check or reaching for a private name.
+
+    It remains an ``_Invalid``, so the verifier's own handling of it -- and the
+    INVALID verdict a boundary escape earns there -- is exactly as before.
+    """
+
+
 def _read_json(path: Path, label: str):
     if not path.is_file():
         raise _Invalid(f"{label}: required file is missing")
@@ -126,7 +141,7 @@ def _digest(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
-def _package_file(root: Path, relative, label: str) -> Path:
+def package_file(root: Path, relative, label: str) -> Path:
     """Resolve a manifest-declared path, refusing anything outside the package.
 
     The manifest is untrusted input: it travels with the evidence and is written
@@ -147,30 +162,35 @@ def _package_file(root: Path, relative, label: str) -> Path:
       * the resolved target must lie strictly inside the resolved root, which is
         what catches a symlink whose target leaves the package.
 
-    An escape is INVALID, not TAMPERED: a package instructing the verifier to
-    read outside itself is not a recognisable M0 Evidence Package whose evidence
-    happens to fail integrity. It is not one at all.
+    A refusal is a ``PackageBoundaryError``. In the verifier that is an
+    ``_Invalid``, so an escape is INVALID and not TAMPERED: a package instructing
+    the verifier to read outside itself is not a recognisable M0 Evidence Package
+    whose evidence happens to fail integrity. It is not one at all. A caller that
+    returns no verdict -- `aura package`, which only describes -- catches the same
+    error and refuses in its own terms; the rule enforced is this one, here.
     """
     if not isinstance(relative, str) or not relative:
-        raise _Invalid(f"{label}: declared file path is empty or not a string")
+        raise PackageBoundaryError(
+            f"{label}: declared file path is empty or not a string"
+        )
 
     # Backslash is a separator on some platforms; a path carrying one is not the
     # plain POSIX relative path the package format specifies.
     if "\\" in relative:
-        raise _Invalid(
+        raise PackageBoundaryError(
             f"{label}: declared file path {relative!r} contains a backslash; "
             f"package paths are relative POSIX paths"
         )
 
     pure = PurePosixPath(relative)
     if pure.is_absolute():
-        raise _Invalid(
+        raise PackageBoundaryError(
             f"{label}: declared file path {relative!r} is absolute; package paths "
             f"must be relative to the package root"
         )
     for part in pure.parts:
         if part == "..":
-            raise _Invalid(
+            raise PackageBoundaryError(
                 f"{label}: declared file path {relative!r} contains a '..' "
                 f"component; package paths must not traverse"
             )
@@ -183,7 +203,7 @@ def _package_file(root: Path, relative, label: str) -> Path:
     # be two entries able to declare two different digests for the same bytes,
     # and REQUIRED_FILES membership is tested by exact string.
     if str(pure) != relative:
-        raise _Invalid(
+        raise PackageBoundaryError(
             f"{label}: declared file path {relative!r} is not in canonical form "
             f"(expected {str(pure)!r}); package paths carry no '.' segments, "
             f"repeated separators, or trailing separator"
@@ -194,7 +214,7 @@ def _package_file(root: Path, relative, label: str) -> Path:
     # package resolves to its real target and fails the containment check below.
     target = (root / pure).resolve()
     if target == base or not target.is_relative_to(base):
-        raise _Invalid(
+        raise PackageBoundaryError(
             f"{label}: declared file path {relative!r} resolves to {target}, "
             f"which is outside the evidence package at {base}"
         )
@@ -248,7 +268,7 @@ def _check_structure(root: Path) -> tuple[dict, list, dict, dict]:
     # Every manifest-declared path is checked for containment before anything is
     # read, so a path that escapes the package can never reach a digest.
     for declared in sorted(files):
-        _package_file(root, declared, "manifest.json")
+        package_file(root, declared, "manifest.json")
 
     for required in REQUIRED_FILES:
         if required not in files:
@@ -316,7 +336,7 @@ def verify_package(package_root) -> VerificationResult:
     # outside the package.
     try:
         for relative, expected in sorted(manifest["files"].items()):
-            target = _package_file(root, relative, "manifest.json")
+            target = package_file(root, relative, "manifest.json")
             if not target.is_file():
                 failures.append(f"{relative}: declared in the manifest but not present")
                 continue
@@ -343,7 +363,12 @@ def verify_package(package_root) -> VerificationResult:
             reasons=(f"evidence/audit.jsonl: {exc}",),
             package_id=package_id,
         )
-    failures.extend(verdict.failures)
+    # verify_chain reports a failure against a record index ("record 2: ..."), which
+    # is unambiguous inside core.chain and not to an operator holding a package of
+    # four files. Every reason this verifier emits names the file it concerns, so
+    # the chain's findings are given the same treatment here rather than in
+    # core.chain, which has no notion of a package to name a file within.
+    failures.extend(f"evidence/audit.jsonl: {failure}" for failure in verdict.failures)
 
     # 4. Every entry names the policy document this package actually carries.
     try:
@@ -357,8 +382,9 @@ def verify_package(package_root) -> VerificationResult:
     for index, record in enumerate(records):
         if record.get("policy_hash") != expected_policy:
             failures.append(
-                f"record {index}: policy_hash {record.get('policy_hash')!r} does not "
-                f"match the policy document in this package ({expected_policy})"
+                f"evidence/audit.jsonl: record {index}: policy_hash "
+                f"{record.get('policy_hash')!r} does not match the policy document "
+                f"in this package ({expected_policy})"
             )
 
     # 5. The declared chain terminus. Without this the chain is bound only
