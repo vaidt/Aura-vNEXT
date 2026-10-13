@@ -57,6 +57,10 @@ jobs:
           python3 --version
           git status --short
 
+      - name: Record test start time
+        shell: bash
+        run: echo "AURA_TEST_STARTED_AT=$(date -u +%Y-%m-%dT%H:%M:%SZ)" >> "$GITHUB_ENV"
+
       - name: Execute the focused test command and preserve output
         id: test
         shell: bash
@@ -67,7 +71,9 @@ jobs:
           printf 'source_sha=%s\n' "$SOURCE_SHA" >> evidence/test-output.log
           printf 'runner_definition_sha=%s\n\n' "$GITHUB_SHA" >> evidence/test-output.log
           set +e
-          (cd source && python3 -m unittest discover -s tests/conformance -p test_package_boundary.py -v) >> evidence/test-output.log 2>&1
+          # The specified discovery command keeps its exact argv. PYTHONPATH=tests
+          # makes tests/_m0.py importable when discovery starts below tests/.
+          (cd source && PYTHONPATH=tests python3 -m unittest discover -s tests/conformance -p test_package_boundary.py -v) >> evidence/test-output.log 2>&1
           rc=$?
           set -e
           echo "$rc" > evidence/test-runner-exit-code.txt
@@ -166,14 +172,16 @@ jobs:
               "docs/contract/M0-EVIDENCE-CONTRACT.md": "daa1201232ebe0a75082ac71806042d59ca46b62"
             },
             "command": "python3 -m unittest discover -s tests/conformance -p test_package_boundary.py -v",
-            "started_at": os.environ.get("GITHUB_RUN_STARTED_AT"),
+            "environment_overrides": {"PYTHONPATH": "tests"},
+            "started_at": os.environ.get("AURA_TEST_STARTED_AT"),
             "completed_at": datetime.datetime.now(datetime.timezone.utc).isoformat().replace("+00:00", "Z"),
             "environment": {
               "runner_os": os.environ.get("RUNNER_OS"),
               "runner_arch": os.environ.get("RUNNER_ARCH"),
               "image_os": platform.platform(),
               "python": sys.version.split()[0],
-              "implementation": platform.python_implementation()
+              "implementation": platform.python_implementation(),
+              "test_import_path": "PYTHONPATH=tests (required for tests/_m0.py when starting discovery in tests/conformance)"
             },
             "test_runner_exit_code": rc,
             "test_summary": {"tests_run": int(summary.group(1)) if summary else None, "duration_seconds": float(summary.group(2)) if summary else None},
@@ -184,6 +192,7 @@ jobs:
             "independent_verification_status": "NOT_RUN",
             "limits": [
               "The receipt is unsigned and self-reported; no cryptographic runner attestation was verified.",
+              "The command was executed with PYTHONPATH=tests so the existing tests/conformance module can import tests/_m0.py."
               "TESTED is the maximum status supported by this run; VERIFIED and CONFORMANT are not asserted.",
               "The test command executes the source checkout pinned above; the workflow definition lives on a separate harness branch."
             ]
