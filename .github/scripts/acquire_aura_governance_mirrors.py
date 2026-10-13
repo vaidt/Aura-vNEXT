@@ -186,7 +186,7 @@ def main() -> int:
         ls_path = LOGS / key / "ls-remote"
         ls_result = run_command(["git", "ls-remote", "--symref", spec["url"]], ls_path)
         per_repo["operations"]["ls_remote"] = ls_result
-        raw_ls_path = ROOT / ls_result["stdout_path"]
+        raw_ls_path = Path(ls_result["stdout_path"])
         per_repo["advertised_refs"] = parse_ls_remote(raw_ls_path.read_bytes())
         per_repo["advertised_ref_count"] = sum(
             1 for ref in per_repo["advertised_refs"] if ref["object_id"] is not None
@@ -224,7 +224,7 @@ def main() -> int:
             LOGS / key / "local-refs",
         )
         per_repo["operations"]["local_refs"] = refs_result
-        refs_bytes = (ROOT / refs_result["stdout_path"]).read_bytes()
+        refs_bytes = (Path(refs_result["stdout_path"])).read_bytes()
         ref_lines = refs_bytes.decode("utf-8", errors="replace").splitlines()
         ref_inventory = []
         for line in ref_lines:
@@ -232,7 +232,7 @@ def main() -> int:
             if len(parts) == 3:
                 ref_inventory.append({"ref": parts[0], "object_id": parts[1], "object_type": parts[2]})
         per_repo["local_ref_count"] = len(ref_inventory)
-        per_repo["local_refs_path"] = safe_relative(ROOT / refs_result["stdout_path"])
+        per_repo["local_refs_path"] = safe_relative(Path(refs_result["stdout_path"]))
         per_repo["local_refs_sha256"] = sha256_bytes(refs_bytes)
         per_repo["local_refs"] = ref_inventory
 
@@ -242,7 +242,7 @@ def main() -> int:
         )
         per_repo["operations"]["mirror_head_symref"] = symref_result
         if symref_result["exit_code"] == 0:
-            per_repo["mirror_head_symref"] = (ROOT / symref_result["stdout_path"]).read_text(encoding="utf-8", errors="replace").strip()
+            per_repo["mirror_head_symref"] = Path(symref_result["stdout_path"]).read_text(encoding="utf-8", errors="replace").strip()
         else:
             per_repo["mirror_head_symref"] = None
 
@@ -251,7 +251,7 @@ def main() -> int:
             LOGS / key / "mirror-head-oid",
         )
         per_repo["operations"]["mirror_head_oid"] = oid_result
-        per_repo["mirror_head_oid"] = (ROOT / oid_result["stdout_path"]).read_text(encoding="ascii", errors="replace").strip() if oid_result["exit_code"] == 0 else None
+        per_repo["mirror_head_oid"] = Path(oid_result["stdout_path"]).read_text(encoding="ascii", errors="replace").strip() if oid_result["exit_code"] == 0 else None
 
         count_result = run_command(
             ["git", "-C", str(mirror), "rev-list", "--all", "--count"],
@@ -259,13 +259,13 @@ def main() -> int:
         )
         per_repo["operations"]["reachable_commit_count"] = count_result
         try:
-            per_repo["reachable_commit_count"] = int((ROOT / count_result["stdout_path"]).read_text(encoding="ascii").strip())
+            per_repo["reachable_commit_count"] = int(Path(count_result["stdout_path"]).read_text(encoding="ascii").strip())
         except Exception:
             per_repo["reachable_commit_count"] = None
 
         object_format = run_command(["git", "-C", str(mirror), "rev-parse", "--show-object-format"], LOGS / key / "object-format")
         per_repo["operations"]["object_format"] = object_format
-        per_repo["object_format"] = (ROOT / object_format["stdout_path"]).read_text(encoding="ascii", errors="replace").strip() if object_format["exit_code"] == 0 else None
+        per_repo["object_format"] = Path(object_format["stdout_path"]).read_text(encoding="ascii", errors="replace").strip() if object_format["exit_code"] == 0 else None
 
         fsck = run_command(
             ["git", "-C", str(mirror), "fsck", "--full", "--strict", "--no-reflogs"],
@@ -297,7 +297,7 @@ def main() -> int:
         per_repo["operations"]["bundle_heads"] = bundle_heads
         per_repo["bundle_path_sha256"] = sha256_file(bundle)
         per_repo["bundle_size_bytes"] = bundle.stat().st_size
-        per_repo["bundle_heads_path"] = safe_relative(ROOT / bundle_heads["stdout_path"])
+        per_repo["bundle_heads_path"] = safe_relative(Path(bundle_heads["stdout_path"]))
         per_repo["bundle_heads_sha256"] = bundle_heads["stdout_sha256"]
 
         # Full bare mirror is retained as well as the portable bundle.
