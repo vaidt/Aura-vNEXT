@@ -130,7 +130,7 @@ jobs:
               "SymlinkEscapeTest.test_symlink_to_a_directory_outside_the_package_is_invalid"
             ],
             "M0-PKG-BOUNDARY-005": [
-              "LegitimateInternalPathTest.test_a_symlink_staying_inside_the_package_is_not_an_escape",
+              "SymlinkEscapeTest.test_a_symlink_staying_inside_the_package_is_not_an_escape",
               "LegitimateInternalPathTest.test_an_additional_declared_file_inside_the_package_verifies",
               "LegitimateInternalPathTest.test_the_reference_package_still_verifies",
               "LegitimateInternalPathTest.test_a_package_reached_through_a_symlinked_root_verifies"
