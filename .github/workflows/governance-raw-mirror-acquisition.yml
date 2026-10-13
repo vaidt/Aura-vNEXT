@@ -1,0 +1,258 @@
+name: AURA governance raw mirror acquisition (read-only forensic)
+
+on:
+  push:
+    branches:
+      - governance-raw-mirror-acquisition-20261013
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: aura-governance-raw-mirror-acquisition-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  WORKFLOW_PATH: .github/workflows/governance-raw-mirror-acquisition.yml
+  CUSTOM_PREDICATE_TYPE: https://github.com/vaidt/Aura-vNEXT/attestations/aura-governance-raw-mirror-acquisition/v1
+
+jobs:
+  acquire:
+    name: Acquire GitHub and GitLab mirrors without executing source
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout acquisition tooling only
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # actions/checkout v4.4.0
+        with:
+          persist-credentials: false
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # actions/setup-python v5.6.0
+        with:
+          python-version: "3.11"
+
+      - name: Record transport and server identity
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p dist
+          {
+            echo "## AURA governance raw mirror acquisition"
+            echo
+            echo "- Workflow SHA: \`$GITHUB_SHA\`"
+            echo "- Workflow ref: \`$GITHUB_WORKFLOW_REF\`"
+            echo "- Run / attempt: \`$GITHUB_RUN_ID\` / \`$GITHUB_RUN_ATTEMPT\`"
+            echo "- Targets: public GitHub and GitLab \`vaidt/aura-specification\`"
+            echo "- Target repositories are not mutated."
+            echo "- No target repository code is checked out or executed."
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Acquire mirrors, advertised refs, supplemental refs and Git bundles
+        id: acquisition
+        shell: bash
+        run: python3 .github/scripts/acquire_aura_governance_mirrors.py
+
+      - name: Upload archive, external checksum and receipt even on acquisition failure
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # actions/upload-artifact v4.6.2
+        with:
+          name: aura-governance-raw-mirrors-${{ github.run_id }}
+          path: |
+            dist/AURA_GOVERNANCE_RAW_MIRROR_ACQUISITION_${{ github.run_id }}_attempt_${{ github.run_attempt }}.tar.gz
+            dist/AURA_GOVERNANCE_RAW_MIRROR_ACQUISITION_${{ github.run_id }}_attempt_${{ github.run_attempt }}.tar.gz.sha256
+            dist/acquisition-receipt.json
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Require both mirrors and bundles to verify
+        if: always()
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import json, pathlib, sys
+          path = pathlib.Path("dist/acquisition-receipt.json")
+          if not path.is_file():
+              print("Acquisition receipt missing; fail closed.", file=sys.stderr)
+              raise SystemExit(1)
+          receipt = json.loads(path.read_text(encoding="utf-8"))
+          print(json.dumps(receipt, indent=2))
+          if receipt.get("acquisition_status") != "COMPLETE_ADVERTISED_REFS":
+              raise SystemExit(1)
+          rows = receipt.get("repository_summary", [])
+          if {row.get("key") for row in rows} != {"github", "gitlab"}:
+              raise SystemExit(1)
+          if any(row.get("bundle_verify_status") != "PASS" for row in rows):
+              raise SystemExit(1)
+          if any(row.get("bundle_path_sha256") is None for row in rows):
+              raise SystemExit(1)
+          PY
+
+  attest:
+    name: Attest exact acquisition archive
+    needs: acquire
+    if: needs.acquire.result == 'success'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      actions: read
+      id-token: write
+      attestations: write
+      artifact-metadata: write
+    env:
+      AURA_ACQUISITION_ARCHIVE: dist/AURA_GOVERNANCE_RAW_MIRROR_ACQUISITION_${{ github.run_id }}_attempt_${{ github.run_attempt }}.tar.gz
+    steps:
+      - name: Checkout only acquisition verifier and predicate tooling
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # actions/checkout v4.4.0
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # actions/setup-python v5.6.0
+        with:
+          python-version: "3.11"
+
+      - name: Download exact mirror acquisition archive
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # actions/download-artifact v4.3.0
+        with:
+          name: aura-governance-raw-mirrors-${{ github.run_id }}
+          path: dist
+
+      - name: Build supplementary signed acquisition predicate
+        shell: bash
+        run: python3 .github/scripts/build_governance_acquisition_predicate.py
+
+      - name: Generate GitHub SLSA build-provenance attestation
+        uses: actions/attest@1e69f48acb82d1966a394da916b4c1698aa569d6 # actions/attest v4.2.2
+        with:
+          subject-path: ${{ env.AURA_ACQUISITION_ARCHIVE }}
+
+      - name: Generate signed AURA governance-acquisition predicate
+        uses: actions/attest@1e69f48acb82d1966a394da916b4c1698aa569d6 # actions/attest v4.2.2
+        with:
+          subject-path: ${{ env.AURA_ACQUISITION_ARCHIVE }}
+          predicate-type: ${{ env.CUSTOM_PREDICATE_TYPE }}
+          predicate-path: predicate.json
+
+  independent-verification:
+    name: Independently verify archive, refs, hashes and attestations
+    needs: [acquire, attest]
+    if: always()
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      attestations: read
+    env:
+      AURA_ACQUISITION_ARCHIVE: dist/AURA_GOVERNANCE_RAW_MIRROR_ACQUISITION_${{ github.run_id }}_attempt_${{ github.run_attempt }}.tar.gz
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - name: Checkout independent verifier at the attested revision
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # actions/checkout v4.4.0
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # actions/setup-python v5.6.0
+        with:
+          python-version: "3.11"
+
+      - name: Download acquisition archive and external checksum
+        if: always()
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # actions/download-artifact v4.3.0
+        with:
+          name: aura-governance-raw-mirrors-${{ github.run_id }}
+          path: dist
+
+      - name: Initialize independent report directory
+        if: always()
+        shell: bash
+        run: mkdir -p verification
+
+      - name: Verify SLSA signature, trusted workflow and source digest
+        id: verify_slsa
+        if: always()
+        shell: bash
+        run: |
+          set +e
+          rc=1
+          for attempt in 1 2 3 4 5; do
+            gh attestation verify "$AURA_ACQUISITION_ARCHIVE" \
+              --repo "$GITHUB_REPOSITORY" \
+              --signer-workflow "github.com/\${GITHUB_REPOSITORY}/\${WORKFLOW_PATH}" \
+              --source-ref "$GITHUB_REF" \
+              --source-digest "$GITHUB_SHA" \
+              --predicate-type "https://slsa.dev/provenance/v1" \
+              --format json > verification/slsa-verification.json 2> verification/slsa-verification.stderr
+            rc=$?
+            if [[ "$rc" -eq 0 ]]; then break; fi
+            sleep 5
+          done
+          echo "$rc" > verification/slsa-verification-exit-code.txt
+          exit 0
+
+      - name: Verify AURA acquisition attestation
+        id: verify_custom
+        if: always()
+        shell: bash
+        run: |
+          set +e
+          rc=1
+          for attempt in 1 2 3 4 5; do
+            gh attestation verify "$AURA_ACQUISITION_ARCHIVE" \
+              --repo "$GITHUB_REPOSITORY" \
+              --signer-workflow "github.com/\${GITHUB_REPOSITORY}/\${WORKFLOW_PATH}" \
+              --source-ref "$GITHUB_REF" \
+              --source-digest "$GITHUB_SHA" \
+              --predicate-type "$CUSTOM_PREDICATE_TYPE" \
+              --format json > verification/custom-verification.json 2> verification/custom-verification.stderr
+            rc=$?
+            if [[ "$rc" -eq 0 ]]; then break; fi
+            sleep 5
+          done
+          echo "$rc" > verification/custom-verification-exit-code.txt
+          exit 0
+
+      - name: Validate all acquisition evidence independently
+        if: always()
+        shell: bash
+        run: |
+          python3 .github/scripts/verify_governance_acquisition_attestation.py \
+            --archive "$AURA_ACQUISITION_ARCHIVE" \
+            --archive-checksum "$AURA_ACQUISITION_ARCHIVE.sha256" \
+            --slsa-json verification/slsa-verification.json \
+            --custom-json verification/custom-verification.json \
+            --slsa-exit-code "$(cat verification/slsa-verification-exit-code.txt 2>/dev/null || echo 1)" \
+            --custom-exit-code "$(cat verification/custom-verification-exit-code.txt 2>/dev/null || echo 1)" \
+            --output verification/independent-verification-report.json
+
+      - name: Upload separate verification report without altering acquisition data
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # actions/upload-artifact v4.6.2
+        with:
+          name: aura-governance-acquisition-verification-${{ github.run_id }}-attempt-${{ github.run_attempt }}
+          path: verification/
+          if-no-files-found: warn
+          retention-days: 30
+
+      - name: Fail closed unless verified archive and both bundles pass
+        if: always()
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import json, pathlib, sys
+          path = pathlib.Path("verification/independent-verification-report.json")
+          if not path.is_file():
+              print("Independent verification report missing; fail closed.", file=sys.stderr)
+              raise SystemExit(1)
+          report = json.loads(path.read_text(encoding="utf-8"))
+          print(json.dumps({"overall_status": report.get("overall_status"), "provenance_status": report.get("provenance_status"), "acquisition_status": report.get("acquisition_status")}, indent=2))
+          if report.get("overall_status") != "VERIFIED_RAW_MIRROR_ACQUISITION":
+              raise SystemExit(1)
+          PY
