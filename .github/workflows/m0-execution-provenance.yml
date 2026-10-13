@@ -1,0 +1,292 @@
+name: M0 execution evidence provenance (isolated pilot)
+
+on:
+  push:
+    branches:
+      - m0-execution-provenance-20261013
+
+permissions:
+  contents: read
+
+concurrency:
+  group: aura-m0-execution-provenance-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  SOURCE_SHA: bdec831c165b3a5465bc25f325ed801558cbf81a
+  WORKFLOW_PATH: .github/workflows/m0-execution-provenance.yml
+  CUSTOM_PREDICATE_TYPE: https://github.com/vaidt/Aura-vNEXT/attestations/aura-execution-evidence/v1
+
+jobs:
+  package-boundary:
+    name: Run pinned M0 tests and package evidence
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout isolated workflow branch
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # actions/checkout v4.4.0
+        with:
+          persist-credentials: false
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # actions/setup-python v5.6.0
+        with:
+          python-version: "3.11"
+
+      - name: Prepare evidence workspace
+        if: always()
+        shell: bash
+        run: mkdir -p evidence dist
+
+      - name: Checkout exact source commit under test
+        id: source_checkout
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # actions/checkout v4.4.0
+        with:
+          repository: vaidt/Aura-vNEXT
+          ref: ${{ env.SOURCE_SHA }}
+          path: source
+          fetch-depth: 1
+          persist-credentials: false
+
+      - name: Verify exact source commit and protected blob identities
+        id: source_pin
+        if: always()
+        shell: bash
+        run: |
+          set +e
+          python3 .github/scripts/verify_m0_source_pin.py
+          rc=$?
+          echo "source_pin_exit_code=$rc" >> "$GITHUB_STEP_SUMMARY"
+          exit "$rc"
+
+      - name: Record test start time
+        if: always()
+        shell: bash
+        run: echo "AURA_TEST_STARTED_AT=$(date -u +%Y-%m-%dT%H:%M:%SZ)" >> "$GITHUB_ENV"
+
+      - name: Execute focused M0 package-boundary tests
+        id: execute_tests
+        if: steps.source_pin.outcome == 'success'
+        shell: bash
+        run: |
+          set -euo pipefail
+          printf 'command=python3 -m unittest discover -s tests/conformance -p test_package_boundary.py -v\n' > evidence/test-output.log
+          printf 'source_sha=%s\n' "$SOURCE_SHA" >> evidence/test-output.log
+          printf 'workflow_sha=%s\n' "$GITHUB_SHA" >> evidence/test-output.log
+          printf 'workflow_ref=%s\n\n' "$GITHUB_WORKFLOW_REF" >> evidence/test-output.log
+          set +e
+          (cd source && PYTHONPATH=tests python3 -m unittest discover -s tests/conformance -p test_package_boundary.py -v) >> evidence/test-output.log 2>&1
+          rc=$?
+          set -e
+          printf '%s\n' "$rc" > evidence/test-runner-exit-code.txt
+          echo "test_runner_exit_code=$rc" >> "$GITHUB_STEP_SUMMARY"
+          exit 0
+
+      - name: Generate execution receipt without changing the test result
+        if: always()
+        shell: bash
+        run: python3 .github/scripts/build_m0_execution_receipt.py
+
+      - name: Build final evidence ZIP and manifest
+        if: always()
+        shell: bash
+        run: python3 .github/scripts/build_m0_evidence_bundle.py
+
+      - name: Upload immutable-by-convention evidence archive and checksum
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # actions/upload-artifact v4.6.2
+        with:
+          name: aura-m0-evidence-archive-${{ github.run_id }}
+          path: |
+            dist/aura-m0-package-boundary-evidence-${{ github.run_id }}-attempt-${{ github.run_attempt }}.zip
+            dist/aura-m0-package-boundary-evidence-${{ github.run_id }}-attempt-${{ github.run_attempt }}.zip.sha256
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Fail closed unless all five pilot requirements are TESTED
+        if: always()
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import json, pathlib, sys
+          p = pathlib.Path("evidence/execution-receipt.json")
+          if not p.is_file():
+              print("No execution receipt; fail closed.", file=sys.stderr)
+              raise SystemExit(1)
+          r = json.loads(p.read_text(encoding="utf-8"))
+          failed = [k for k, v in r.get("requirements", {}).items() if v.get("execution_status") != "TESTED"]
+          if r.get("test_runner_exit_code") != 0 or failed or r.get("source_commit_sha_observed") != r.get("source_commit_sha_expected"):
+              print("BLOCKED/FAIL: " + ", ".join(failed), file=sys.stderr)
+              raise SystemExit(1)
+          print("PASS: five pilot requirements TESTED; cryptographic provenance is handled by separate jobs; VERIFIED/CONFORMANT are not asserted here.")
+          PY
+
+  attest-evidence:
+    name: Sign exact evidence ZIP
+    needs: package-boundary
+    if: always()
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      actions: read
+      id-token: write
+      attestations: write
+      artifact-metadata: write
+    env:
+      AURA_EVIDENCE_ARCHIVE: dist/aura-m0-package-boundary-evidence-${{ github.run_id }}-attempt-${{ github.run_attempt }}.zip
+    steps:
+      - name: Checkout verifier/predicate helpers at the attested workflow revision
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # actions/checkout v4.4.0
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # actions/setup-python v5.6.0
+        with:
+          python-version: "3.11"
+
+      - name: Download the exact archive produced by the test job
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # actions/download-artifact v4.3.0
+        with:
+          name: aura-m0-evidence-archive-${{ github.run_id }}
+          path: dist
+
+      - name: Build additional execution-evidence predicate
+        shell: bash
+        run: python3 .github/scripts/build_m0_attestation_predicate.py
+
+      - name: Generate GitHub SLSA build-provenance attestation for the exact ZIP
+        uses: actions/attest@1e69f48acb82d1966a394da916b4c1698aa569d6 # actions/attest v4.2.2
+        with:
+          subject-path: ${{ env.AURA_EVIDENCE_ARCHIVE }}
+
+      - name: Generate signed AURA execution-evidence binding for the same ZIP
+        uses: actions/attest@1e69f48acb82d1966a394da916b4c1698aa569d6 # actions/attest v4.2.2
+        with:
+          subject-path: ${{ env.AURA_EVIDENCE_ARCHIVE }}
+          predicate-type: ${{ env.CUSTOM_PREDICATE_TYPE }}
+          predicate-path: predicate.json
+
+  independent-verification:
+    name: Independently verify signatures and evidence binding
+    needs: [package-boundary, attest-evidence]
+    if: always()
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      attestations: read
+    env:
+      AURA_EVIDENCE_ARCHIVE: dist/aura-m0-package-boundary-evidence-${{ github.run_id }}-attempt-${{ github.run_attempt }}.zip
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - name: Checkout independent verifier at the attested workflow revision
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # actions/checkout v4.4.0
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # actions/setup-python v5.6.0
+        with:
+          python-version: "3.11"
+
+      - name: Download original evidence ZIP and sidecar checksum
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # actions/download-artifact v4.3.0
+        with:
+          name: aura-m0-evidence-archive-${{ github.run_id }}
+          path: dist
+
+      - name: Initialize independent verification report workspace
+        if: always()
+        shell: bash
+        run: mkdir -p verification
+
+      - name: Verify GitHub SLSA signature, trusted workflow identity and workflow source digest
+        id: verify_slsa
+        if: always()
+        shell: bash
+        run: |
+          set +e
+          rc=1
+          for attempt in 1 2 3 4 5; do
+            gh attestation verify "$AURA_EVIDENCE_ARCHIVE" \
+              --repo "$GITHUB_REPOSITORY" \
+              --signer-workflow "github.com/${GITHUB_REPOSITORY}/${WORKFLOW_PATH}" \
+              --source-ref "$GITHUB_REF" \
+              --source-digest "$GITHUB_SHA" \
+              --predicate-type "https://slsa.dev/provenance/v1" \
+              --format json > verification/slsa-attestation-verification.json 2> verification/slsa-attestation-verification.stderr
+            rc=$?
+            if [[ "$rc" -eq 0 ]]; then break; fi
+            sleep 5
+          done
+          echo "$rc" > verification/slsa-verification-exit-code.txt
+          echo "slsa_verification_exit_code=$rc" >> "$GITHUB_STEP_SUMMARY"
+          exit 0
+
+      - name: Verify supplementary signed execution-evidence predicate
+        id: verify_custom
+        if: always()
+        shell: bash
+        run: |
+          set +e
+          rc=1
+          for attempt in 1 2 3 4 5; do
+            gh attestation verify "$AURA_EVIDENCE_ARCHIVE" \
+              --repo "$GITHUB_REPOSITORY" \
+              --signer-workflow "github.com/${GITHUB_REPOSITORY}/${WORKFLOW_PATH}" \
+              --source-ref "$GITHUB_REF" \
+              --source-digest "$GITHUB_SHA" \
+              --predicate-type "$CUSTOM_PREDICATE_TYPE" \
+              --format json > verification/custom-attestation-verification.json 2> verification/custom-attestation-verification.stderr
+            rc=$?
+            if [[ "$rc" -eq 0 ]]; then break; fi
+            sleep 5
+          done
+          echo "$rc" > verification/custom-verification-exit-code.txt
+          echo "custom_verification_exit_code=$rc" >> "$GITHUB_STEP_SUMMARY"
+          exit 0
+
+      - name: Independently inspect certificate identity, invocation ID, archive digest, manifest and receipt bindings
+        id: independent_check
+        if: always()
+        shell: bash
+        run: |
+          python3 .github/scripts/verify_m0_evidence_attestation.py \
+            --archive "$AURA_EVIDENCE_ARCHIVE" \
+            --archive-checksum "$AURA_EVIDENCE_ARCHIVE.sha256" \
+            --slsa-json verification/slsa-attestation-verification.json \
+            --custom-json verification/custom-attestation-verification.json \
+            --slsa-exit-code "$(cat verification/slsa-verification-exit-code.txt 2>/dev/null || echo 1)" \
+            --custom-exit-code "$(cat verification/custom-verification-exit-code.txt 2>/dev/null || echo 1)" \
+            --output verification/independent-verification-report.json
+
+      - name: Upload separate verification report (receipt remains unchanged)
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # actions/upload-artifact v4.6.2
+        with:
+          name: aura-m0-provenance-verification-${{ github.run_id }}-attempt-${{ github.run_attempt }}
+          path: verification/
+          if-no-files-found: warn
+          retention-days: 30
+
+      - name: Fail closed unless provenance and execution evidence are verified
+        if: always()
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import json, pathlib, sys
+          path = pathlib.Path("verification/independent-verification-report.json")
+          if not path.is_file():
+              print("Independent verification report missing; fail closed.", file=sys.stderr)
+              raise SystemExit(1)
+          report = json.loads(path.read_text(encoding="utf-8"))
+          print(json.dumps({"overall_status": report.get("overall_status"), "provenance_status": report.get("provenance_status"), "execution_status": report.get("execution_status")}, indent=2))
+          if report.get("overall_status") != "VERIFIED_EXECUTION_EVIDENCE":
+              raise SystemExit(1)
+          PY
