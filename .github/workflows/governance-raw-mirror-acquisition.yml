@@ -185,7 +185,7 @@ jobs:
           for attempt in 1 2 3 4 5; do
             gh attestation verify "$AURA_ACQUISITION_ARCHIVE" \
               --repo "$GITHUB_REPOSITORY" \
-              --signer-workflow "github.com/\${GITHUB_REPOSITORY}/\${WORKFLOW_PATH}" \
+              --signer-workflow "github.com/${GITHUB_REPOSITORY}/${WORKFLOW_PATH}" \
               --source-ref "$GITHUB_REF" \
               --source-digest "$GITHUB_SHA" \
               --predicate-type "https://slsa.dev/provenance/v1" \
@@ -207,7 +207,7 @@ jobs:
           for attempt in 1 2 3 4 5; do
             gh attestation verify "$AURA_ACQUISITION_ARCHIVE" \
               --repo "$GITHUB_REPOSITORY" \
-              --signer-workflow "github.com/\${GITHUB_REPOSITORY}/\${WORKFLOW_PATH}" \
+              --signer-workflow "github.com/${GITHUB_REPOSITORY}/${WORKFLOW_PATH}" \
               --source-ref "$GITHUB_REF" \
               --source-digest "$GITHUB_SHA" \
               --predicate-type "$CUSTOM_PREDICATE_TYPE" \
