@@ -1,0 +1,940 @@
+﻿2026-10-24T01:58:24.9200616Z Current runner version: '2.338.0'
+2026-10-24T01:58:24.9219155Z ##[group]Runner Image Provisioner
+2026-10-24T01:58:24.9219762Z Hosted Compute Agent
+2026-10-24T01:58:24.9220288Z Version: 20261021.618
+2026-10-24T01:58:24.9220704Z Commit: 21505ad2541d5be6135ed84fc33697146cf75b8e
+2026-10-24T01:58:24.9221222Z Build Date: 2026-10-21T00:45:21Z
+2026-10-24T01:58:24.9221663Z Worker ID: {e8cf6459-7c9d-4525-94dd-9e837c5df2c7}
+2026-10-24T01:58:24.9222117Z Region: centralus
+2026-10-24T01:58:24.9222453Z Cloud: Azure
+2026-10-24T01:58:24.9222859Z ##[endgroup]
+2026-10-24T01:58:24.9223759Z ##[group]Operating System
+2026-10-24T01:58:24.9224127Z Ubuntu
+2026-10-24T01:58:24.9224485Z 24.04.5
+2026-10-24T01:58:24.9224809Z LTS
+2026-10-24T01:58:24.9225119Z ##[endgroup]
+2026-10-24T01:58:24.9225520Z ##[group]Runner Image
+2026-10-24T01:58:24.9225911Z Image: ubuntu-24.04
+2026-10-24T01:58:24.9226278Z Version: 20261012.334.1
+2026-10-24T01:58:24.9227057Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20261012.334/images/ubuntu/Ubuntu2404-Readme.md
+2026-10-24T01:58:24.9227983Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20261012.334
+2026-10-24T01:58:24.9228570Z ##[endgroup]
+2026-10-24T01:58:24.9229248Z ##[group]GITHUB_TOKEN Permissions
+2026-10-24T01:58:24.9230778Z Contents: read
+2026-10-24T01:58:24.9231426Z Metadata: read
+2026-10-24T01:58:24.9231775Z ##[endgroup]
+2026-10-24T01:58:24.9233156Z Secret source: Actions
+2026-10-24T01:58:24.9233763Z Cache mode: write
+2026-10-24T01:58:24.9234224Z Prepare workflow directory
+2026-10-24T01:58:24.9479198Z Prepare all required actions
+2026-10-24T01:58:24.9511949Z Getting action download info
+2026-10-24T01:58:25.1969349Z Download action repository 'actions/checkout@v4' (SHA:11d5960a326750d5838078e36cf38b85af677262)
+2026-10-24T01:58:25.3057453Z Download action repository 'actions/setup-python@v5' (SHA:a26af69be951a213d495a4c3e4e4022e16d87065)
+2026-10-24T01:58:25.4972024Z Complete job name: governance invariants and M0 gates
+2026-10-24T01:58:25.5437730Z ##[group]Run actions/checkout@v4
+2026-10-24T01:58:25.5438141Z with:
+2026-10-24T01:58:25.5438380Z   repository: vaidt/Aura-vNEXT
+2026-10-24T01:58:25.5440556Z   token: ***
+2026-10-24T01:58:25.5440782Z   ssh-strict: true
+2026-10-24T01:58:25.5441015Z   ssh-user: git
+2026-10-24T01:58:25.5441255Z   persist-credentials: true
+2026-10-24T01:58:25.5441519Z   clean: true
+2026-10-24T01:58:25.5441758Z   sparse-checkout-cone-mode: true
+2026-10-24T01:58:25.5442036Z   fetch-depth: 1
+2026-10-24T01:58:25.5442269Z   fetch-tags: false
+2026-10-24T01:58:25.5442509Z   show-progress: true
+2026-10-24T01:58:25.5442747Z   lfs: false
+2026-10-24T01:58:25.5442966Z   submodules: false
+2026-10-24T01:58:25.5443206Z   set-safe-directory: true
+2026-10-24T01:58:25.5443475Z   allow-unsafe-pr-checkout: false
+2026-10-24T01:58:25.5443831Z ##[endgroup]
+2026-10-24T01:58:25.6074650Z Syncing repository: vaidt/Aura-vNEXT
+2026-10-24T01:58:25.6076287Z ##[group]Getting Git version info
+2026-10-24T01:58:25.6076999Z Working directory is '/home/runner/work/Aura-vNEXT/Aura-vNEXT'
+2026-10-24T01:58:25.6077968Z [command]/usr/bin/git version
+2026-10-24T01:58:25.6150212Z git version 2.55.0
+2026-10-24T01:58:25.6169881Z ##[endgroup]
+2026-10-24T01:58:25.6176933Z Temporarily overriding HOME='/home/runner/work/_temp/e7b57ef3-6754-4643-9f77-1b87d1349c39' before making global git config changes
+2026-10-24T01:58:25.6178183Z Adding repository directory to the temporary git global config as a safe directory
+2026-10-24T01:58:25.6179882Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/Aura-vNEXT/Aura-vNEXT
+2026-10-24T01:58:25.6229116Z Deleting the contents of '/home/runner/work/Aura-vNEXT/Aura-vNEXT'
+2026-10-24T01:58:25.6235994Z ##[group]Initializing the repository
+2026-10-24T01:58:25.6236748Z [command]/usr/bin/git init /home/runner/work/Aura-vNEXT/Aura-vNEXT
+2026-10-24T01:58:25.6327504Z hint: Using 'master' as the name for the initial branch. This default branch name
+2026-10-24T01:58:25.6328464Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+2026-10-24T01:58:25.6329567Z hint: to use in all of your new repositories, which will suppress this warning,
+2026-10-24T01:58:25.6330676Z hint: call:
+2026-10-24T01:58:25.6331010Z hint:
+2026-10-24T01:58:25.6331441Z hint: 	git config --global init.defaultBranch <name>
+2026-10-24T01:58:25.6331999Z hint:
+2026-10-24T01:58:25.6332478Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+2026-10-24T01:58:25.6333260Z hint: 'development'. The just-created branch can be renamed via this command:
+2026-10-24T01:58:25.6333877Z hint:
+2026-10-24T01:58:25.6334233Z hint: 	git branch -m <name>
+2026-10-24T01:58:25.6334622Z hint:
+2026-10-24T01:58:25.6335280Z hint: Disable this message with "git config set advice.defaultBranchName false"
+2026-10-24T01:58:25.6336193Z Initialized empty Git repository in /home/runner/work/Aura-vNEXT/Aura-vNEXT/.git/
+2026-10-24T01:58:25.6339416Z [command]/usr/bin/git remote add origin https://github.com/vaidt/Aura-vNEXT
+2026-10-24T01:58:25.6385249Z ##[endgroup]
+2026-10-24T01:58:25.6385954Z ##[group]Disabling automatic garbage collection
+2026-10-24T01:58:25.6388039Z [command]/usr/bin/git config --local gc.auto 0
+2026-10-24T01:58:25.6429274Z ##[endgroup]
+2026-10-24T01:58:25.6430240Z ##[group]Setting up auth
+2026-10-24T01:58:25.6437429Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-10-24T01:58:25.6468244Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-10-24T01:58:25.6777143Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-24T01:58:25.6807621Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-10-24T01:58:25.6985767Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-24T01:58:25.7016232Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-10-24T01:58:25.7191677Z [command]/usr/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+2026-10-24T01:58:25.7226657Z ##[endgroup]
+2026-10-24T01:58:25.7227150Z ##[group]Fetching the repository
+2026-10-24T01:58:25.7233242Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +f15bc39bb9dc79c9c3425c4f52bc387f83b67fd9:refs/remotes/origin/ops/manual-dispatch-m0-baseline-20261024
+2026-10-24T01:58:26.0963736Z From https://github.com/vaidt/Aura-vNEXT
+2026-10-24T01:58:26.0964936Z  * [new ref]         f15bc39bb9dc79c9c3425c4f52bc387f83b67fd9 -> origin/ops/manual-dispatch-m0-baseline-20261024
+2026-10-24T01:58:26.0967865Z ##[endgroup]
+2026-10-24T01:58:26.0968675Z ##[group]Determining the checkout info
+2026-10-24T01:58:26.0970383Z ##[endgroup]
+2026-10-24T01:58:26.0975325Z [command]/usr/bin/git sparse-checkout disable
+2026-10-24T01:58:26.1020469Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+2026-10-24T01:58:26.1046271Z ##[group]Checking out the ref
+2026-10-24T01:58:26.1049612Z [command]/usr/bin/git checkout --progress --force -B ops/manual-dispatch-m0-baseline-20261024 refs/remotes/origin/ops/manual-dispatch-m0-baseline-20261024
+2026-10-24T01:58:26.1156013Z Switched to a new branch 'ops/manual-dispatch-m0-baseline-20261024'
+2026-10-24T01:58:26.1161802Z branch 'ops/manual-dispatch-m0-baseline-20261024' set up to track 'origin/ops/manual-dispatch-m0-baseline-20261024'.
+2026-10-24T01:58:26.1165592Z ##[endgroup]
+2026-10-24T01:58:26.1198779Z [command]/usr/bin/git log -1 --format=%H
+2026-10-24T01:58:26.1220468Z f15bc39bb9dc79c9c3425c4f52bc387f83b67fd9
+2026-10-24T01:58:26.1446771Z ##[group]Run actions/setup-python@v5
+2026-10-24T01:58:26.1447135Z with:
+2026-10-24T01:58:26.1447385Z   python-version: 3.11
+2026-10-24T01:58:26.1447803Z   check-latest: false
+2026-10-24T01:58:26.1450021Z   token: ***
+2026-10-24T01:58:26.1450430Z   update-environment: true
+2026-10-24T01:58:26.1450720Z   allow-prereleases: false
+2026-10-24T01:58:26.1451009Z   freethreaded: false
+2026-10-24T01:58:26.1451277Z ##[endgroup]
+2026-10-24T01:58:26.2285793Z ##[group]Installed versions
+2026-10-24T01:58:26.2772601Z (node:2047) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-10-24T01:58:26.2773869Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-10-24T01:58:26.2774959Z Successfully set up CPython (3.11.17)
+2026-10-24T01:58:26.2775742Z ##[endgroup]
+2026-10-24T01:58:26.3048312Z ##[group]Run python3 tools/validate_structure.py
+2026-10-24T01:58:26.3049218Z [36;1mpython3 tools/validate_structure.py[0m
+2026-10-24T01:58:26.3523458Z shell: /usr/bin/bash -e {0}
+2026-10-24T01:58:26.3523868Z env:
+2026-10-24T01:58:26.3524217Z   pythonLocation: /opt/hostedtoolcache/Python/3.11.17/x64
+2026-10-24T01:58:26.3524739Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.11.17/x64/lib/pkgconfig
+2026-10-24T01:58:26.3525216Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.17/x64
+2026-10-24T01:58:26.3525647Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.17/x64
+2026-10-24T01:58:26.3526080Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.17/x64
+2026-10-24T01:58:26.3526519Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.11.17/x64/lib
+2026-10-24T01:58:26.3526900Z ##[endgroup]
+2026-10-24T01:58:26.8999293Z repository structure: OK -- 16 directories, 23 required documents
+2026-10-24T01:58:26.9096439Z ##[group]Run python3 tools/validate_register.py
+2026-10-24T01:58:26.9097517Z [36;1mpython3 tools/validate_register.py[0m
+2026-10-24T01:58:26.9152215Z shell: /usr/bin/bash -e {0}
+2026-10-24T01:58:26.9153000Z env:
+2026-10-24T01:58:26.9153825Z   pythonLocation: /opt/hostedtoolcache/Python/3.11.17/x64
+2026-10-24T01:58:26.9155127Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.11.17/x64/lib/pkgconfig
+2026-10-24T01:58:26.9156431Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.17/x64
+2026-10-24T01:58:26.9157547Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.17/x64
+2026-10-24T01:58:26.9158666Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.17/x64
+2026-10-24T01:58:26.9159789Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.11.17/x64/lib
+2026-10-24T01:58:26.9160859Z ##[endgroup]
+2026-10-24T01:58:26.9839090Z provenance/transfer-register.json: OK -- 0 entries, corpus_reachable=False, status_at=2026-08-27
+2026-10-24T01:58:26.9841782Z   note: an empty register with corpus_reachable=false records absence of observation, not absence of artifacts (see provenance/CORPUS-INDEX.md).
+2026-10-24T01:58:26.9926142Z ##[group]Run python3 tools/build_m0_fixtures.py --check
+2026-10-24T01:58:26.9927094Z [36;1mpython3 tools/build_m0_fixtures.py --check[0m
+2026-10-24T01:58:26.9982650Z shell: /usr/bin/bash -e {0}
+2026-10-24T01:58:26.9983260Z env:
+2026-10-24T01:58:26.9983898Z   pythonLocation: /opt/hostedtoolcache/Python/3.11.17/x64
+2026-10-24T01:58:26.9984994Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.11.17/x64/lib/pkgconfig
+2026-10-24T01:58:26.9986075Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.17/x64
+2026-10-24T01:58:26.9987054Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.17/x64
+2026-10-24T01:58:26.9988027Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.17/x64
+2026-10-24T01:58:26.9988999Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.11.17/x64/lib
+2026-10-24T01:58:26.9989820Z ##[endgroup]
+2026-10-24T01:58:27.2241128Z m0 fixtures: OK -- 6 file(s) match the implementation
+2026-10-24T01:58:27.2356865Z ##[group]Run python3 -m unittest discover -s tests -v
+2026-10-24T01:58:27.2357812Z [36;1mpython3 -m unittest discover -s tests -v[0m
+2026-10-24T01:58:27.2415516Z shell: /usr/bin/bash -e {0}
+2026-10-24T01:58:27.2416127Z env:
+2026-10-24T01:58:27.2416783Z   pythonLocation: /opt/hostedtoolcache/Python/3.11.17/x64
+2026-10-24T01:58:27.2417862Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.11.17/x64/lib/pkgconfig
+2026-10-24T01:58:27.2419092Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.17/x64
+2026-10-24T01:58:27.2420075Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.17/x64
+2026-10-24T01:58:27.2421217Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.17/x64
+2026-10-24T01:58:27.2422214Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.11.17/x64/lib
+2026-10-24T01:58:27.2423069Z ##[endgroup]
+2026-10-24T01:58:27.9107369Z test_chain_head_naming_a_non_final_record_is_tampered (conformance.test_chain_terminus.DeclarationTamperingTest.test_chain_head_naming_a_non_final_record_is_tampered)
+2026-10-24T01:58:27.9134678Z Pointing at an interior record would let the tail be dropped. ... ok
+2026-10-24T01:58:27.9154306Z test_wrong_chain_head_is_tampered (conformance.test_chain_terminus.DeclarationTamperingTest.test_wrong_chain_head_is_tampered) ... ok
+2026-10-24T01:58:27.9219194Z test_wrong_entry_count_is_tampered (conformance.test_chain_terminus.DeclarationTamperingTest.test_wrong_entry_count_is_tampered) ... ok
+2026-10-24T01:58:27.9220728Z test_a_full_rewrite_still_verifies_and_that_limit_is_recorded (conformance.test_chain_terminus.ExistingClassificationsPreservedTest.test_a_full_rewrite_still_verifies_and_that_limit_is_recorded)
+2026-10-24T01:58:27.9249080Z The remaining, documented limitation. ... ok
+2026-10-24T01:58:27.9294854Z test_all_three_states_remain_reachable (conformance.test_chain_terminus.ExistingClassificationsPreservedTest.test_all_three_states_remain_reachable) ... ok
+2026-10-24T01:58:27.9368848Z test_interior_mutation_is_still_tampered (conformance.test_chain_terminus.ExistingClassificationsPreservedTest.test_interior_mutation_is_still_tampered) ... ok
+2026-10-24T01:58:27.9380617Z test_malformed_package_is_still_invalid (conformance.test_chain_terminus.ExistingClassificationsPreservedTest.test_malformed_package_is_still_invalid) ... ok
+2026-10-24T01:58:27.9396245Z test_reference_package_still_verifies (conformance.test_chain_terminus.ExistingClassificationsPreservedTest.test_reference_package_still_verifies) ... ok
+2026-10-24T01:58:27.9419535Z test_semantically_invalid_record_is_still_invalid (conformance.test_chain_terminus.ExistingClassificationsPreservedTest.test_semantically_invalid_record_is_still_invalid) ... ok
+2026-10-24T01:58:27.9443318Z test_append_with_full_restatement_verifies (conformance.test_chain_terminus.FullTerminusRestatementLimitTest.test_append_with_full_restatement_verifies) ... ok
+2026-10-24T01:58:27.9469206Z test_tail_mutation_with_full_restatement_verifies (conformance.test_chain_terminus.FullTerminusRestatementLimitTest.test_tail_mutation_with_full_restatement_verifies) ... ok
+2026-10-24T01:58:27.9502728Z test_truncation_with_full_restatement_verifies (conformance.test_chain_terminus.FullTerminusRestatementLimitTest.test_truncation_with_full_restatement_verifies) ... ok
+2026-10-24T01:58:27.9569197Z test_malformed_chain_head_is_invalid (conformance.test_chain_terminus.MalformedDeclarationTest.test_malformed_chain_head_is_invalid) ... ok
+2026-10-24T01:58:27.9634770Z test_malformed_entry_count_is_invalid (conformance.test_chain_terminus.MalformedDeclarationTest.test_malformed_entry_count_is_invalid) ... ok
+2026-10-24T01:58:27.9654826Z test_missing_declarations_are_invalid (conformance.test_chain_terminus.MalformedDeclarationTest.test_missing_declarations_are_invalid) ... ok
+2026-10-24T01:58:27.9655694Z test_chain_head_is_the_final_entry_hash_not_a_file_digest (conformance.test_chain_terminus.ManifestDeclaresTheTerminusTest.test_chain_head_is_the_final_entry_hash_not_a_file_digest)
+2026-10-24T01:58:27.9665003Z No new hashing domain: it is the record's own entry_hash. ... ok
+2026-10-24T01:58:27.9680449Z test_the_reference_package_declares_a_correct_terminus (conformance.test_chain_terminus.ManifestDeclaresTheTerminusTest.test_the_reference_package_declares_a_correct_terminus) ... ok
+2026-10-24T01:58:27.9730951Z test_byte_identical_packages_receive_the_same_verdict (conformance.test_chain_terminus.PackageByteIdentityInvariantTest.test_byte_identical_packages_receive_the_same_verdict) ... ok
+2026-10-24T01:58:27.9732280Z test_the_invariant_holds_across_the_three_states (conformance.test_chain_terminus.PackageByteIdentityInvariantTest.test_the_invariant_holds_across_the_three_states)
+2026-10-24T01:58:27.9809813Z A copy of any package, in any state, verifies identically. ... ok
+2026-10-24T01:58:27.9846777Z test_the_two_withdrawn_procedures_are_byte_identical (conformance.test_chain_terminus.PackageByteIdentityInvariantTest.test_the_two_withdrawn_procedures_are_byte_identical) ... ok
+2026-10-24T01:58:27.9874857Z test_verifying_the_same_package_twice_is_stable (conformance.test_chain_terminus.PackageByteIdentityInvariantTest.test_verifying_the_same_package_twice_is_stable) ... ok
+2026-10-24T01:58:27.9876037Z test_a_tail_mutation_leaves_no_partial_terminus_state (conformance.test_chain_terminus.PartialTerminusRestatementTest.test_a_tail_mutation_leaves_no_partial_terminus_state)
+2026-10-24T01:58:27.9900611Z Why the withdrawn case could not exist. ... ok
+2026-10-24T01:58:27.9925033Z test_append_restating_only_chain_head_is_tampered (conformance.test_chain_terminus.PartialTerminusRestatementTest.test_append_restating_only_chain_head_is_tampered) ... ok
+2026-10-24T01:58:27.9949005Z test_append_restating_only_entry_count_is_tampered (conformance.test_chain_terminus.PartialTerminusRestatementTest.test_append_restating_only_entry_count_is_tampered) ... ok
+2026-10-24T01:58:27.9973623Z test_truncation_restating_only_chain_head_is_tampered (conformance.test_chain_terminus.PartialTerminusRestatementTest.test_truncation_restating_only_chain_head_is_tampered) ... ok
+2026-10-24T01:58:27.9995921Z test_truncation_restating_only_entry_count_is_tampered (conformance.test_chain_terminus.PartialTerminusRestatementTest.test_truncation_restating_only_entry_count_is_tampered) ... ok
+2026-10-24T01:58:28.0018124Z test_appending_a_correctly_linked_record_is_tampered (conformance.test_chain_terminus.TailAppendTest.test_appending_a_correctly_linked_record_is_tampered) ... ok
+2026-10-24T01:58:28.0018981Z test_every_tail_field_that_previously_verified_is_now_tampered (conformance.test_chain_terminus.TailForgeryTest.test_every_tail_field_that_previously_verified_is_now_tampered)
+2026-10-24T01:58:28.0190377Z The eight fields the F-1 report measured reaching VERIFIED. ... ok
+2026-10-24T01:58:28.0215881Z test_tail_decision_mutation_is_tampered (conformance.test_chain_terminus.TailForgeryTest.test_tail_decision_mutation_is_tampered) ... ok
+2026-10-24T01:58:28.0238449Z test_tail_policy_hash_mutation_is_tampered (conformance.test_chain_terminus.TailForgeryTest.test_tail_policy_hash_mutation_is_tampered) ... ok
+2026-10-24T01:58:28.0258861Z test_deleting_the_tail_record_is_tampered (conformance.test_chain_terminus.TailTruncationTest.test_deleting_the_tail_record_is_tampered) ... ok
+2026-10-24T01:58:28.0276971Z test_deleting_two_records_is_tampered (conformance.test_chain_terminus.TailTruncationTest.test_deleting_two_records_is_tampered) ... ok
+2026-10-24T01:58:28.0277862Z test_truncation_is_refused_even_when_the_remaining_chain_is_consistent (conformance.test_chain_terminus.TailTruncationTest.test_truncation_is_refused_even_when_the_remaining_chain_is_consistent)
+2026-10-24T01:58:28.0298113Z Truncation leaves every surviving link intact; only the terminus differs. ... ok
+2026-10-24T01:58:28.0299456Z test_a_violation_cannot_be_built_with_an_invalid_confidence (conformance.test_confidence.RejectionTest.test_a_violation_cannot_be_built_with_an_invalid_confidence) ... ok
+2026-10-24T01:58:28.0300494Z test_bool_is_not_a_confidence (conformance.test_confidence.RejectionTest.test_bool_is_not_a_confidence)
+2026-10-24T01:58:28.0301345Z bool is a subclass of int; True must not become a confidence of 1.0. ... ok
+2026-10-24T01:58:28.0302057Z test_non_finite_values_are_rejected (conformance.test_confidence.RejectionTest.test_non_finite_values_are_rejected) ... ok
+2026-10-24T01:58:28.0302882Z test_non_numeric_values_are_rejected (conformance.test_confidence.RejectionTest.test_non_numeric_values_are_rejected) ... ok
+2026-10-24T01:58:28.0303596Z test_out_of_range_values_are_rejected_not_clamped (conformance.test_confidence.RejectionTest.test_out_of_range_values_are_rejected_not_clamped) ... ok
+2026-10-24T01:58:28.0304289Z test_float_confidence_cannot_reach_the_canonical_form (conformance.test_confidence.RepresentationTest.test_float_confidence_cannot_reach_the_canonical_form) ... ok
+2026-10-24T01:58:28.0311102Z test_out_of_range_basis_points_are_rejected_at_representation_time (conformance.test_confidence.RepresentationTest.test_out_of_range_basis_points_are_rejected_at_representation_time)
+2026-10-24T01:58:28.0311674Z Bypassing build() must not smuggle an unrepresentable confidence through. ... ok
+2026-10-24T01:58:28.0312184Z test_violation_carries_integer_basis_points (conformance.test_confidence.RepresentationTest.test_violation_carries_integer_basis_points) ... ok
+2026-10-24T01:58:28.0312823Z test_binary_floating_point_artefacts_do_not_leak (conformance.test_confidence.RequiredVectorTest.test_binary_floating_point_artefacts_do_not_leak)
+2026-10-24T01:58:28.0334349Z Naive binary scaling is wrong for 573 of the 10001 representable inputs. ... ok
+2026-10-24T01:58:28.0335418Z test_equivalent_spellings_agree (conformance.test_confidence.RequiredVectorTest.test_equivalent_spellings_agree) ... ok
+2026-10-24T01:58:28.0336388Z test_integers_at_the_boundaries (conformance.test_confidence.RequiredVectorTest.test_integers_at_the_boundaries) ... ok
+2026-10-24T01:58:28.0337252Z test_scale_is_ten_thousand (conformance.test_confidence.RequiredVectorTest.test_scale_is_ten_thousand) ... ok
+2026-10-24T01:58:28.0338137Z test_the_four_required_conversions (conformance.test_confidence.RequiredVectorTest.test_the_four_required_conversions) ... ok
+2026-10-24T01:58:28.0339078Z test_rounding_is_stated_not_truncating (conformance.test_confidence.RoundingTest.test_rounding_is_stated_not_truncating) ... ok
+2026-10-24T01:58:28.0339970Z test_ties_round_half_to_even (conformance.test_confidence.RoundingTest.test_ties_round_half_to_even) ... ok
+2026-10-24T01:58:28.0341136Z test_committed_fixtures_match_the_implementation (conformance.test_fixture_integrity.FixtureDriftTest.test_committed_fixtures_match_the_implementation)
+2026-10-24T01:58:28.0362639Z Fails if the vectors or the reference package were not regenerated. ... ok
+2026-10-24T01:58:28.0366434Z test_every_vector_states_its_purpose (conformance.test_fixture_integrity.FixtureDriftTest.test_every_vector_states_its_purpose) ... ok
+2026-10-24T01:58:28.0369485Z test_vector_file_declares_its_authority_and_makes_no_compatibility_claim (conformance.test_fixture_integrity.FixtureDriftTest.test_vector_file_declares_its_authority_and_makes_no_compatibility_claim) ... ok
+2026-10-24T01:58:28.0372576Z test_vectors_cover_every_property_the_contract_requires (conformance.test_fixture_integrity.FixtureDriftTest.test_vectors_cover_every_property_the_contract_requires) ... ok
+2026-10-24T01:58:28.0373879Z test_manifest_digests_match_the_files_on_disk (conformance.test_fixture_integrity.ReferencePackageTest.test_manifest_digests_match_the_files_on_disk) ... ok
+2026-10-24T01:58:28.0375069Z test_package_carries_more_than_one_chained_record (conformance.test_fixture_integrity.ReferencePackageTest.test_package_carries_more_than_one_chained_record)
+2026-10-24T01:58:28.0375972Z A single-record package would not exercise chain linkage at all. ... ok
+2026-10-24T01:58:28.0377022Z test_package_has_the_layout_the_contract_specifies (conformance.test_fixture_integrity.ReferencePackageTest.test_package_has_the_layout_the_contract_specifies) ... ok
+2026-10-24T01:58:28.0388034Z test_every_vector_matches_the_contract_derived_implementation (conformance.test_independent_oracle.ContractOracleTest.test_every_vector_matches_the_contract_derived_implementation) ... ok
+2026-10-24T01:58:28.0389234Z test_the_oracle_derives_utf16_units_correctly (conformance.test_independent_oracle.ContractOracleTest.test_the_oracle_derives_utf16_units_correctly)
+2026-10-24T01:58:28.0389992Z Anchor the oracle's own mechanism against known values. ... ok
+2026-10-24T01:58:28.0391231Z test_the_oracle_imports_nothing_from_the_implementation (conformance.test_independent_oracle.ContractOracleTest.test_the_oracle_imports_nothing_from_the_implementation)
+2026-10-24T01:58:28.0397309Z Guard against the oracle being quietly reduced to a call into the code. ... ok
+2026-10-24T01:58:28.0398349Z test_the_oracle_rejects_what_the_contract_excludes (conformance.test_independent_oracle.ContractOracleTest.test_the_oracle_rejects_what_the_contract_excludes) ... ok
+2026-10-24T01:58:28.0399652Z test_the_two_implementations_agree_on_the_reference_package (conformance.test_independent_oracle.ContractOracleTest.test_the_two_implementations_agree_on_the_reference_package)
+2026-10-24T01:58:28.0403441Z Beyond the vectors: the shipped evidence must survive the same check. ... ok
+2026-10-24T01:58:28.0404323Z test_an_external_sha256_implementation_is_available (conformance.test_independent_oracle.ExternalDigestOracleTest.test_an_external_sha256_implementation_is_available)
+2026-10-24T01:58:28.0405216Z This oracle must actually run. A silently skipped oracle is not evidence. ... ok
+2026-10-24T01:58:28.0645621Z test_every_recorded_digest_is_confirmed_externally (conformance.test_independent_oracle.ExternalDigestOracleTest.test_every_recorded_digest_is_confirmed_externally) ... ok
+2026-10-24T01:58:28.0653731Z test_every_vector_except_the_ordering_case_matches_stdlib_json (conformance.test_independent_oracle.StdlibJsonOracleTest.test_every_vector_except_the_ordering_case_matches_stdlib_json) ... ok
+2026-10-24T01:58:28.0654538Z test_the_ordering_vector_differs_from_stdlib_json_in_order_alone (conformance.test_independent_oracle.StdlibJsonOracleTest.test_the_ordering_vector_differs_from_stdlib_json_in_order_alone)
+2026-10-24T01:58:28.0657627Z The divergence must be the documented rule, not an encoding bug. ... ok
+2026-10-24T01:58:28.0661034Z test_the_documented_bytes_match_the_committed_vector (conformance.test_independent_oracle.WorkedExampleTest.test_the_documented_bytes_match_the_committed_vector) ... ok
+2026-10-24T01:58:28.0676385Z test_the_worked_example_is_reproducible_from_the_contract_alone (conformance.test_independent_oracle.WorkedExampleTest.test_the_worked_example_is_reproducible_from_the_contract_alone)
+2026-10-24T01:58:28.0677354Z Derive it with the contract-written oracle and an external digest. ... ok
+2026-10-24T01:58:28.0679768Z test_absent_metadata_key_differs_from_empty_metadata_value (conformance.test_p0_02_canonical_bytes.ByteLevelPropertyTest.test_absent_metadata_key_differs_from_empty_metadata_value) ... ok
+2026-10-24T01:58:28.0681206Z test_absent_optional_is_not_null_and_not_empty (conformance.test_p0_02_canonical_bytes.ByteLevelPropertyTest.test_absent_optional_is_not_null_and_not_empty)
+2026-10-24T01:58:28.0682750Z None, Some(""), and Some(value) are three distinct byte strings. ... ok
+2026-10-24T01:58:28.0683659Z test_astral_member_names_sort_by_utf16_code_unit (conformance.test_p0_02_canonical_bytes.ByteLevelPropertyTest.test_astral_member_names_sort_by_utf16_code_unit)
+2026-10-24T01:58:28.0685978Z RFC 8785 orders names by UTF-16 code units, not by code point. ... ok
+2026-10-24T01:58:28.0688616Z test_backslashes_are_doubled (conformance.test_p0_02_canonical_bytes.ByteLevelPropertyTest.test_backslashes_are_doubled) ... ok
+2026-10-24T01:58:28.0691539Z test_confidence_appears_as_integer_basis_points (conformance.test_p0_02_canonical_bytes.ByteLevelPropertyTest.test_confidence_appears_as_integer_basis_points) ... ok
+2026-10-24T01:58:28.0694539Z test_control_characters_take_the_specified_escapes (conformance.test_p0_02_canonical_bytes.ByteLevelPropertyTest.test_control_characters_take_the_specified_escapes) ... ok
+2026-10-24T01:58:28.0697171Z test_empty_violation_array_is_present_as_a_member (conformance.test_p0_02_canonical_bytes.ByteLevelPropertyTest.test_empty_violation_array_is_present_as_a_member) ... ok
+2026-10-24T01:58:28.0698473Z test_injection_shaped_content_cannot_restructure_the_preimage (conformance.test_p0_02_canonical_bytes.ByteLevelPropertyTest.test_injection_shaped_content_cannot_restructure_the_preimage)
+2026-10-24T01:58:28.0699866Z Content that looks like canonical syntax stays inside its string. ... ok
+2026-10-24T01:58:28.0702715Z test_literal_none_text_is_content (conformance.test_p0_02_canonical_bytes.ByteLevelPropertyTest.test_literal_none_text_is_content) ... ok
+2026-10-24T01:58:28.0705344Z test_literal_some_empty_text_is_content (conformance.test_p0_02_canonical_bytes.ByteLevelPropertyTest.test_literal_some_empty_text_is_content) ... ok
+2026-10-24T01:58:28.0708011Z test_pipes_are_content_and_never_delimiters (conformance.test_p0_02_canonical_bytes.ByteLevelPropertyTest.test_pipes_are_content_and_never_delimiters) ... ok
+2026-10-24T01:58:28.0710832Z test_protected_metadata_participates_in_the_preimage (conformance.test_p0_02_canonical_bytes.ByteLevelPropertyTest.test_protected_metadata_participates_in_the_preimage) ... ok
+2026-10-24T01:58:28.0713499Z test_quotes_escape_and_do_not_terminate_a_string (conformance.test_p0_02_canonical_bytes.ByteLevelPropertyTest.test_quotes_escape_and_do_not_terminate_a_string) ... ok
+2026-10-24T01:58:28.0716149Z test_unicode_is_emitted_literally_as_utf8 (conformance.test_p0_02_canonical_bytes.ByteLevelPropertyTest.test_unicode_is_emitted_literally_as_utf8) ... ok
+2026-10-24T01:58:28.0718804Z test_violation_ordering_is_protected (conformance.test_p0_02_canonical_bytes.ByteLevelPropertyTest.test_violation_ordering_is_protected) ... ok
+2026-10-24T01:58:28.0732517Z test_every_vector_reproduces_its_recorded_bytes (conformance.test_p0_02_canonical_bytes.CanonicalByteVectorTest.test_every_vector_reproduces_its_recorded_bytes) ... ok
+2026-10-24T01:58:28.0733780Z test_integrity_value_is_absent_from_its_own_preimage (conformance.test_p0_02_canonical_bytes.CanonicalByteVectorTest.test_integrity_value_is_absent_from_its_own_preimage)
+2026-10-24T01:58:28.0745315Z H(canonical(entry without integrity hash)), never H(canonical(entry)). ... ok
+2026-10-24T01:58:28.0746159Z test_no_two_vectors_share_canonical_bytes (conformance.test_p0_02_canonical_bytes.CanonicalByteVectorTest.test_no_two_vectors_share_canonical_bytes)
+2026-10-24T01:58:28.0757186Z Distinct fixtures must stay distinct, or a vector silently tests nothing. ... ok
+2026-10-24T01:58:28.0757981Z test_recorded_utf8_and_hex_agree (conformance.test_p0_02_canonical_bytes.CanonicalByteVectorTest.test_recorded_utf8_and_hex_agree)
+2026-10-24T01:58:28.0761086Z The two recordings of the same bytes must not drift apart. ... ok
+2026-10-24T01:58:28.0761961Z test_equivalent_confidence_spellings_produce_one_digest (conformance.test_p0_03_hash_vectors.DeterminismTest.test_equivalent_confidence_spellings_produce_one_digest)
+2026-10-24T01:58:28.0764486Z 0.95, "0.95", and Decimal("0.95") are one value, so they are one digest. ... ok
+2026-10-24T01:58:28.0765367Z test_member_insertion_order_does_not_affect_the_bytes (conformance.test_p0_03_hash_vectors.DeterminismTest.test_member_insertion_order_does_not_affect_the_bytes)
+2026-10-24T01:58:28.0767247Z Map iteration order is a classic source of non-determinism (criterion C6). ... ok
+2026-10-24T01:58:28.0788543Z test_repeated_construction_is_byte_identical (conformance.test_p0_03_hash_vectors.DeterminismTest.test_repeated_construction_is_byte_identical) ... ok
+2026-10-24T01:58:28.0791842Z test_digest_is_sha256_and_not_some_other_primitive (conformance.test_p0_03_hash_vectors.HashVectorTest.test_digest_is_sha256_and_not_some_other_primitive) ... ok
+2026-10-24T01:58:28.0804468Z test_every_vector_reproduces_its_recorded_digest (conformance.test_p0_03_hash_vectors.HashVectorTest.test_every_vector_reproduces_its_recorded_digest) ... ok
+2026-10-24T01:58:28.0816415Z test_no_two_vectors_share_a_digest (conformance.test_p0_03_hash_vectors.HashVectorTest.test_no_two_vectors_share_a_digest) ... ok
+2026-10-24T01:58:28.0817497Z test_recorded_digest_is_the_digest_of_the_recorded_bytes (conformance.test_p0_03_hash_vectors.HashVectorTest.test_recorded_digest_is_the_digest_of_the_recorded_bytes)
+2026-10-24T01:58:28.0820458Z Ties the P0-03 digest to the P0-02 bytes, not merely to the implementation. ... ok
+2026-10-24T01:58:28.0821602Z test_a_self_referential_preimage_would_be_detected (conformance.test_p0_03_hash_vectors.IntegrityFieldExclusionTest.test_a_self_referential_preimage_would_be_detected)
+2026-10-24T01:58:28.0822504Z Guard the property directly: hashing the sealed record must not reproduce ... ok
+2026-10-24T01:58:28.0823385Z test_recomputation_from_the_wire_form_agrees (conformance.test_p0_03_hash_vectors.IntegrityFieldExclusionTest.test_recomputation_from_the_wire_form_agrees)
+2026-10-24T01:58:28.0824247Z A verifier works from the record, not from a producer-side object. ... ok
+2026-10-24T01:58:28.0825073Z test_sealing_does_not_change_the_digest (conformance.test_p0_03_hash_vectors.IntegrityFieldExclusionTest.test_sealing_does_not_change_the_digest)
+2026-10-24T01:58:28.0830812Z Attaching the digest to the record must not alter what the digest covers. ... ok
+2026-10-24T01:58:28.0841025Z test_escaping_change_is_a_mutation (conformance.test_p0_03_hash_vectors.ProtectedMutationTest.test_escaping_change_is_a_mutation) ... ok
+2026-10-24T01:58:28.0853970Z test_every_protected_mutation_changes_bytes_and_digest (conformance.test_p0_03_hash_vectors.ProtectedMutationTest.test_every_protected_mutation_changes_bytes_and_digest) ... ok
+2026-10-24T01:58:28.0855072Z test_unicode_representation_change_is_a_mutation (conformance.test_p0_03_hash_vectors.ProtectedMutationTest.test_unicode_representation_change_is_a_mutation)
+2026-10-24T01:58:28.0996399Z Two spellings of 'the same' text are two different pieces of evidence. ... ok
+2026-10-24T01:58:28.0997080Z test_absolute_path_is_invalid (conformance.test_package_boundary.AbsolutePathTest.test_absolute_path_is_invalid)
+2026-10-24T01:58:28.1010496Z `Path(root) / "/etc/hostname"` is `/etc/hostname`: the root is discarded. ... ok
+2026-10-24T01:58:28.1022731Z test_absolute_system_path_is_invalid (conformance.test_package_boundary.AbsolutePathTest.test_absolute_system_path_is_invalid) ... ok
+2026-10-24T01:58:28.1023589Z test_backslash_separator_is_invalid (conformance.test_package_boundary.AbsolutePathTest.test_backslash_separator_is_invalid)
+2026-10-24T01:58:28.1034713Z A backslash is a separator on some platforms; package paths are POSIX. ... ok
+2026-10-24T01:58:28.1065563Z test_empty_and_non_string_paths_are_invalid (conformance.test_package_boundary.AbsolutePathTest.test_empty_and_non_string_paths_are_invalid) ... ok
+2026-10-24T01:58:28.1076629Z test_root_itself_is_invalid (conformance.test_package_boundary.AbsolutePathTest.test_root_itself_is_invalid) ... ok
+2026-10-24T01:58:28.1077684Z test_an_escaping_path_is_refused_even_when_the_target_does_not_exist (conformance.test_package_boundary.BoundaryPrecedesReadingTest.test_an_escaping_path_is_refused_even_when_the_target_does_not_exist)
+2026-10-24T01:58:28.1088118Z No filesystem access is needed to refuse a traversal declaration. ... ok
+2026-10-24T01:58:28.1088963Z test_an_escaping_path_is_refused_even_with_a_wrong_digest (conformance.test_package_boundary.BoundaryPrecedesReadingTest.test_an_escaping_path_is_refused_even_with_a_wrong_digest)
+2026-10-24T01:58:28.1099438Z The verdict must be INVALID on the boundary, not TAMPERED on the digest. ... ok
+2026-10-24T01:58:28.1139933Z test_the_three_states_remain_distinct_under_boundary_enforcement (conformance.test_package_boundary.BoundaryPrecedesReadingTest.test_the_three_states_remain_distinct_under_boundary_enforcement) ... ok
+2026-10-24T01:58:28.1141273Z test_a_package_reached_through_a_symlinked_root_verifies (conformance.test_package_boundary.LegitimateInternalPathTest.test_a_package_reached_through_a_symlinked_root_verifies)
+2026-10-24T01:58:28.1157162Z The boundary is the resolved root, so a symlinked package still works. ... ok
+2026-10-24T01:58:28.1158042Z test_an_additional_declared_file_inside_the_package_verifies (conformance.test_package_boundary.LegitimateInternalPathTest.test_an_additional_declared_file_inside_the_package_verifies)
+2026-10-24T01:58:28.1186267Z A legitimate nested path is accepted and is actually digested. ... ok
+2026-10-24T01:58:28.1202082Z test_the_reference_package_still_verifies (conformance.test_package_boundary.LegitimateInternalPathTest.test_the_reference_package_still_verifies) ... ok
+2026-10-24T01:58:28.1203311Z test_a_file_cannot_be_declared_twice_under_two_spellings (conformance.test_package_boundary.ParentTraversalTest.test_a_file_cannot_be_declared_twice_under_two_spellings)
+2026-10-24T01:58:28.1214153Z The concrete hazard the canonical-form rule closes. ... ok
+2026-10-24T01:58:28.1226092Z test_deep_parent_traversal_is_invalid (conformance.test_package_boundary.ParentTraversalTest.test_deep_parent_traversal_is_invalid) ... ok
+2026-10-24T01:58:28.1257343Z test_nested_traversal_is_invalid (conformance.test_package_boundary.ParentTraversalTest.test_nested_traversal_is_invalid) ... ok
+2026-10-24T01:58:28.1258243Z test_non_canonical_spellings_are_invalid (conformance.test_package_boundary.ParentTraversalTest.test_non_canonical_spellings_are_invalid)
+2026-10-24T01:58:28.1297614Z PurePosixPath drops these silently, so a component scan cannot see them. ... ok
+2026-10-24T01:58:28.1309458Z test_parent_traversal_is_invalid (conformance.test_package_boundary.ParentTraversalTest.test_parent_traversal_is_invalid) ... ok
+2026-10-24T01:58:28.1310536Z test_traversal_that_lands_back_inside_is_still_invalid (conformance.test_package_boundary.ParentTraversalTest.test_traversal_that_lands_back_inside_is_still_invalid)
+2026-10-24T01:58:28.1321244Z Refused on spelling, not only on where it happens to land. ... ok
+2026-10-24T01:58:28.1322048Z test_a_symlink_staying_inside_the_package_is_not_an_escape (conformance.test_package_boundary.SymlinkEscapeTest.test_a_symlink_staying_inside_the_package_is_not_an_escape)
+2026-10-24T01:58:28.1341113Z Containment is the rule, not a blanket ban on symlinks. ... ok
+2026-10-24T01:58:28.1356085Z test_symlink_to_a_directory_outside_the_package_is_invalid (conformance.test_package_boundary.SymlinkEscapeTest.test_symlink_to_a_directory_outside_the_package_is_invalid) ... ok
+2026-10-24T01:58:28.1370495Z test_symlink_to_a_file_outside_the_package_is_invalid (conformance.test_package_boundary.SymlinkEscapeTest.test_symlink_to_a_file_outside_the_package_is_invalid) ... ok
+2026-10-24T01:58:28.1424765Z test_all_three_states_remain_reachable (conformance.test_review_findings.ClassificationSeparationTest.test_all_three_states_remain_reachable) ... ok
+2026-10-24T01:58:28.1586531Z test_value_domain_changes_remain_tampered_not_invalid (conformance.test_review_findings.ClassificationSeparationTest.test_value_domain_changes_remain_tampered_not_invalid)
+2026-10-24T01:58:28.1587169Z Interpretability decides INVALID; the digest decides TAMPERED. ... ok
+2026-10-24T01:58:28.1587638Z test_bool_is_not_an_integer_field (conformance.test_review_findings.P0R1ExactAuditSchemaTest.test_bool_is_not_an_integer_field)
+2026-10-24T01:58:28.1608721Z bool subclasses int; true must not pass as a sequence number. ... ok
+2026-10-24T01:58:28.1623437Z test_control_reference_package_still_verifies (conformance.test_review_findings.P0R1ExactAuditSchemaTest.test_control_reference_package_still_verifies) ... ok
+2026-10-24T01:58:28.1624247Z test_every_required_field_is_individually_required (conformance.test_review_findings.P0R1ExactAuditSchemaTest.test_every_required_field_is_individually_required)
+2026-10-24T01:58:28.1841303Z One dropped field at a time, so no single check carries the whole suite. ... ok
+2026-10-24T01:58:28.1863757Z test_metadata_values_must_be_strings (conformance.test_review_findings.P0R1ExactAuditSchemaTest.test_metadata_values_must_be_strings) ... ok
+2026-10-24T01:58:28.1886066Z test_missing_required_field_is_invalid (conformance.test_review_findings.P0R1ExactAuditSchemaTest.test_missing_required_field_is_invalid) ... ok
+2026-10-24T01:58:28.1886806Z test_schema_validation_runs_before_hashing (conformance.test_review_findings.P0R1ExactAuditSchemaTest.test_schema_validation_runs_before_hashing)
+2026-10-24T01:58:28.1907333Z An invalid record must not be able to reach an integrity verdict. ... ok
+2026-10-24T01:58:28.1999114Z test_violation_structure_is_validated (conformance.test_review_findings.P0R1ExactAuditSchemaTest.test_violation_structure_is_validated) ... ok
+2026-10-24T01:58:28.2021367Z test_wrong_field_type_is_invalid (conformance.test_review_findings.P0R1ExactAuditSchemaTest.test_wrong_field_type_is_invalid) ... ok
+2026-10-24T01:58:28.2206624Z test_wrong_type_for_each_kind_of_field (conformance.test_review_findings.P0R1ExactAuditSchemaTest.test_wrong_type_for_each_kind_of_field) ... ok
+2026-10-24T01:58:28.2207353Z test_no_extension_mechanism_exists (conformance.test_review_findings.P0R2UnknownFieldTest.test_no_extension_mechanism_exists)
+2026-10-24T01:58:28.2339321Z Plausible extension spellings are all rejected, not special-cased. ... ok
+2026-10-24T01:58:28.2339984Z test_unknown_field_cannot_obtain_verified (conformance.test_review_findings.P0R2UnknownFieldTest.test_unknown_field_cannot_obtain_verified)
+2026-10-24T01:58:28.2362901Z The record is correctly hashed over its own members and still INVALID. ... ok
+2026-10-24T01:58:28.2363577Z test_unknown_field_is_invalid_not_tampered (conformance.test_review_findings.P0R2UnknownFieldTest.test_unknown_field_is_invalid_not_tampered)
+2026-10-24T01:58:28.2387584Z The states stay distinct: this is unreadable, not altered. ... ok
+2026-10-24T01:58:28.2388338Z test_declared_contract_matches_the_repository_constants (conformance.test_review_findings.P0R3ManifestSemanticsTest.test_declared_contract_matches_the_repository_constants)
+2026-10-24T01:58:28.2395938Z The verifier's supported set must track core/, not a second copy. ... ok
+2026-10-24T01:58:28.2452993Z test_missing_declaration_is_invalid (conformance.test_review_findings.P0R3ManifestSemanticsTest.test_missing_declaration_is_invalid) ... ok
+2026-10-24T01:58:28.2453695Z test_supported_declarations_are_accepted (conformance.test_review_findings.P0R3ManifestSemanticsTest.test_supported_declarations_are_accepted)
+2026-10-24T01:58:28.2466941Z The check must not reject the contract the repository actually implements. ... ok
+2026-10-24T01:58:28.2525866Z test_unsupported_declaration_is_invalid (conformance.test_review_findings.P0R3ManifestSemanticsTest.test_unsupported_declaration_is_invalid) ... ok
+2026-10-24T01:58:28.2527174Z test_a_valid_surrogate_pair_is_one_character_and_is_accepted (conformance.test_review_findings.P0R4LoneSurrogateTest.test_a_valid_surrogate_pair_is_one_character_and_is_accepted)
+2026-10-24T01:58:28.2528125Z U+1F510 is encoded in Python as a single character, not a pair, and must ... ok
+2026-10-24T01:58:28.2529081Z test_lone_surrogate_in_a_member_name_raises_canonicalisation_error (conformance.test_review_findings.P0R4LoneSurrogateTest.test_lone_surrogate_in_a_member_name_raises_canonicalisation_error)
+2026-10-24T01:58:28.2529991Z Member names are checked before the UTF-16 sort key touches them. ... ok
+2026-10-24T01:58:28.2543072Z test_lone_surrogate_in_a_value_raises_canonicalisation_error (conformance.test_review_findings.P0R4LoneSurrogateTest.test_lone_surrogate_in_a_value_raises_canonicalisation_error) ... ok
+2026-10-24T01:58:28.2544263Z test_lone_surrogate_nested_in_a_violation_raises (conformance.test_review_findings.P0R4LoneSurrogateTest.test_lone_surrogate_nested_in_a_violation_raises) ... ok
+2026-10-24T01:58:28.2544937Z test_no_unicode_encode_error_escapes_the_boundary (conformance.test_review_findings.P0R4LoneSurrogateTest.test_no_unicode_encode_error_escapes_the_boundary)
+2026-10-24T01:58:28.2545697Z The failure mode the review named: an implementation error leaking out. ... ok
+2026-10-24T01:58:28.2547932Z test_surrogate_reaching_the_verifier_is_invalid (conformance.test_review_findings.P0R4LoneSurrogateTest.test_surrogate_reaching_the_verifier_is_invalid)
+2026-10-24T01:58:28.2548922Z A JSON escape for a lone surrogate is valid file content, so this path ... ok
+2026-10-24T01:58:28.2549626Z test_valid_unicode_is_unaffected (conformance.test_review_findings.P0R4LoneSurrogateTest.test_valid_unicode_is_unaffected)
+2026-10-24T01:58:28.2550461Z The fix must not change AURA-CANON/1 for anything with a canonical form. ... ok
+2026-10-24T01:58:28.2551446Z test_a_contradictory_expected_result_does_not_change_the_verdict (conformance.test_review_findings.P0R5ExpectedResultSemanticsTest.test_a_contradictory_expected_result_does_not_change_the_verdict)
+2026-10-24T01:58:28.2566231Z The package claims TAMPERED; the evidence says otherwise, and wins. ... ok
+2026-10-24T01:58:28.2567181Z test_a_package_cannot_claim_verified_for_tampered_evidence (conformance.test_review_findings.P0R5ExpectedResultSemanticsTest.test_a_package_cannot_claim_verified_for_tampered_evidence)
+2026-10-24T01:58:28.2587880Z The inverse, which is the direction that would actually matter. ... ok
+2026-10-24T01:58:28.2602999Z test_deleting_expected_result_does_not_change_the_verdict (conformance.test_review_findings.P0R5ExpectedResultSemanticsTest.test_deleting_expected_result_does_not_change_the_verdict) ... ok
+2026-10-24T01:58:28.2610882Z test_expected_result_is_not_a_required_file (conformance.test_review_findings.P0R5ExpectedResultSemanticsTest.test_expected_result_is_not_a_required_file) ... ok
+2026-10-24T01:58:28.2618971Z test_expected_result_is_not_bound_by_the_manifest (conformance.test_review_findings.P0R5ExpectedResultSemanticsTest.test_expected_result_is_not_bound_by_the_manifest) ... ok
+2026-10-24T01:58:28.2635430Z test_malformed_expected_result_does_not_change_the_verdict (conformance.test_review_findings.P0R5ExpectedResultSemanticsTest.test_malformed_expected_result_does_not_change_the_verdict) ... ok
+2026-10-24T01:58:28.2644382Z test_the_contract_states_the_interpretation (conformance.test_review_findings.P0R5ExpectedResultSemanticsTest.test_the_contract_states_the_interpretation) ... ok
+2026-10-24T01:58:28.2645493Z test_a_well_formed_record_validates (conformance.test_review_findings.SchemaValidatorUnitTest.test_a_well_formed_record_validates) ... ok
+2026-10-24T01:58:28.2646448Z test_non_object_record_is_rejected (conformance.test_review_findings.SchemaValidatorUnitTest.test_non_object_record_is_rejected) ... ok
+2026-10-24T01:58:28.2647533Z test_optional_shadow_hash_is_accepted_present_or_absent (conformance.test_review_findings.SchemaValidatorUnitTest.test_optional_shadow_hash_is_accepted_present_or_absent) ... ok
+2026-10-24T01:58:28.2648593Z test_schema_error_is_a_model_error (conformance.test_review_findings.SchemaValidatorUnitTest.test_schema_error_is_a_model_error)
+2026-10-24T01:58:28.2649287Z So existing callers catching ModelError keep working. ... ok
+2026-10-24T01:58:28.2669786Z test_a_correctly_sealed_invalid_record_does_not_verify (conformance.test_semantic_domain.AdversarialResealTest.test_a_correctly_sealed_invalid_record_does_not_verify) ... ok
+2026-10-24T01:58:28.2671474Z test_every_listed_semantic_case_refuses_when_correctly_sealed (conformance.test_semantic_domain.AdversarialResealTest.test_every_listed_semantic_case_refuses_when_correctly_sealed)
+2026-10-24T01:58:28.2857149Z The ten cases the change request names, each fully repaired. ... ok
+2026-10-24T01:58:28.2909214Z test_all_three_states_remain_reachable (conformance.test_semantic_domain.ClassificationPreservedTest.test_all_three_states_remain_reachable) ... ok
+2026-10-24T01:58:28.2920313Z test_malformed_package_is_still_invalid (conformance.test_semantic_domain.ClassificationPreservedTest.test_malformed_package_is_still_invalid) ... ok
+2026-10-24T01:58:28.2921153Z test_mutation_within_the_value_domain_is_still_tampered (conformance.test_semantic_domain.ClassificationPreservedTest.test_mutation_within_the_value_domain_is_still_tampered)
+2026-10-24T01:58:28.3031098Z Replacing a valid value with another valid value is still tampering. ... ok
+2026-10-24T01:58:28.3046620Z test_pristine_package_verifies (conformance.test_semantic_domain.ClassificationPreservedTest.test_pristine_package_verifies) ... ok
+2026-10-24T01:58:28.3066471Z test_confidence_above_scale_is_invalid (conformance.test_semantic_domain.ConfidenceDomainTest.test_confidence_above_scale_is_invalid) ... ok
+2026-10-24T01:58:28.3087067Z test_negative_confidence_is_invalid (conformance.test_semantic_domain.ConfidenceDomainTest.test_negative_confidence_is_invalid) ... ok
+2026-10-24T01:58:28.3133221Z test_the_confidence_boundaries_themselves_remain_acceptable (conformance.test_semantic_domain.ConfidenceDomainTest.test_the_confidence_boundaries_themselves_remain_acceptable) ... ok
+2026-10-24T01:58:28.3262309Z test_decision_vocabulary_is_closed (conformance.test_semantic_domain.DecisionVocabularyTest.test_decision_vocabulary_is_closed) ... ok
+2026-10-24T01:58:28.3263077Z test_every_defined_decision_remains_acceptable (conformance.test_semantic_domain.DecisionVocabularyTest.test_every_defined_decision_remains_acceptable)
+2026-10-24T01:58:28.3327568Z The check must not reject the vocabulary M0 actually defines. ... ok
+2026-10-24T01:58:28.3347097Z test_unknown_decision_is_invalid (conformance.test_semantic_domain.DecisionVocabularyTest.test_unknown_decision_is_invalid) ... ok
+2026-10-24T01:58:28.3347883Z test_a_wrong_but_well_formed_digest_stays_tampered (conformance.test_semantic_domain.HashRepresentationTest.test_a_wrong_but_well_formed_digest_stays_tampered)
+2026-10-24T01:58:28.3366513Z The boundary: 64 hex characters that are simply wrong is tampering. ... ok
+2026-10-24T01:58:28.3514042Z test_digest_representation_is_exactly_64_lowercase_hex (conformance.test_semantic_domain.HashRepresentationTest.test_digest_representation_is_exactly_64_lowercase_hex) ... ok
+2026-10-24T01:58:28.3568368Z test_non_hex_digest_fields_are_invalid (conformance.test_semantic_domain.HashRepresentationTest.test_non_hex_digest_fields_are_invalid) ... ok
+2026-10-24T01:58:28.3569067Z test_non_hex_entry_hash_is_invalid (conformance.test_semantic_domain.HashRepresentationTest.test_non_hex_entry_hash_is_invalid)
+2026-10-24T01:58:28.3583925Z The integrity value itself must look like an M0 digest. ... ok
+2026-10-24T01:58:28.3603386Z test_non_hex_shadow_hash_is_invalid (conformance.test_semantic_domain.HashRepresentationTest.test_non_hex_shadow_hash_is_invalid) ... ok
+2026-10-24T01:58:28.3623200Z test_empty_request_id_is_invalid (conformance.test_semantic_domain.RequiredNonEmptyTest.test_empty_request_id_is_invalid) ... ok
+2026-10-24T01:58:28.3660736Z test_empty_violation_rule_or_action_is_invalid (conformance.test_semantic_domain.RequiredNonEmptyTest.test_empty_violation_rule_or_action_is_invalid) ... ok
+2026-10-24T01:58:28.3661454Z test_policy_repr_may_be_empty (conformance.test_semantic_domain.RequiredNonEmptyTest.test_policy_repr_may_be_empty)
+2026-10-24T01:58:28.3683863Z The contract says policy_repr may be empty; the check must not overreach. ... ok
+2026-10-24T01:58:28.3684854Z test_a_valid_record_passes_both_layers (conformance.test_semantic_domain.SemanticValidatorUnitTest.test_a_valid_record_passes_both_layers) ... ok
+2026-10-24T01:58:28.3685909Z test_optional_shadow_hash_is_checked_only_when_present (conformance.test_semantic_domain.SemanticValidatorUnitTest.test_optional_shadow_hash_is_checked_only_when_present) ... ok
+2026-10-24T01:58:28.3686762Z test_semantics_are_a_separate_layer_from_structure (conformance.test_semantic_domain.SemanticValidatorUnitTest.test_semantics_are_a_separate_layer_from_structure)
+2026-10-24T01:58:28.3687244Z A structurally perfect record can still be semantically invalid. ... ok
+2026-10-24T01:58:28.3687715Z test_the_error_names_the_offending_member (conformance.test_semantic_domain.SemanticValidatorUnitTest.test_the_error_names_the_offending_member) ... ok
+2026-10-24T01:58:28.3768550Z test_a_non_negative_but_wrong_sequence_stays_tampered (conformance.test_semantic_domain.SequenceDomainTest.test_a_non_negative_but_wrong_sequence_stays_tampered) ... ok
+2026-10-24T01:58:28.3788024Z test_negative_sequence_is_invalid (conformance.test_semantic_domain.SequenceDomainTest.test_negative_sequence_is_invalid) ... ok
+2026-10-24T01:58:28.3789210Z test_negative_sequence_is_invalid_not_merely_out_of_position (conformance.test_semantic_domain.SequenceDomainTest.test_negative_sequence_is_invalid_not_merely_out_of_position)
+2026-10-24T01:58:28.3807799Z Distinguish the domain from the chain-position check. ... ok
+2026-10-24T01:58:28.3827986Z test_garbage_timestamp_is_invalid (conformance.test_semantic_domain.TimestampDomainTest.test_garbage_timestamp_is_invalid) ... ok
+2026-10-24T01:58:28.3829041Z test_only_one_spelling_of_an_instant_is_accepted (conformance.test_semantic_domain.TimestampDomainTest.test_only_one_spelling_of_an_instant_is_accepted)
+2026-10-24T01:58:28.3956753Z Offsets, fractional seconds, and space separators are other spellings. ... ok
+2026-10-24T01:58:28.3957490Z test_the_three_states_are_distinct_values (conformance.test_verifier_states.StateSeparationTest.test_the_three_states_are_distinct_values) ... ok
+2026-10-24T01:58:28.3997260Z test_the_verifier_returns_nothing_outside_the_contract (conformance.test_verifier_states.StateSeparationTest.test_the_verifier_returns_nothing_outside_the_contract) ... ok
+2026-10-24T01:58:28.4016340Z test_altered_protected_field_is_tampered (conformance.test_verifier_states.VerifierStateTest.test_altered_protected_field_is_tampered) ... ok
+2026-10-24T01:58:28.4034960Z test_broken_chain_link_is_tampered (conformance.test_verifier_states.VerifierStateTest.test_broken_chain_link_is_tampered) ... ok
+2026-10-24T01:58:28.4047608Z test_empty_audit_chain_is_invalid (conformance.test_verifier_states.VerifierStateTest.test_empty_audit_chain_is_invalid) ... ok
+2026-10-24T01:58:28.4055985Z test_empty_directory_is_invalid (conformance.test_verifier_states.VerifierStateTest.test_empty_directory_is_invalid) ... ok
+2026-10-24T01:58:28.4066930Z test_file_not_declared_in_the_manifest_is_invalid (conformance.test_verifier_states.VerifierStateTest.test_file_not_declared_in_the_manifest_is_invalid) ... ok
+2026-10-24T01:58:28.4082350Z test_genesis_anchor_missing_is_invalid (conformance.test_verifier_states.VerifierStateTest.test_genesis_anchor_missing_is_invalid) ... ok
+2026-10-24T01:58:28.4096097Z test_malformed_audit_json_is_invalid (conformance.test_verifier_states.VerifierStateTest.test_malformed_audit_json_is_invalid) ... ok
+2026-10-24T01:58:28.4106571Z test_malformed_manifest_json_is_invalid (conformance.test_verifier_states.VerifierStateTest.test_malformed_manifest_json_is_invalid) ... ok
+2026-10-24T01:58:28.4120663Z test_malformed_policy_json_is_invalid (conformance.test_verifier_states.VerifierStateTest.test_malformed_policy_json_is_invalid) ... ok
+2026-10-24T01:58:28.4128433Z test_missing_manifest_is_invalid (conformance.test_verifier_states.VerifierStateTest.test_missing_manifest_is_invalid) ... ok
+2026-10-24T01:58:28.4136019Z test_missing_package_directory_is_invalid (conformance.test_verifier_states.VerifierStateTest.test_missing_package_directory_is_invalid) ... ok
+2026-10-24T01:58:28.4145242Z test_missing_required_file_is_invalid (conformance.test_verifier_states.VerifierStateTest.test_missing_required_file_is_invalid) ... ok
+2026-10-24T01:58:28.4159806Z test_null_member_is_invalid (conformance.test_verifier_states.VerifierStateTest.test_null_member_is_invalid) ... ok
+2026-10-24T01:58:28.4178828Z test_policy_swapped_for_a_different_document_is_tampered (conformance.test_verifier_states.VerifierStateTest.test_policy_swapped_for_a_different_document_is_tampered) ... ok
+2026-10-24T01:58:28.4179927Z test_record_with_an_uncanonicalisable_member_is_invalid (conformance.test_verifier_states.VerifierStateTest.test_record_with_an_uncanonicalisable_member_is_invalid)
+2026-10-24T01:58:28.4194108Z A float cannot exist in AURA-CANON/1, so the record cannot be read at all. ... ok
+2026-10-24T01:58:28.4209411Z test_record_without_an_entry_hash_is_invalid (conformance.test_verifier_states.VerifierStateTest.test_record_without_an_entry_hash_is_invalid) ... ok
+2026-10-24T01:58:28.4224270Z test_reference_package_is_verified (conformance.test_verifier_states.VerifierStateTest.test_reference_package_is_verified) ... ok
+2026-10-24T01:58:28.4240946Z test_stale_manifest_digest_is_tampered (conformance.test_verifier_states.VerifierStateTest.test_stale_manifest_digest_is_tampered) ... ok
+2026-10-24T01:58:28.4259496Z test_tampered_is_reported_with_reasons (conformance.test_verifier_states.VerifierStateTest.test_tampered_is_reported_with_reasons) ... ok
+2026-10-24T01:58:28.4275010Z test_unsupported_audit_schema_is_invalid (conformance.test_verifier_states.VerifierStateTest.test_unsupported_audit_schema_is_invalid) ... ok
+2026-10-24T01:58:28.4285533Z test_unsupported_profile_is_invalid (conformance.test_verifier_states.VerifierStateTest.test_unsupported_profile_is_invalid) ... ok
+2026-10-24T01:58:28.4286502Z test_verified_matches_the_packages_own_expected_result (conformance.test_verifier_states.VerifierStateTest.test_verified_matches_the_packages_own_expected_result)
+2026-10-24T01:58:28.4299570Z The package states what it should verify as; the verifier must agree. ... ok
+2026-10-24T01:58:28.4300898Z test_a_test_exists_for_every_protected_element (mutation.test_mutation_gate.MutationCoverageTest.test_a_test_exists_for_every_protected_element) ... ok
+2026-10-24T01:58:28.4319595Z test_decision (mutation.test_mutation_gate.MutationGateTest.test_decision) ... ok
+2026-10-24T01:58:28.4320271Z test_duplicate_sequence (mutation.test_mutation_gate.MutationGateTest.test_duplicate_sequence)
+2026-10-24T01:58:28.4338391Z Two records claiming the same position is not a readable chain. ... ok
+2026-10-24T01:58:28.4338946Z test_duplicated_record (mutation.test_mutation_gate.MutationGateTest.test_duplicated_record)
+2026-10-24T01:58:28.4358140Z Replaying a record cannot extend the chain: its seq and link are wrong. ... ok
+2026-10-24T01:58:28.4377110Z test_entry_hash_itself (mutation.test_mutation_gate.MutationGateTest.test_entry_hash_itself) ... ok
+2026-10-24T01:58:28.4396182Z test_escaping (mutation.test_mutation_gate.MutationGateTest.test_escaping) ... ok
+2026-10-24T01:58:28.4415004Z test_genesis_anchor_mutated (mutation.test_mutation_gate.MutationGateTest.test_genesis_anchor_mutated) ... ok
+2026-10-24T01:58:28.4433841Z test_injection_like_content (mutation.test_mutation_gate.MutationGateTest.test_injection_like_content) ... ok
+2026-10-24T01:58:28.4453615Z test_input_hash (mutation.test_mutation_gate.MutationGateTest.test_input_hash) ... ok
+2026-10-24T01:58:28.4454289Z test_m0_seals_integrity_not_authenticity (mutation.test_mutation_gate.MutationGateTest.test_m0_seals_integrity_not_authenticity)
+2026-10-24T01:58:28.4478759Z A recorded limitation, asserted so it cannot be forgotten or overclaimed. ... ok
+2026-10-24T01:58:28.4479383Z test_manifest_digest_left_stale (mutation.test_mutation_gate.MutationGateTest.test_manifest_digest_left_stale)
+2026-10-24T01:58:28.4495579Z The manifest binding is checked too, not only the canonical chain. ... ok
+2026-10-24T01:58:28.4496201Z test_metadata_empty_value_removed (mutation.test_mutation_gate.MutationGateTest.test_metadata_empty_value_removed)
+2026-10-24T01:58:28.4514056Z Record 2 carries note:"". Removing it is the Some("") -> None mutation. ... ok
+2026-10-24T01:58:28.4532860Z test_metadata_key_added (mutation.test_mutation_gate.MutationGateTest.test_metadata_key_added) ... ok
+2026-10-24T01:58:28.4551397Z test_metadata_key_removed (mutation.test_mutation_gate.MutationGateTest.test_metadata_key_removed) ... ok
+2026-10-24T01:58:28.4569743Z test_metadata_value (mutation.test_mutation_gate.MutationGateTest.test_metadata_value) ... ok
+2026-10-24T01:58:28.4588780Z test_policy_document_mutated (mutation.test_mutation_gate.MutationGateTest.test_policy_document_mutated) ... ok
+2026-10-24T01:58:28.4607571Z test_policy_hash (mutation.test_mutation_gate.MutationGateTest.test_policy_hash) ... ok
+2026-10-24T01:58:28.4626145Z test_policy_representation (mutation.test_mutation_gate.MutationGateTest.test_policy_representation) ... ok
+2026-10-24T01:58:28.4645064Z test_prev_hash (mutation.test_mutation_gate.MutationGateTest.test_prev_hash) ... ok
+2026-10-24T01:58:28.4646028Z test_record_appended_with_a_valid_self_digest (mutation.test_mutation_gate.MutationGateTest.test_record_appended_with_a_valid_self_digest)
+2026-10-24T01:58:28.4664844Z A forged entry that is internally consistent must still fail to link. ... ok
+2026-10-24T01:58:28.4682595Z test_record_deleted_from_the_chain (mutation.test_mutation_gate.MutationGateTest.test_record_deleted_from_the_chain) ... ok
+2026-10-24T01:58:28.4701171Z test_records_reordered (mutation.test_mutation_gate.MutationGateTest.test_records_reordered) ... ok
+2026-10-24T01:58:28.4702206Z test_refreshing_the_manifest_alone_does_not_change_the_verdict (mutation.test_mutation_gate.MutationGateTest.test_refreshing_the_manifest_alone_does_not_change_the_verdict)
+2026-10-24T01:58:28.4717420Z The mutation harness must not be what causes the failures it reports. ... ok
+2026-10-24T01:58:28.4736679Z test_request_id (mutation.test_mutation_gate.MutationGateTest.test_request_id) ... ok
+2026-10-24T01:58:28.4737198Z test_schema (mutation.test_mutation_gate.MutationGateTest.test_schema)
+2026-10-24T01:58:28.4751940Z A schema this verifier does not implement is INVALID, so the mutation used ... ok
+2026-10-24T01:58:28.4770284Z test_seq (mutation.test_mutation_gate.MutationGateTest.test_seq) ... ok
+2026-10-24T01:58:28.4789271Z test_shadow_hash (mutation.test_mutation_gate.MutationGateTest.test_shadow_hash) ... ok
+2026-10-24T01:58:28.4807726Z test_shadow_hash_removed (mutation.test_mutation_gate.MutationGateTest.test_shadow_hash_removed) ... ok
+2026-10-24T01:58:28.4808372Z test_skipped_sequence (mutation.test_mutation_gate.MutationGateTest.test_skipped_sequence)
+2026-10-24T01:58:28.4826434Z A gap in the sequence breaks the 0-based position invariant. ... ok
+2026-10-24T01:58:28.4827060Z test_tail_record_deleted_from_the_chain (mutation.test_mutation_gate.MutationGateTest.test_tail_record_deleted_from_the_chain)
+2026-10-24T01:58:28.4844316Z Truncation. Deleting the tail leaves every surviving link intact, so ... ok
+2026-10-24T01:58:28.4844976Z test_tail_record_mutated_and_resealed (mutation.test_mutation_gate.MutationGateTest.test_tail_record_mutated_and_resealed)
+2026-10-24T01:58:28.4863299Z The F-1 exploit: rewrite the final record and reseal that one record. ... ok
+2026-10-24T01:58:28.4881855Z test_timestamp (mutation.test_mutation_gate.MutationGateTest.test_timestamp) ... ok
+2026-10-24T01:58:28.4882476Z test_unicode_representation (mutation.test_mutation_gate.MutationGateTest.test_unicode_representation)
+2026-10-24T01:58:28.4919104Z Decomposed U+0065 U+0301 renders as 'e-acute' but is different evidence. ... ok
+2026-10-24T01:58:28.4919805Z test_unmutated_reference_package_is_verified (mutation.test_mutation_gate.MutationGateTest.test_unmutated_reference_package_is_verified)
+2026-10-24T01:58:28.4933266Z If this fails, every TAMPERED assertion below proves nothing. ... ok
+2026-10-24T01:58:28.4952267Z test_violation_action (mutation.test_mutation_gate.MutationGateTest.test_violation_action) ... ok
+2026-10-24T01:58:28.4971203Z test_violation_added (mutation.test_mutation_gate.MutationGateTest.test_violation_added) ... ok
+2026-10-24T01:58:28.4989721Z test_violation_confidence (mutation.test_mutation_gate.MutationGateTest.test_violation_confidence) ... ok
+2026-10-24T01:58:28.5008377Z test_violation_ordering (mutation.test_mutation_gate.MutationGateTest.test_violation_ordering) ... ok
+2026-10-24T01:58:28.5026655Z test_violation_removed (mutation.test_mutation_gate.MutationGateTest.test_violation_removed) ... ok
+2026-10-24T01:58:28.5044778Z test_violation_rule (mutation.test_mutation_gate.MutationGateTest.test_violation_rule) ... ok
+2026-10-24T01:58:28.5415431Z test_a_malformed_produced_package_is_invalid_in_the_clean_room (product.test_clean_room.CleanRoomProductTest.test_a_malformed_produced_package_is_invalid_in_the_clean_room) ... ok
+2026-10-24T01:58:28.5804714Z test_a_mutated_produced_package_is_tampered_in_the_clean_room (product.test_clean_room.CleanRoomProductTest.test_a_mutated_produced_package_is_tampered_in_the_clean_room) ... ok
+2026-10-24T01:58:28.6216789Z test_a_produced_package_verifies_in_a_fresh_environment (product.test_clean_room.CleanRoomProductTest.test_a_produced_package_verifies_in_a_fresh_environment) ... ok
+2026-10-24T01:58:28.6615398Z test_no_producer_side_module_is_loaded_while_verifying (product.test_clean_room.CleanRoomProductTest.test_no_producer_side_module_is_loaded_while_verifying) ... ok
+2026-10-24T01:58:28.6616798Z test_only_the_package_crosses_between_the_environments (product.test_clean_room.CleanRoomProductTest.test_only_the_package_crosses_between_the_environments)
+2026-10-24T01:58:28.6658612Z Nothing but the package files is delivered. ... ok
+2026-10-24T01:58:28.6659453Z test_the_package_verifies_from_an_unrelated_location (product.test_clean_room.CleanRoomProductTest.test_the_package_verifies_from_an_unrelated_location)
+2026-10-24T01:58:28.7054772Z Verification depends on the package, not on where it happens to sit. ... ok
+2026-10-24T01:58:28.7090520Z test_the_producer_is_not_present_in_the_verifying_environment (product.test_clean_room.CleanRoomProductTest.test_the_producer_is_not_present_in_the_verifying_environment)
+2026-10-24T01:58:28.7091463Z The claim is that verification does not need the producer, so it is absent. ... ok
+2026-10-24T01:58:28.7092359Z test_the_recorded_check_passes_against_a_produced_package (product.test_clean_room.CleanRoomProductTest.test_the_recorded_check_passes_against_a_produced_package)
+2026-10-24T01:58:28.8182443Z The tool that prints the execution record runs on producer output too. ... ok
+2026-10-24T01:58:28.8577730Z test_the_repository_is_not_importable_while_verifying (product.test_clean_room.CleanRoomProductTest.test_the_repository_is_not_importable_while_verifying) ... ok
+2026-10-24T01:58:29.2292624Z test_the_product_loop_check_passes_end_to_end (product.test_clean_room.ProductLoopCheckToolTest.test_the_product_loop_check_passes_end_to_end) ... ok
+2026-10-24T01:58:29.2293218Z test_a_refusal_never_returns_a_verdict_status (product.test_cli_contract.ExitStatusContractTest.test_a_refusal_never_returns_a_verdict_status)
+2026-10-24T01:58:29.2677893Z A producer refusal is not a verdict about a package. ... ok
+2026-10-24T01:58:29.2678621Z test_a_usage_error_never_returns_the_tampered_status (product.test_cli_contract.ExitStatusContractTest.test_a_usage_error_never_returns_the_tampered_status)
+2026-10-24T01:58:29.4523703Z The collision this contract exists to prevent, stated directly. ... ok
+2026-10-24T01:58:29.4899127Z test_appending_to_a_package_that_does_not_exist_is_refused (product.test_cli_contract.ExitStatusContractTest.test_appending_to_a_package_that_does_not_exist_is_refused) ... ok
+2026-10-24T01:58:29.6039814Z test_help_succeeds_for_every_command (product.test_cli_contract.ExitStatusContractTest.test_help_succeeds_for_every_command) ... ok
+2026-10-24T01:58:29.6406845Z test_input_reference_is_required (product.test_cli_contract.ExitStatusContractTest.test_input_reference_is_required) ... ok
+2026-10-24T01:58:29.6785133Z test_malformed_policy_file_is_refused (product.test_cli_contract.ExitStatusContractTest.test_malformed_policy_file_is_refused) ... ok
+2026-10-24T01:58:29.7154649Z test_missing_policy_file_is_refused (product.test_cli_contract.ExitStatusContractTest.test_missing_policy_file_is_refused) ... ok
+2026-10-24T01:58:29.7518986Z test_missing_required_argument_is_a_usage_error (product.test_cli_contract.ExitStatusContractTest.test_missing_required_argument_is_a_usage_error) ... ok
+2026-10-24T01:58:29.7883114Z test_no_command_is_a_usage_error (product.test_cli_contract.ExitStatusContractTest.test_no_command_is_a_usage_error) ... ok
+2026-10-24T01:58:29.8631927Z test_recording_over_an_existing_package_is_refused (product.test_cli_contract.ExitStatusContractTest.test_recording_over_an_existing_package_is_refused) ... ok
+2026-10-24T01:58:29.9008286Z test_unknown_command_is_a_usage_error (product.test_cli_contract.ExitStatusContractTest.test_unknown_command_is_a_usage_error) ... ok
+2026-10-24T01:58:29.9382624Z test_unknown_option_is_a_usage_error (product.test_cli_contract.ExitStatusContractTest.test_unknown_option_is_a_usage_error) ... ok
+2026-10-24T01:58:29.9761269Z test_value_outside_a_declared_choice_is_a_usage_error (product.test_cli_contract.ExitStatusContractTest.test_value_outside_a_declared_choice_is_a_usage_error) ... ok
+2026-10-24T01:58:30.0134932Z test_verify_of_a_file_rather_than_a_directory_is_invalid (product.test_cli_contract.ExitStatusContractTest.test_verify_of_a_file_rather_than_a_directory_is_invalid) ... ok
+2026-10-24T01:58:30.0509358Z test_verify_of_a_missing_path_is_invalid_not_a_crash (product.test_cli_contract.ExitStatusContractTest.test_verify_of_a_missing_path_is_invalid_not_a_crash) ... ok
+2026-10-24T01:58:30.1259534Z test_verify_of_a_produced_package_is_zero (product.test_cli_contract.ExitStatusContractTest.test_verify_of_a_produced_package_is_zero) ... ok
+2026-10-24T01:58:30.2023293Z test_json_output_is_parseable_on_stdout_alone (product.test_cli_contract.StreamContractTest.test_json_output_is_parseable_on_stdout_alone) ... ok
+2026-10-24T01:58:30.2771900Z test_the_reason_for_a_refusal_is_on_stderr (product.test_cli_contract.StreamContractTest.test_the_reason_for_a_refusal_is_on_stderr) ... ok
+2026-10-24T01:58:30.3520827Z test_the_verdict_is_on_stdout (product.test_cli_contract.StreamContractTest.test_the_verdict_is_on_stdout) ... ok
+2026-10-24T01:58:30.3522255Z test_a_clean_checkout_needs_no_configuration (product.test_documented_workflow.DocumentedWorkflowTest.test_a_clean_checkout_needs_no_configuration)
+2026-10-24T01:58:30.4111793Z No install step, no service, no network: the guide says so, hold it to it. ... ok
+2026-10-24T01:58:30.4234192Z test_every_document_the_guide_links_to_exists (product.test_documented_workflow.DocumentedWorkflowTest.test_every_document_the_guide_links_to_exists) ... ok
+2026-10-24T01:58:30.4234820Z test_no_placeholder_survives_in_the_walkthrough (product.test_documented_workflow.DocumentedWorkflowTest.test_no_placeholder_survives_in_the_walkthrough)
+2026-10-24T01:58:30.4350456Z An operator cannot run `--input-hash <sha256>`. ... ok
+2026-10-24T01:58:30.4468557Z test_the_documented_exit_statuses_are_the_implemented_ones (product.test_documented_workflow.DocumentedWorkflowTest.test_the_documented_exit_statuses_are_the_implemented_ones) ... ok
+2026-10-24T01:58:30.5844906Z test_the_documented_walkthrough_runs_and_ends_verified (product.test_documented_workflow.DocumentedWorkflowTest.test_the_documented_walkthrough_runs_and_ends_verified) ... ok
+2026-10-24T01:58:30.5966951Z test_the_guide_keeps_the_single_platform_claim (product.test_documented_workflow.DocumentedWorkflowTest.test_the_guide_keeps_the_single_platform_claim) ... ok
+2026-10-24T01:58:30.5967604Z test_the_guide_makes_no_regulatory_or_legal_claim (product.test_documented_workflow.DocumentedWorkflowTest.test_the_guide_makes_no_regulatory_or_legal_claim)
+2026-10-24T01:58:30.6084109Z Where a claim like this would be tempting, it is refused instead. ... ok
+2026-10-24T01:58:30.6084824Z test_the_guide_preserves_every_disclaimed_equivalence (product.test_documented_workflow.DocumentedWorkflowTest.test_the_guide_preserves_every_disclaimed_equivalence)
+2026-10-24T01:58:30.6201277Z P4: the limits of the claim are part of the product, not a footnote. ... ok
+2026-10-24T01:58:30.6316826Z test_the_guide_states_the_three_results_and_does_not_collapse_them (product.test_documented_workflow.DocumentedWorkflowTest.test_the_guide_states_the_three_results_and_does_not_collapse_them) ... ok
+2026-10-24T01:58:30.6317978Z test_the_walkthrough_covers_the_documented_workflow (product.test_documented_workflow.DocumentedWorkflowTest.test_the_walkthrough_covers_the_documented_workflow)
+2026-10-24T01:58:30.6429741Z CREATE -> INSPECT -> COPY -> VERIFY, all four present. ... ok
+2026-10-24T01:58:30.6430356Z test_the_walkthrough_verifies_the_copy_not_the_original (product.test_documented_workflow.DocumentedWorkflowTest.test_the_walkthrough_verifies_the_copy_not_the_original)
+2026-10-24T01:58:30.6542551Z The COPY step is the point: a package must survive being moved. ... ok
+2026-10-24T01:58:30.7303971Z test_a_batch_of_events_can_be_recorded_from_a_file (product.test_end_to_end.EndToEndProductLoopTest.test_a_batch_of_events_can_be_recorded_from_a_file) ... ok
+2026-10-24T01:58:30.7304867Z test_a_refused_event_writes_nothing (product.test_end_to_end.EndToEndProductLoopTest.test_a_refused_event_writes_nothing)
+2026-10-24T01:58:30.7702273Z A producer that emitted a package it could not verify would be worse than one ... ok
+2026-10-24T01:58:30.8082329Z test_an_undefined_decision_is_refused_by_the_command_line (product.test_end_to_end.EndToEndProductLoopTest.test_an_undefined_decision_is_refused_by_the_command_line) ... ok
+2026-10-24T01:58:30.8457965Z test_appending_to_a_package_that_does_not_exist_is_refused (product.test_end_to_end.EndToEndProductLoopTest.test_appending_to_a_package_that_does_not_exist_is_refused) ... ok
+2026-10-24T01:58:30.8458593Z test_malforming_the_package_yields_invalid (product.test_end_to_end.EndToEndProductLoopTest.test_malforming_the_package_yields_invalid)
+2026-10-24T01:58:30.9982130Z A package that cannot be read at all -> INVALID, never TAMPERED. ... ok
+2026-10-24T01:58:30.9982863Z test_mutating_the_decision_yields_tampered (product.test_end_to_end.EndToEndProductLoopTest.test_mutating_the_decision_yields_tampered)
+2026-10-24T01:58:31.1980874Z DENY -> ALLOW -> aura verify -> TAMPERED. ... ok
+2026-10-24T01:58:31.2375662Z test_record_emits_machine_readable_output (product.test_end_to_end.EndToEndProductLoopTest.test_record_emits_machine_readable_output) ... ok
+2026-10-24T01:58:31.2770059Z test_record_reports_the_chain_it_committed_to (product.test_end_to_end.EndToEndProductLoopTest.test_record_reports_the_chain_it_committed_to) ... ok
+2026-10-24T01:58:31.2770819Z test_recorded_package_verifies (product.test_end_to_end.EndToEndProductLoopTest.test_recorded_package_verifies)
+2026-10-24T01:58:31.4335231Z EVENT -> aura record -> aura-evidence-loan-001 -> VERIFIED. ... ok
+2026-10-24T01:58:31.4335938Z test_recording_over_an_existing_package_is_refused (product.test_end_to_end.EndToEndProductLoopTest.test_recording_over_an_existing_package_is_refused)
+2026-10-24T01:58:31.5459127Z Overwriting in place would discard evidence already recorded. ... ok
+2026-10-24T01:58:31.6240521Z test_the_input_reference_can_be_derived_from_a_local_input (product.test_end_to_end.EndToEndProductLoopTest.test_the_input_reference_can_be_derived_from_a_local_input) ... ok
+2026-10-24T01:58:31.6626198Z test_the_package_id_defaults_to_the_output_directory (product.test_end_to_end.EndToEndProductLoopTest.test_the_package_id_defaults_to_the_output_directory) ... ok
+2026-10-24T01:58:31.7032330Z test_the_policy_document_is_carried_into_the_package (product.test_end_to_end.EndToEndProductLoopTest.test_the_policy_document_is_carried_into_the_package) ... ok
+2026-10-24T01:58:31.7428761Z test_the_policy_label_defaults_to_the_policy_document (product.test_end_to_end.EndToEndProductLoopTest.test_the_policy_label_defaults_to_the_policy_document) ... ok
+2026-10-24T01:58:31.8599989Z test_the_recorded_chain_is_what_the_application_stated (product.test_end_to_end.EndToEndProductLoopTest.test_the_recorded_chain_is_what_the_application_stated) ... ok
+2026-10-24T01:58:31.8600865Z test_the_three_states_are_distinct_exit_statuses (product.test_end_to_end.EndToEndProductLoopTest.test_the_three_states_are_distinct_exit_statuses)
+2026-10-24T01:58:32.0908937Z The verdict is machine-readable without parsing any output. ... ok
+2026-10-24T01:58:32.2466194Z test_verify_emits_machine_readable_output (product.test_end_to_end.EndToEndProductLoopTest.test_verify_emits_machine_readable_output) ... ok
+2026-10-24T01:58:32.4416941Z test_a_record_dropped_from_the_end (product.test_operator_errors.OperatorErrorTest.test_a_record_dropped_from_the_end) ... ok
+2026-10-24T01:58:32.4417475Z test_a_record_outside_the_evidence_domain (product.test_operator_errors.OperatorErrorTest.test_a_record_outside_the_evidence_domain)
+2026-10-24T01:58:32.6350372Z Not an audit entry at all, however well it is sealed. ... ok
+2026-10-24T01:58:32.8300983Z test_an_empty_directory_is_not_a_package (product.test_operator_errors.OperatorErrorTest.test_an_empty_directory_is_not_a_package) ... ok
+2026-10-24T01:58:33.0235640Z test_incomplete_package_missing_a_required_file (product.test_operator_errors.OperatorErrorTest.test_incomplete_package_missing_a_required_file) ... ok
+2026-10-24T01:58:33.2174237Z test_incomplete_package_missing_the_chain_anchor (product.test_operator_errors.OperatorErrorTest.test_incomplete_package_missing_the_chain_anchor) ... ok
+2026-10-24T01:58:33.4161015Z test_invalid_chain (product.test_operator_errors.OperatorErrorTest.test_invalid_chain) ... ok
+2026-10-24T01:58:33.6124658Z test_invalid_manifest_commitment (product.test_operator_errors.OperatorErrorTest.test_invalid_manifest_commitment) ... ok
+2026-10-24T01:58:33.8064304Z test_invalid_terminus (product.test_operator_errors.OperatorErrorTest.test_invalid_terminus) ... ok
+2026-10-24T01:58:34.0011014Z test_malformed_evidence (product.test_operator_errors.OperatorErrorTest.test_malformed_evidence) ... ok
+2026-10-24T01:58:34.1947269Z test_malformed_json_in_the_manifest (product.test_operator_errors.OperatorErrorTest.test_malformed_json_in_the_manifest) ... ok
+2026-10-24T01:58:34.3871531Z test_missing_manifest (product.test_operator_errors.OperatorErrorTest.test_missing_manifest) ... ok
+2026-10-24T01:58:34.5803951Z test_missing_package (product.test_operator_errors.OperatorErrorTest.test_missing_package) ... ok
+2026-10-24T01:58:34.7753987Z test_modified_evidence (product.test_operator_errors.OperatorErrorTest.test_modified_evidence) ... ok
+2026-10-24T01:58:34.9747738Z test_modified_policy (product.test_operator_errors.OperatorErrorTest.test_modified_policy) ... ok
+2026-10-24T01:58:34.9748237Z test_no_operator_error_produces_a_stack_trace (product.test_operator_errors.OperatorErrorTest.test_no_operator_error_produces_a_stack_trace)
+2026-10-24T01:58:35.7064293Z Whatever is done to a package, the operator gets a verdict, not a crash. ... ok
+2026-10-24T01:58:35.7064991Z test_the_three_states_are_never_collapsed (product.test_operator_errors.OperatorErrorTest.test_the_three_states_are_never_collapsed)
+2026-10-24T01:58:35.9806487Z One package, three states, three exit codes, in one run. ... ok
+2026-10-24T01:58:36.1822631Z test_unsupported_profile (product.test_operator_errors.OperatorErrorTest.test_unsupported_profile) ... ok
+2026-10-24T01:58:36.3750850Z test_wrong_path_points_at_a_file (product.test_operator_errors.OperatorErrorTest.test_wrong_path_points_at_a_file) ... ok
+2026-10-24T01:58:36.5701712Z test_wrong_path_points_inside_the_package (product.test_operator_errors.OperatorErrorTest.test_wrong_path_points_inside_the_package) ... ok
+2026-10-24T01:58:36.6466996Z test_a_path_that_is_not_a_directory_is_refused (product.test_package_inspection.PackageInspectionTest.test_a_path_that_is_not_a_directory_is_refused) ... ok
+2026-10-24T01:58:36.7643725Z test_inspection_does_not_modify_the_package (product.test_package_inspection.PackageInspectionTest.test_inspection_does_not_modify_the_package) ... ok
+2026-10-24T01:58:36.8414239Z test_lists_the_decisions_the_package_records (product.test_package_inspection.PackageInspectionTest.test_lists_the_decisions_the_package_records) ... ok
+2026-10-24T01:58:36.9568380Z test_marks_a_declared_file_that_is_absent (product.test_package_inspection.PackageInspectionTest.test_marks_a_declared_file_that_is_absent) ... ok
+2026-10-24T01:58:37.0736228Z test_marks_a_file_the_manifest_does_not_declare (product.test_package_inspection.PackageInspectionTest.test_marks_a_file_the_manifest_does_not_declare) ... ok
+2026-10-24T01:58:37.1713349Z test_names_the_role_of_every_required_file (product.test_package_inspection.PackageInspectionTest.test_names_the_role_of_every_required_file) ... ok
+2026-10-24T01:58:37.1714007Z test_never_returns_a_verdict_status_for_a_tampered_package (product.test_package_inspection.PackageInspectionTest.test_never_returns_a_verdict_status_for_a_tampered_package)
+2026-10-24T01:58:37.2905340Z A package `verify` calls TAMPERED is still merely described here. ... ok
+2026-10-24T01:58:37.3688721Z test_never_returns_a_verdict_status_for_an_intact_package (product.test_package_inspection.PackageInspectionTest.test_never_returns_a_verdict_status_for_an_intact_package) ... ok
+2026-10-24T01:58:37.4451924Z test_never_returns_a_verdict_status_for_an_unreadable_package (product.test_package_inspection.PackageInspectionTest.test_never_returns_a_verdict_status_for_an_unreadable_package) ... ok
+2026-10-24T01:58:37.5233151Z test_points_the_operator_at_the_command_that_does_judge (product.test_package_inspection.PackageInspectionTest.test_points_the_operator_at_the_command_that_does_judge) ... ok
+2026-10-24T01:58:37.6007844Z test_reports_the_package_identity_and_chain_terminus (product.test_package_inspection.PackageInspectionTest.test_reports_the_package_identity_and_chain_terminus) ... ok
+2026-10-24T01:58:37.6008782Z test_absolute_path_is_refused (product.test_package_inspection_boundary.AbsolutePathTest.test_absolute_path_is_refused)
+2026-10-24T01:58:37.6782388Z `Path(root) / "/abs/path"` is `/abs/path`: the root is discarded. ... ok
+2026-10-24T01:58:37.7555931Z test_absolute_system_path_is_refused (product.test_package_inspection_boundary.AbsolutePathTest.test_absolute_system_path_is_refused) ... ok
+2026-10-24T01:58:37.9802627Z test_empty_and_dot_paths_are_refused (product.test_package_inspection_boundary.AbsolutePathTest.test_empty_and_dot_paths_are_refused) ... ok
+2026-10-24T01:58:38.0550868Z test_the_filesystem_root_is_refused (product.test_package_inspection_boundary.AbsolutePathTest.test_the_filesystem_root_is_refused) ... ok
+2026-10-24T01:58:38.0551593Z test_non_canonical_spellings_are_refused (product.test_package_inspection_boundary.AlternateSpellingTest.test_non_canonical_spellings_are_refused)
+2026-10-24T01:58:38.3538678Z PurePosixPath drops these silently, so a component scan cannot see them. ... ok
+2026-10-24T01:58:38.4305875Z test_backslash_inside_the_package_is_refused (product.test_package_inspection_boundary.BackslashPathTest.test_backslash_inside_the_package_is_refused) ... ok
+2026-10-24T01:58:38.4306481Z test_backslash_separator_is_refused (product.test_package_inspection_boundary.BackslashPathTest.test_backslash_separator_is_refused)
+2026-10-24T01:58:38.5067406Z A backslash is a separator on some platforms; package paths are POSIX. ... ok
+2026-10-24T01:58:38.5068251Z test_a_contained_package_opens_only_files_inside_it (product.test_package_inspection_boundary.ExternalTargetIsNeverReadTest.test_a_contained_package_opens_only_files_inside_it)
+2026-10-24T01:58:38.5098801Z The recorder is worth trusting only if it sees the ordinary reads. ... ok
+2026-10-24T01:58:38.5122977Z test_a_symlink_escape_never_opens_the_outside_file (product.test_package_inspection_boundary.ExternalTargetIsNeverReadTest.test_a_symlink_escape_never_opens_the_outside_file) ... ok
+2026-10-24T01:58:38.5144941Z test_a_traversal_declaration_never_opens_the_outside_file (product.test_package_inspection_boundary.ExternalTargetIsNeverReadTest.test_a_traversal_declaration_never_opens_the_outside_file) ... ok
+2026-10-24T01:58:38.5165602Z test_an_absolute_declaration_never_opens_the_outside_file (product.test_package_inspection_boundary.ExternalTargetIsNeverReadTest.test_an_absolute_declaration_never_opens_the_outside_file) ... ok
+2026-10-24T01:58:38.6015023Z test_a_declared_file_nested_inside_the_package_is_inspected (product.test_package_inspection_boundary.LegitimateInternalPathTest.test_a_declared_file_nested_inside_the_package_is_inspected) ... ok
+2026-10-24T01:58:38.6400039Z test_a_normal_package_is_still_inspected (product.test_package_inspection_boundary.LegitimateInternalPathTest.test_a_normal_package_is_still_inspected) ... ok
+2026-10-24T01:58:38.7183967Z test_the_package_the_product_loop_produces_still_inspects_and_verifies (product.test_package_inspection_boundary.LegitimateInternalPathTest.test_the_package_the_product_loop_produces_still_inspects_and_verifies) ... ok
+2026-10-24T01:58:38.7954166Z test_a_symlink_leaving_the_package_is_refused (product.test_package_inspection_boundary.SymlinkEscapeTest.test_a_symlink_leaving_the_package_is_refused) ... ok
+2026-10-24T01:58:38.7955474Z test_a_symlink_staying_inside_the_package_is_inspected (product.test_package_inspection_boundary.SymlinkEscapeTest.test_a_symlink_staying_inside_the_package_is_inspected)
+2026-10-24T01:58:38.8348900Z Containment is the rule, not a blanket ban on symlinks. ... ok
+2026-10-24T01:58:38.9125631Z test_a_symlink_to_a_directory_outside_the_package_is_refused (product.test_package_inspection_boundary.SymlinkEscapeTest.test_a_symlink_to_a_directory_outside_the_package_is_refused) ... ok
+2026-10-24T01:58:39.1390790Z test_nested_traversal_is_refused (product.test_package_inspection_boundary.TraversalTest.test_nested_traversal_is_refused) ... ok
+2026-10-24T01:58:39.2148051Z test_parent_traversal_is_refused (product.test_package_inspection_boundary.TraversalTest.test_parent_traversal_is_refused) ... ok
+2026-10-24T01:58:39.2149020Z test_traversal_is_refused_even_when_the_target_does_not_exist (product.test_package_inspection_boundary.TraversalTest.test_traversal_is_refused_even_when_the_target_does_not_exist)
+2026-10-24T01:58:39.2908164Z No filesystem access is needed to refuse a traversal declaration. ... ok
+2026-10-24T01:58:39.2908942Z test_traversal_landing_back_inside_is_still_refused (product.test_package_inspection_boundary.TraversalTest.test_traversal_landing_back_inside_is_still_refused)
+2026-10-24T01:58:39.3663279Z Refused on spelling, as the verifier refuses it. ... ok
+2026-10-24T01:58:39.4045978Z test_an_escaping_declaration_is_still_INVALID_to_verify (product.test_package_inspection_boundary.VerifyIsUnchangedTest.test_an_escaping_declaration_is_still_INVALID_to_verify) ... ok
+2026-10-24T01:58:39.4809555Z test_the_two_commands_refuse_the_same_package_in_their_own_terms (product.test_package_inspection_boundary.VerifyIsUnchangedTest.test_the_two_commands_refuse_the_same_package_in_their_own_terms) ... ok
+2026-10-24T01:58:39.4812643Z test_a_confidence_outside_the_scale_is_refused (product.test_producer.ProducerTest.test_a_confidence_outside_the_scale_is_refused) ... ok
+2026-10-24T01:58:39.4816000Z test_a_digest_outside_the_domain_is_refused (product.test_producer.ProducerTest.test_a_digest_outside_the_domain_is_refused) ... ok
+2026-10-24T01:58:39.4817867Z test_a_malformed_timestamp_is_refused (product.test_producer.ProducerTest.test_a_malformed_timestamp_is_refused) ... ok
+2026-10-24T01:58:39.4819640Z test_a_package_with_no_events_is_refused (product.test_producer.ProducerTest.test_a_package_with_no_events_is_refused) ... ok
+2026-10-24T01:58:39.4820621Z test_a_policy_document_with_no_canonical_form_is_refused (product.test_producer.ProducerTest.test_a_policy_document_with_no_canonical_form_is_refused)
+2026-10-24T01:58:39.4821353Z AURA-CANON/1 forbids floating point; the policy is bound by canonical bytes. ... ok
+2026-10-24T01:58:39.4821993Z test_a_single_event_is_a_complete_package (product.test_producer.ProducerTest.test_a_single_event_is_a_complete_package)
+2026-10-24T01:58:39.4834543Z The smallest product loop: one decision, one package. ... ok
+2026-10-24T01:58:39.4836682Z test_an_empty_request_id_is_refused (product.test_producer.ProducerTest.test_an_empty_request_id_is_refused) ... ok
+2026-10-24T01:58:39.4837470Z test_an_event_becomes_a_package_that_verifies (product.test_producer.ProducerTest.test_an_event_becomes_a_package_that_verifies)
+2026-10-24T01:58:39.4853154Z EVENT -> PRODUCER -> PACKAGE -> VERIFIER -> VERIFIED. ... ok
+2026-10-24T01:58:39.4855446Z test_an_undefined_decision_is_refused_before_anything_is_written (product.test_producer.ProducerTest.test_an_undefined_decision_is_refused_before_anything_is_written) ... ok
+2026-10-24T01:58:39.4856059Z test_an_unknown_event_field_is_refused_rather_than_dropped (product.test_producer.ProducerTest.test_an_unknown_event_field_is_refused_rather_than_dropped)
+2026-10-24T01:58:39.4856794Z Silently dropping it would leave the application believing it was recorded. ... ok
+2026-10-24T01:58:39.4857371Z test_appending_extends_the_chain_across_invocations (product.test_producer.ProducerTest.test_appending_extends_the_chain_across_invocations)
+2026-10-24T01:58:39.4892783Z An application records one decision now and another later. ... ok
+2026-10-24T01:58:39.4893523Z test_appending_one_event_at_a_time_matches_producing_them_together (product.test_producer.ProducerTest.test_appending_one_event_at_a_time_matches_producing_them_together)
+2026-10-24T01:58:39.4932378Z Chain construction must not depend on how many invocations built it. ... ok
+2026-10-24T01:58:39.4933130Z test_appending_under_a_different_policy_is_refused (product.test_producer.ProducerTest.test_appending_under_a_different_policy_is_refused)
+2026-10-24T01:58:39.4943239Z Every record in a package is bound to one policy document. ... ok
+2026-10-24T01:58:39.4943925Z test_chain_position_is_assigned_by_the_producer_not_the_event (product.test_producer.ProducerTest.test_chain_position_is_assigned_by_the_producer_not_the_event)
+2026-10-24T01:58:39.4944661Z An event carries no seq or prev_hash; placing a record is not its decision. ... ok
+2026-10-24T01:58:39.4945285Z test_each_record_links_to_its_predecessor (product.test_producer.ProducerTest.test_each_record_links_to_its_predecessor)
+2026-10-24T01:58:39.4954565Z Genesis -> A -> B -> C, with prev_hash carrying the previous entry_hash. ... ok
+2026-10-24T01:58:39.4955332Z test_entry_digests_come_from_the_accepted_chain_implementation (product.test_producer.ProducerTest.test_entry_digests_come_from_the_accepted_chain_implementation)
+2026-10-24T01:58:39.4966138Z Every digest the producer wrote is the one core.chain computes. ... ok
+2026-10-24T01:58:39.4976548Z test_every_record_is_bound_to_the_policy_the_package_carries (product.test_producer.ProducerTest.test_every_record_is_bound_to_the_policy_the_package_carries) ... ok
+2026-10-24T01:58:39.4986049Z test_every_required_file_is_written (product.test_producer.ProducerTest.test_every_required_file_is_written) ... ok
+2026-10-24T01:58:39.4996654Z test_reading_back_a_package_recovers_its_chain (product.test_producer.ProducerTest.test_reading_back_a_package_recovers_its_chain) ... ok
+2026-10-24T01:58:39.4997104Z test_the_digest_never_covers_itself (product.test_producer.ProducerTest.test_the_digest_never_covers_itself)
+2026-10-24T01:58:39.5007132Z entry_hash is SHA-256 over the canonical bytes that exclude entry_hash. ... ok
+2026-10-24T01:58:39.5016510Z test_the_first_record_is_anchored_to_the_genesis_anchor (product.test_producer.ProducerTest.test_the_first_record_is_anchored_to_the_genesis_anchor) ... ok
+2026-10-24T01:58:39.5017034Z test_the_input_itself_never_enters_the_package (product.test_producer.ProducerTest.test_the_input_itself_never_enters_the_package)
+2026-10-24T01:58:39.5023678Z M0 records a reference. The input is not evidence and is not carried. ... ok
+2026-10-24T01:58:39.5034846Z test_the_input_reference_may_be_derived_from_a_local_input (product.test_producer.ProducerTest.test_the_input_reference_may_be_derived_from_a_local_input) ... ok
+2026-10-24T01:58:39.5044608Z test_the_manifest_binds_the_bytes_of_every_declared_file (product.test_producer.ProducerTest.test_the_manifest_binds_the_bytes_of_every_declared_file) ... ok
+2026-10-24T01:58:39.5053999Z test_the_manifest_commits_to_the_chain_terminus (product.test_producer.ProducerTest.test_the_manifest_commits_to_the_chain_terminus) ... ok
+2026-10-24T01:58:39.5063059Z test_the_package_declares_the_m0_contract (product.test_producer.ProducerTest.test_the_package_declares_the_m0_contract) ... ok
+2026-10-24T01:58:39.5073027Z test_the_policy_document_travels_with_the_evidence (product.test_producer.ProducerTest.test_the_policy_document_travels_with_the_evidence) ... ok
+2026-10-24T01:58:39.5074529Z test_the_policy_label_is_derived_only_when_stated_unambiguously (product.test_producer.ProducerTest.test_the_policy_label_is_derived_only_when_stated_unambiguously) ... ok
+2026-10-24T01:58:39.5075406Z test_producing_the_scenario_reproduces_the_reference_package (product.test_producer.SingleSourceOfTruthTest.test_producing_the_scenario_reproduces_the_reference_package)
+2026-10-24T01:58:39.5084798Z The product path and the accepted fixture are the same bytes. ... ok
+2026-10-24T01:58:39.5094851Z test_the_committed_reference_package_still_verifies (product.test_producer.SingleSourceOfTruthTest.test_the_committed_reference_package_still_verifies) ... ok
+2026-10-24T01:58:39.5101794Z test_the_reference_package_is_producer_generated (product.test_producer.SingleSourceOfTruthTest.test_the_reference_package_is_producer_generated) ... ok
+2026-10-24T01:58:39.5102776Z test_every_named_mutation_class_is_covered (product.test_producer_mutations.MutationMatrixCoverageTest.test_every_named_mutation_class_is_covered) ... ok
+2026-10-24T01:58:39.5112605Z test_a_missing_manifest_is_invalid (product.test_producer_mutations.ProducerPackageMutationTest.test_a_missing_manifest_is_invalid) ... ok
+2026-10-24T01:58:39.5124033Z test_a_missing_required_file_is_invalid (product.test_producer_mutations.ProducerPackageMutationTest.test_a_missing_required_file_is_invalid) ... ok
+2026-10-24T01:58:39.5125138Z test_an_undefined_decision_value_is_invalid_not_tampered (product.test_producer_mutations.ProducerPackageMutationTest.test_an_undefined_decision_value_is_invalid_not_tampered)
+2026-10-24T01:58:39.5147951Z A resealed record carrying a decision M0 does not define is unreadable. ... ok
+2026-10-24T01:58:39.5148574Z test_chain_link_mutation (product.test_producer_mutations.ProducerPackageMutationTest.test_chain_link_mutation)
+2026-10-24T01:58:39.5168092Z Relinking a record to a different predecessor. ... ok
+2026-10-24T01:58:39.5243874Z test_chain_reordering (product.test_producer_mutations.ProducerPackageMutationTest.test_chain_reordering) ... ok
+2026-10-24T01:58:39.5244636Z test_decision_mutation (product.test_producer_mutations.ProducerPackageMutationTest.test_decision_mutation)
+2026-10-24T01:58:39.5264510Z The claim the product exists to protect: DENY cannot become ALLOW. ... ok
+2026-10-24T01:58:39.5284699Z test_genesis_anchor_mutation (product.test_producer_mutations.ProducerPackageMutationTest.test_genesis_anchor_mutation) ... ok
+2026-10-24T01:58:39.5305133Z test_input_reference_mutation (product.test_producer_mutations.ProducerPackageMutationTest.test_input_reference_mutation) ... ok
+2026-10-24T01:58:39.5324453Z test_interior_record_deletion (product.test_producer_mutations.ProducerPackageMutationTest.test_interior_record_deletion) ... ok
+2026-10-24T01:58:39.5325316Z test_manifest_digest_left_stale (product.test_producer_mutations.ProducerPackageMutationTest.test_manifest_digest_left_stale)
+2026-10-24T01:58:39.5342687Z The outer checksum on its own still catches an edit that ignores it. ... ok
+2026-10-24T01:58:39.5361102Z test_manifest_entry_count_mutation (product.test_producer_mutations.ProducerPackageMutationTest.test_manifest_entry_count_mutation) ... ok
+2026-10-24T01:58:39.5362010Z test_manifest_terminus_mutation (product.test_producer_mutations.ProducerPackageMutationTest.test_manifest_terminus_mutation)
+2026-10-24T01:58:39.5378966Z Rewriting the declared chain head to something the evidence does not carry. ... ok
+2026-10-24T01:58:39.5394807Z test_package_corruption_is_invalid (product.test_producer_mutations.ProducerPackageMutationTest.test_package_corruption_is_invalid) ... ok
+2026-10-24T01:58:39.5395707Z test_policy_document_mutation (product.test_producer_mutations.ProducerPackageMutationTest.test_policy_document_mutation)
+2026-10-24T01:58:39.5415238Z Editing the carried policy breaks the binding every record declares. ... ok
+2026-10-24T01:58:39.5415858Z test_policy_label_mutation (product.test_producer_mutations.ProducerPackageMutationTest.test_policy_label_mutation)
+2026-10-24T01:58:39.5435943Z policy_repr has no value constraint, so it stays a protected value. ... ok
+2026-10-24T01:58:39.5436429Z test_policy_reference_mutation (product.test_producer_mutations.ProducerPackageMutationTest.test_policy_reference_mutation)
+2026-10-24T01:58:39.5457644Z A record pointed at a different policy than the one it was taken under. ... ok
+2026-10-24T01:58:39.5458519Z test_refreshing_the_manifest_alone_does_not_change_the_verdict (product.test_producer_mutations.ProducerPackageMutationTest.test_refreshing_the_manifest_alone_does_not_change_the_verdict)
+2026-10-24T01:58:39.5476324Z The harness must not be what causes the failures it reports. ... ok
+2026-10-24T01:58:39.5476882Z test_tail_append (product.test_producer_mutations.ProducerPackageMutationTest.test_tail_append)
+2026-10-24T01:58:39.5498016Z A record added after the committed terminus, correctly linked and sealed. ... ok
+2026-10-24T01:58:39.5498428Z test_tail_deletion (product.test_producer_mutations.ProducerPackageMutationTest.test_tail_deletion)
+2026-10-24T01:58:39.5518760Z Dropping the last record leaves every remaining link consistent. ... ok
+2026-10-24T01:58:39.5519598Z test_tail_deletion_survives_a_full_reseal_of_what_remains (product.test_producer_mutations.ProducerPackageMutationTest.test_tail_deletion_survives_a_full_reseal_of_what_remains)
+2026-10-24T01:58:39.5549294Z A stronger attacker: drop the tail, then relink and reseal the remainder. ... ok
+2026-10-24T01:58:39.5550052Z test_the_produced_package_is_the_baseline (product.test_producer_mutations.ProducerPackageMutationTest.test_the_produced_package_is_the_baseline)
+2026-10-24T01:58:39.5565391Z If this fails, every assertion below proves nothing. ... ok
+2026-10-24T01:58:39.6593510Z test_the_recorded_check_passes_end_to_end (test_independence.IndependenceCheckToolTest.test_the_recorded_check_passes_end_to_end) ... ok
+2026-10-24T01:58:39.6594383Z test_environment_holds_only_the_verifier (test_independence.IsolatedEnvironmentTest.test_environment_holds_only_the_verifier)
+2026-10-24T01:58:39.6618209Z A verifier environment containing the producer would prove nothing. ... ok
+2026-10-24T01:58:39.6989210Z test_malformed_package_is_invalid_in_isolation (test_independence.IsolatedEnvironmentTest.test_malformed_package_is_invalid_in_isolation) ... ok
+2026-10-24T01:58:39.7422237Z test_mutated_package_is_tampered_in_isolation (test_independence.IsolatedEnvironmentTest.test_mutated_package_is_tampered_in_isolation) ... ok
+2026-10-24T01:58:39.7423047Z test_network_is_disabled_during_verification (test_independence.IsolatedEnvironmentTest.test_network_is_disabled_during_verification)
+2026-10-24T01:58:39.7821471Z The runner replaces socket before importing the verifier. ... ok
+2026-10-24T01:58:39.8297627Z test_no_producer_side_module_is_loaded (test_independence.IsolatedEnvironmentTest.test_no_producer_side_module_is_loaded) ... ok
+2026-10-24T01:58:39.8298220Z test_package_moved_outside_the_repository_still_verifies (test_independence.IsolatedEnvironmentTest.test_package_moved_outside_the_repository_still_verifies)
+2026-10-24T01:58:39.8882618Z Verification must not depend on the package's location or its neighbours. ... ok
+2026-10-24T01:58:39.9261671Z test_pristine_package_verifies_in_isolation (test_independence.IsolatedEnvironmentTest.test_pristine_package_verifies_in_isolation) ... ok
+2026-10-24T01:58:39.9638741Z test_repository_is_not_importable_from_the_isolated_run (test_independence.IsolatedEnvironmentTest.test_repository_is_not_importable_from_the_isolated_run) ... ok
+2026-10-24T01:58:39.9639447Z test_the_producer_is_absent_from_the_verifier_environment (test_independence.IsolatedEnvironmentTest.test_the_producer_is_absent_from_the_verifier_environment)
+2026-10-24T01:58:39.9663866Z app/ carries both halves of the loop; only the verifier half may be copied. ... ok
+2026-10-24T01:58:40.0761538Z test_exit_status_encodes_the_three_states (test_independence.VerifierCliTest.test_exit_status_encodes_the_three_states) ... ok
+2026-10-24T01:58:40.0762263Z test_empty_register_records_unreachable_corpus (test_register.ActualRegisterTest.test_empty_register_records_unreachable_corpus)
+2026-10-24T01:58:40.0762706Z An empty register is only honest if it says why it is empty. ... ok
+2026-10-24T01:58:40.0763634Z test_register_is_valid (test_register.ActualRegisterTest.test_register_is_valid) ... ok
+2026-10-24T01:58:40.0764440Z test_booleans_are_not_integers (test_register.SchemaValidatorTest.test_booleans_are_not_integers) ... ok
+2026-10-24T01:58:40.0765258Z test_open_additional_properties_raises (test_register.SchemaValidatorTest.test_open_additional_properties_raises) ... ok
+2026-10-24T01:58:40.0766447Z test_register_schema_uses_only_the_supported_subset (test_register.SchemaValidatorTest.test_register_schema_uses_only_the_supported_subset)
+2026-10-24T01:58:40.0767326Z Guards against a schema change the validator would quietly stop enforcing. ... ok
+2026-10-24T01:58:40.0767975Z test_unsupported_keyword_raises (test_register.SchemaValidatorTest.test_unsupported_keyword_raises) ... ok
+2026-10-24T01:58:40.0771427Z test_baseline_entry_is_accepted (test_register.ValidatorRejectionTest.test_baseline_entry_is_accepted) ... ok
+2026-10-24T01:58:40.0774636Z test_empty_criterion_note_rejected (test_register.ValidatorRejectionTest.test_empty_criterion_note_rejected) ... ok
+2026-10-24T01:58:40.0777581Z test_failed_criterion_blocks_approval (test_register.ValidatorRejectionTest.test_failed_criterion_blocks_approval) ... ok
+2026-10-24T01:58:40.0780223Z test_rule10_transferred_fixture_requires_source_sha256 (test_register.ValidatorRejectionTest.test_rule10_transferred_fixture_requires_source_sha256) ... ok
+2026-10-24T01:58:40.0782760Z test_rule11_blocked_requires_a_reason (test_register.ValidatorRejectionTest.test_rule11_blocked_requires_a_reason) ... ok
+2026-10-24T01:58:40.0785397Z test_rule11_conflict_requires_a_description (test_register.ValidatorRejectionTest.test_rule11_conflict_requires_a_description) ... ok
+2026-10-24T01:58:40.0790321Z test_rule12_blocked_dependency_prevents_approval (test_register.ValidatorRejectionTest.test_rule12_blocked_dependency_prevents_approval) ... ok
+2026-10-24T01:58:40.0792949Z test_rule12_unknown_dependency_rejected (test_register.ValidatorRejectionTest.test_rule12_unknown_dependency_rejected) ... ok
+2026-10-24T01:58:40.0795475Z test_rule13_self_dependency_rejected (test_register.ValidatorRejectionTest.test_rule13_self_dependency_rejected) ... ok
+2026-10-24T01:58:40.0798691Z test_rule2_duplicate_id_rejected (test_register.ValidatorRejectionTest.test_rule2_duplicate_id_rejected) ... ok
+2026-10-24T01:58:40.0801627Z test_rule3_history_must_terminate_at_current_status (test_register.ValidatorRejectionTest.test_rule3_history_must_terminate_at_current_status) ... ok
+2026-10-24T01:58:40.0804185Z test_rule4_branch_name_is_not_a_commit (test_register.ValidatorRejectionTest.test_rule4_branch_name_is_not_a_commit) ... ok
+2026-10-24T01:58:40.0804963Z test_rule5_applies_per_artifact_class (test_register.ValidatorRejectionTest.test_rule5_applies_per_artifact_class)
+2026-10-24T01:58:40.0806522Z A SPECIFICATION is not held to criteria that cannot apply to it. ... ok
+2026-10-24T01:58:40.0807209Z test_rule5_unassessed_criterion_blocks_approval (test_register.ValidatorRejectionTest.test_rule5_unassessed_criterion_blocks_approval)
+2026-10-24T01:58:40.0808651Z The core rule: buildable is not approved. ... ok
+2026-10-24T01:58:40.0811046Z test_rule6_approval_requires_a_recorded_decision (test_register.ValidatorRejectionTest.test_rule6_approval_requires_a_recorded_decision) ... ok
+2026-10-24T01:58:40.0812942Z test_rule7_derivation_must_be_declared (test_register.ValidatorRejectionTest.test_rule7_derivation_must_be_declared) ... ok
+2026-10-24T01:58:40.0815283Z test_rule8_target_path_must_exist (test_register.ValidatorRejectionTest.test_rule8_target_path_must_exist) ... ok
+2026-10-24T01:58:40.0817582Z test_rule9_transferred_requires_an_existing_record (test_register.ValidatorRejectionTest.test_rule9_transferred_requires_an_existing_record) ... ok
+2026-10-24T01:58:40.0819605Z test_unexpected_property_rejected_by_schema (test_register.ValidatorRejectionTest.test_unexpected_property_rejected_by_schema) ... ok
+2026-10-24T01:58:40.0821768Z test_unknown_status_rejected_by_schema (test_register.ValidatorRejectionTest.test_unknown_status_rejected_by_schema) ... ok
+2026-10-24T01:58:40.0822280Z test_every_transfer_status_is_defined_in_the_criteria (test_structure.GovernanceDocumentTest.test_every_transfer_status_is_defined_in_the_criteria)
+2026-10-24T01:58:40.0823692Z The schema's status vocabulary and the normative definitions must not drift. ... ok
+2026-10-24T01:58:40.0824785Z test_no_licence_is_claimed_while_the_question_is_open (test_structure.GovernanceDocumentTest.test_no_licence_is_claimed_while_the_question_is_open)
+2026-10-24T01:58:40.0825633Z OQ-3 is open. A LICENSE file would answer it by default rather than by decision. ... ok
+2026-10-24T01:58:40.0826808Z test_normative_documents_declare_their_status (test_structure.GovernanceDocumentTest.test_normative_documents_declare_their_status) ... ok
+2026-10-24T01:58:40.0827733Z test_product_direction_is_non_normative (test_structure.GovernanceDocumentTest.test_product_direction_is_non_normative) ... ok
+2026-10-24T01:58:40.0828717Z test_genesis_register_claims_no_transfer (test_structure.RegisterStateTest.test_genesis_register_claims_no_transfer) ... ok
+2026-10-24T01:58:40.0833137Z test_adr_index_and_directory_agree (test_structure.StructureTest.test_adr_index_and_directory_agree) ... ok
+2026-10-24T01:58:40.0833898Z test_every_m0_directory_is_declared_in_adr_0006 (test_structure.StructureTest.test_every_m0_directory_is_declared_in_adr_0006)
+2026-10-24T01:58:40.0834574Z A directory not named by the ADR that added it is an undeclared decision. ... ok
+2026-10-24T01:58:40.0835260Z test_every_reserved_directory_is_declared_in_adr_0003 (test_structure.StructureTest.test_every_reserved_directory_is_declared_in_adr_0003) ... ok
+2026-10-24T01:58:40.0836106Z test_m0_implementation_stays_inside_the_m0_boundary (test_structure.StructureTest.test_m0_implementation_stays_inside_the_m0_boundary)
+2026-10-24T01:58:40.0846842Z ADR-0006 section 5: M0 names none of the excluded concerns. ... ok
+2026-10-24T01:58:40.0851476Z test_m0_scope_check_actually_detects_an_excursion (test_structure.StructureTest.test_m0_scope_check_actually_detects_an_excursion) ... ok
+2026-10-24T01:58:40.0852309Z test_missing_reserved_directory_is_detected (test_structure.StructureTest.test_missing_reserved_directory_is_detected)
+2026-10-24T01:58:40.0854800Z The structure check must actually fail when the structure is wrong. ... ok
+2026-10-24T01:58:40.0857440Z test_no_frozen_corpus_wired_into_git (test_structure.StructureTest.test_no_frozen_corpus_wired_into_git) ... ok
+2026-10-24T01:58:40.0875351Z test_repository_structure_is_valid (test_structure.StructureTest.test_repository_structure_is_valid) ... ok
+2026-10-24T01:58:40.0876115Z test_reserved_emptiness_check_actually_detects_implementation (test_structure.StructureTest.test_reserved_emptiness_check_actually_detects_implementation)
+2026-10-24T01:58:40.0878952Z The guard must fail when the thing it guards against is present. ... ok
+2026-10-24T01:58:40.0879429Z test_still_reserved_directories_hold_no_implementation (test_structure.StructureTest.test_still_reserved_directories_hold_no_implementation)
+2026-10-24T01:58:40.0881591Z ADR-0006 admitted M0 into core/ and app/ and nowhere else. ... ok
+2026-10-24T01:58:40.0881917Z 
+2026-10-24T01:58:40.0882148Z ----------------------------------------------------------------------
+2026-10-24T01:58:40.0882468Z Ran 462 tests in 12.178s
+2026-10-24T01:58:40.0882604Z 
+2026-10-24T01:58:40.0882676Z OK
+2026-10-24T01:58:40.0883093Z m0 fixtures: OK -- 6 file(s) match the implementation
+2026-10-24T01:58:40.0883489Z M0 INDEPENDENT VERIFICATION -- EXECUTION RECORD
+2026-10-24T01:58:40.0883810Z   python   : CPython 3.11.17
+2026-10-24T01:58:40.0884072Z   platform : Linux x86_64
+2026-10-24T01:58:40.0884400Z   package  : /tmp/aura-env-a-vauywa1h/aura-evidence-loan-001
+2026-10-24T01:58:40.0884823Z   note     : single-platform run. No cross-platform claim is made.
+2026-10-24T01:58:40.0885114Z 
+2026-10-24T01:58:40.0885308Z   pristine package        -> VERIFIED
+2026-10-24T01:58:40.0885571Z   mutated package         -> TAMPERED
+2026-10-24T01:58:40.0885812Z   malformed package       -> INVALID
+2026-10-24T01:58:40.0885966Z 
+2026-10-24T01:58:40.0886153Z RESULT: PASS -- VERIFIED / TAMPERED / INVALID all reproduced in isolation
+2026-10-24T01:58:40.0886528Z M0 PRODUCT LOOP -- EXECUTION RECORD
+2026-10-24T01:58:40.0886758Z   python    : CPython 3.11.17
+2026-10-24T01:58:40.0886971Z   platform  : Linux x86_64
+2026-10-24T01:58:40.0887244Z   producer  : environment A, `aura record` as a separate process
+2026-10-24T01:58:40.0887817Z   verifier  : environment B, core/ + app/verifier only, isolated, no network
+2026-10-24T01:58:40.0888224Z   crossing  : the evidence package directory, and nothing else
+2026-10-24T01:58:40.0888601Z   note      : single-platform run. No cross-platform claim is made.
+2026-10-24T01:58:40.0888828Z 
+2026-10-24T01:58:40.0888944Z   3 application event(s) -> aura-evidence-loan-001
+2026-10-24T01:58:40.0889463Z   chain head              : 4c24fc4871ace52f73ae6c9e108c9f06ee7c8ee1eddc958eba352dc945576739
+2026-10-24T01:58:40.0889835Z   entries                 : 3
+2026-10-24T01:58:40.0889966Z 
+2026-10-24T01:58:40.0890053Z   reproduces reference    -> yes
+2026-10-24T01:58:40.0890324Z 
+2026-10-24T01:58:40.0890397Z   CASE 1 -- ORIGINAL
+2026-10-24T01:58:40.0890629Z   aura package            -> exit 0, 27 line description
+2026-10-24T01:58:40.0890922Z   aura verify             -> VERIFIED (exit 0)
+2026-10-24T01:58:40.0891100Z 
+2026-10-24T01:58:40.0891221Z   CASE 2 -- TAMPERING (recorded decision DENY -> ALLOW)
+2026-10-24T01:58:40.0891512Z   aura verify             -> TAMPERED (exit 2)
+2026-10-24T01:58:40.0891772Z   clean-room verdict      -> TAMPERED
+2026-10-24T01:58:40.0891927Z 
+2026-10-24T01:58:40.0892047Z   CASE 3 -- INVALID PACKAGE (manifest is not readable)
+2026-10-24T01:58:40.0892333Z   aura verify             -> INVALID (exit 3)
+2026-10-24T01:58:40.0892588Z   clean-room verdict      -> INVALID
+2026-10-24T01:58:40.0892757Z 
+2026-10-24T01:58:40.0892887Z   CASE 4 -- CLEAN VERIFIER ENVIRONMENT (no producer present)
+2026-10-24T01:58:40.0893181Z   clean-room verdict      -> VERIFIED
+2026-10-24T01:58:40.0893338Z 
+2026-10-24T01:58:40.0893544Z RESULT: PASS -- event -> package -> VERIFIED, and TAMPERED / INVALID both reproduced,
+2026-10-24T01:58:40.0893962Z         through `aura verify` and in the clean room alike
+2026-10-24T01:58:40.0894274Z M0 INDEPENDENT VERIFICATION -- EXECUTION RECORD
+2026-10-24T01:58:40.0894542Z   python   : CPython 3.11.17
+2026-10-24T01:58:40.0894751Z   platform : Linux x86_64
+2026-10-24T01:58:40.0894997Z   package  : evidence/examples/aura-evidence-loan-001
+2026-10-24T01:58:40.0895338Z   note     : single-platform run. No cross-platform claim is made.
+2026-10-24T01:58:40.0895569Z 
+2026-10-24T01:58:40.0895654Z   pristine package        -> VERIFIED
+2026-10-24T01:58:40.0895893Z   mutated package         -> TAMPERED
+2026-10-24T01:58:40.0896122Z   malformed package       -> INVALID
+2026-10-24T01:58:40.0896276Z 
+2026-10-24T01:58:40.0896434Z RESULT: PASS -- VERIFIED / TAMPERED / INVALID all reproduced in isolation
+2026-10-24T01:58:40.1070636Z ##[group]Run python3 tools/independence_check.py
+2026-10-24T01:58:40.1070869Z [36;1mpython3 tools/independence_check.py[0m
+2026-10-24T01:58:40.1126402Z shell: /usr/bin/bash -e {0}
+2026-10-24T01:58:40.1126543Z env:
+2026-10-24T01:58:40.1126695Z   pythonLocation: /opt/hostedtoolcache/Python/3.11.17/x64
+2026-10-24T01:58:40.1126935Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.11.17/x64/lib/pkgconfig
+2026-10-24T01:58:40.1127174Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.17/x64
+2026-10-24T01:58:40.1127389Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.17/x64
+2026-10-24T01:58:40.1127602Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.17/x64
+2026-10-24T01:58:40.1127817Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.11.17/x64/lib
+2026-10-24T01:58:40.1127996Z ##[endgroup]
+2026-10-24T01:58:40.2455210Z M0 INDEPENDENT VERIFICATION -- EXECUTION RECORD
+2026-10-24T01:58:40.2455571Z   python   : CPython 3.11.17
+2026-10-24T01:58:40.2455761Z   platform : Linux x86_64
+2026-10-24T01:58:40.2455973Z   package  : evidence/examples/aura-evidence-loan-001
+2026-10-24T01:58:40.2456204Z   note     : single-platform run. No cross-platform claim is made.
+2026-10-24T01:58:40.2456348Z 
+2026-10-24T01:58:40.2456412Z   pristine package        -> VERIFIED
+2026-10-24T01:58:40.2456567Z   mutated package         -> TAMPERED
+2026-10-24T01:58:40.2456713Z   malformed package       -> INVALID
+2026-10-24T01:58:40.2456810Z 
+2026-10-24T01:58:40.2456922Z RESULT: PASS -- VERIFIED / TAMPERED / INVALID all reproduced in isolation
+2026-10-24T01:58:40.2533644Z ##[group]Run python3 tools/product_loop_check.py
+2026-10-24T01:58:40.2533869Z [36;1mpython3 tools/product_loop_check.py[0m
+2026-10-24T01:58:40.2588507Z shell: /usr/bin/bash -e {0}
+2026-10-24T01:58:40.2588653Z env:
+2026-10-24T01:58:40.2588810Z   pythonLocation: /opt/hostedtoolcache/Python/3.11.17/x64
+2026-10-24T01:58:40.2589045Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.11.17/x64/lib/pkgconfig
+2026-10-24T01:58:40.2589420Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.17/x64
+2026-10-24T01:58:40.2589632Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.17/x64
+2026-10-24T01:58:40.2589845Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.17/x64
+2026-10-24T01:58:40.2590055Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.11.17/x64/lib
+2026-10-24T01:58:40.2590342Z ##[endgroup]
+2026-10-24T01:58:40.6584995Z M0 PRODUCT LOOP -- EXECUTION RECORD
+2026-10-24T01:58:40.6585337Z   python    : CPython 3.11.17
+2026-10-24T01:58:40.6585566Z   platform  : Linux x86_64
+2026-10-24T01:58:40.6585942Z   producer  : environment A, `aura record` as a separate process
+2026-10-24T01:58:40.6586359Z   verifier  : environment B, core/ + app/verifier only, isolated, no network
+2026-10-24T01:58:40.6586759Z   crossing  : the evidence package directory, and nothing else
+2026-10-24T01:58:40.6587123Z   note      : single-platform run. No cross-platform claim is made.
+2026-10-24T01:58:40.6587372Z 
+2026-10-24T01:58:40.6587461Z   3 application event(s) -> aura-evidence-loan-001
+2026-10-24T01:58:40.6587722Z   chain head              : 4c24fc4871ace52f73ae6c9e108c9f06ee7c8ee1eddc958eba352dc945576739
+2026-10-24T01:58:40.6587959Z   entries                 : 3
+2026-10-24T01:58:40.6588044Z 
+2026-10-24T01:58:40.6588104Z   reproduces reference    -> yes
+2026-10-24T01:58:40.6588195Z 
+2026-10-24T01:58:40.6588244Z   CASE 1 -- ORIGINAL
+2026-10-24T01:58:40.6588392Z   aura package            -> exit 0, 27 line description
+2026-10-24T01:58:40.6588574Z   aura verify             -> VERIFIED (exit 0)
+2026-10-24T01:58:40.6588687Z 
+2026-10-24T01:58:40.6588766Z   CASE 2 -- TAMPERING (recorded decision DENY -> ALLOW)
+2026-10-24T01:58:40.6588949Z   aura verify             -> TAMPERED (exit 2)
+2026-10-24T01:58:40.6589112Z   clean-room verdict      -> TAMPERED
+2026-10-24T01:58:40.6589212Z 
+2026-10-24T01:58:40.6589289Z   CASE 3 -- INVALID PACKAGE (manifest is not readable)
+2026-10-24T01:58:40.6589470Z   aura verify             -> INVALID (exit 3)
+2026-10-24T01:58:40.6589628Z   clean-room verdict      -> INVALID
+2026-10-24T01:58:40.6589721Z 
+2026-10-24T01:58:40.6589810Z   CASE 4 -- CLEAN VERIFIER ENVIRONMENT (no producer present)
+2026-10-24T01:58:40.6589993Z   clean-room verdict      -> VERIFIED
+2026-10-24T01:58:40.6590184Z 
+2026-10-24T01:58:40.6590310Z RESULT: PASS -- event -> package -> VERIFIED, and TAMPERED / INVALID both reproduced,
+2026-10-24T01:58:40.6590561Z         through `aura verify` and in the clean room alike
+2026-10-24T01:58:40.6686102Z ##[group]Run python3 -m app.aura verify evidence/examples/aura-evidence-loan-001
+2026-10-24T01:58:40.6686458Z [36;1mpython3 -m app.aura verify evidence/examples/aura-evidence-loan-001[0m
+2026-10-24T01:58:40.6751856Z shell: /usr/bin/bash -e {0}
+2026-10-24T01:58:40.6752000Z env:
+2026-10-24T01:58:40.6752151Z   pythonLocation: /opt/hostedtoolcache/Python/3.11.17/x64
+2026-10-24T01:58:40.6752394Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.11.17/x64/lib/pkgconfig
+2026-10-24T01:58:40.6752653Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.17/x64
+2026-10-24T01:58:40.6752863Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.17/x64
+2026-10-24T01:58:40.6753072Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.17/x64
+2026-10-24T01:58:40.6753287Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.11.17/x64/lib
+2026-10-24T01:58:40.6753467Z ##[endgroup]
+2026-10-24T01:58:40.7163279Z AURA EVIDENCE VERIFIER
+2026-10-24T01:58:40.7163577Z Profile: aura.evidence.package/1
+2026-10-24T01:58:40.7163883Z Package: aura-evidence-loan-001
+2026-10-24T01:58:40.7164100Z Entries: 3
+2026-10-24T01:58:40.7164266Z Result: VERIFIED
+2026-10-24T01:58:40.7283659Z Post job cleanup.
+2026-10-24T01:58:40.8035966Z (node:2413) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-10-24T01:58:40.8036392Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-10-24T01:58:40.8242492Z Post job cleanup.
+2026-10-24T01:58:40.8821195Z [command]/usr/bin/git version
+2026-10-24T01:58:40.8853659Z git version 2.55.0
+2026-10-24T01:58:40.8879739Z Temporarily overriding HOME='/home/runner/work/_temp/65caa595-bd18-420a-8615-55568ff0408c' before making global git config changes
+2026-10-24T01:58:40.8880326Z Adding repository directory to the temporary git global config as a safe directory
+2026-10-24T01:58:40.8883636Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/Aura-vNEXT/Aura-vNEXT
+2026-10-24T01:58:40.8917013Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-10-24T01:58:40.8950885Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-10-24T01:58:40.9175047Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-24T01:58:40.9196137Z http.https://github.com/.extraheader
+2026-10-24T01:58:40.9205534Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+2026-10-24T01:58:40.9243739Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-10-24T01:58:40.9499601Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-24T01:58:40.9537267Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-10-24T01:58:40.9847771Z Cleaning up orphan processes
+2026-10-24T01:58:41.0037324Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4, actions/setup-python@v5. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
