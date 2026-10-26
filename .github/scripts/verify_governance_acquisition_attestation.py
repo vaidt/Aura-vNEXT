@@ -130,6 +130,31 @@ def selected_repo_fields(repo: dict) -> dict:
     }
 
 
+def parse_advertised_transport(data: bytes) -> list[dict]:
+    """Independently decode the complete ls-remote --symref stdout; reject ambiguity."""
+    rows = []
+    seen = set()
+    for line in data.decode("utf-8", errors="strict").splitlines():
+        fields = line.split("\t")
+        if len(fields) != 2:
+            raise ValueError("malformed ls-remote transport record")
+        value, ref = fields
+        if value.startswith("ref: ") and ref == "HEAD" and value[5:].startswith("refs/"):
+            row = {"ref": ref, "symref_target": value[5:], "object_id": None}
+        elif re.fullmatch(r"[0-9a-fA-F]{40}|[0-9a-fA-F]{64}", value) and (ref == "HEAD" or ref.startswith("refs/")):
+            row = {"ref": ref, "symref_target": None, "object_id": value.lower()}
+        else:
+            raise ValueError("invalid ls-remote transport record")
+        identity = (ref, row["object_id"] is None)
+        if identity in seen:
+            raise ValueError("duplicate ls-remote transport record")
+        seen.add(identity)
+        rows.append(row)
+    if not rows:
+        raise ValueError("empty advertised-ref transport")
+    return rows
+
+
 def verify_archive(archive: Path, sidecar: Path, expected: dict) -> dict:
     archive_digest = sha256_file(archive)
     sidecar_match = re.fullmatch(
@@ -175,6 +200,9 @@ def verify_archive(archive: Path, sidecar: Path, expected: dict) -> dict:
     if manifest.get("acquisition_status") != "COMPLETE_ADVERTISED_REFS":
         raise ValueError("acquisition is not COMPLETE_ADVERTISED_REFS")
 
+    if manifest.get("fatal_errors") != []:
+        raise ValueError("acquisition has fatal errors or lacks fatal_errors")
+
     file_inventory = manifest.get("files")
     if not isinstance(file_inventory, list):
         raise ValueError("manifest file inventory missing")
@@ -208,6 +236,25 @@ def verify_archive(archive: Path, sidecar: Path, expected: dict) -> dict:
             raise ValueError(f"{key}: remote URL differs from expected public repository")
         if repo.get("operations", {}).get("ls_remote", {}).get("exit_code") != 0:
             raise ValueError(f"{key}: ls-remote failed")
+        ls_operation = repo["operations"]["ls_remote"]
+        raw_path = ls_operation.get("stdout_path")
+        prefix = "acquisition-work/"
+        if not isinstance(raw_path, str) or not raw_path.startswith(prefix):
+            raise ValueError(f"{key}: invalid ls-remote stdout path")
+        raw_transport = content_map.get(base + raw_path[len(prefix):])
+        if raw_transport is None:
+            raise ValueError(f"{key}: ls-remote transport log missing")
+        if (ls_operation.get("stdout_sha256") != sha256_bytes(raw_transport)
+                or ls_operation.get("stdout_size_bytes") != len(raw_transport)):
+            raise ValueError(f"{key}: ls-remote transport digest/size mismatch")
+        advertised_rows = parse_advertised_transport(raw_transport)
+        if advertised_rows != repo.get("advertised_refs"):
+            raise ValueError(f"{key}: advertised refs differ from raw transport")
+        if sum(row["object_id"] is not None for row in advertised_rows) != repo.get("advertised_ref_count"):
+            raise ValueError(f"{key}: advertised ref count mismatch")
+        if (repo.get("fsck_status") != "PASS"
+                or repo.get("operations", {}).get("fsck", {}).get("exit_code") != 0):
+            raise ValueError(f"{key}: git fsck did not pass")
         if repo.get("operations", {}).get("clone_mirror", {}).get("exit_code") != 0:
             raise ValueError(f"{key}: mirror clone failed")
         if repo.get("operations", {}).get("bundle_create", {}).get("exit_code") != 0 or repo.get("bundle_verify_status") != "PASS":
@@ -229,7 +276,7 @@ def verify_archive(archive: Path, sidecar: Path, expected: dict) -> dict:
         if len(ref_rows) != repo.get("local_ref_count"):
             raise ValueError(f"{key}: local ref count mismatch")
         local_ref_map = {row["ref"]: row["object_id"] for row in ref_rows}
-        for advertised in repo.get("advertised_refs", []):
+        for advertised in advertised_rows:
             ref = advertised.get("ref")
             oid = advertised.get("object_id")
             if not oid or ref == "HEAD" or ref.endswith("^{}"):

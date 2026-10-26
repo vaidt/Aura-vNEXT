@@ -85,6 +85,8 @@ jobs:
           rows = receipt.get("repository_summary", [])
           if {row.get("key") for row in rows} != {"github", "gitlab"}:
               raise SystemExit(1)
+          if receipt.get("fatal_errors") != [] or any(row.get("fsck_status") != "PASS" for row in rows):
+              raise SystemExit(1)
           if any(row.get("bundle_verify_status") != "PASS" for row in rows):
               raise SystemExit(1)
           if any(row.get("bundle_path_sha256") is None for row in rows):

@@ -273,7 +273,9 @@ def main() -> int:
         )
         per_repo["operations"]["fsck"] = fsck
         per_repo["fsck_status"] = "PASS" if fsck["exit_code"] == 0 else "ERROR_RECORDED"
-        # fsck errors are preserved for analysis. A bundle must also pass its own verification.
+        if fsck["exit_code"] != 0:
+            fatal_errors.append(f"{key}: git fsck failed with {fsck['exit_code']}")
+        # Preserve diagnostics and the bundle even when fsck blocks completion.
         bundle_result = run_command(
             ["git", "-C", str(mirror), "bundle", "create", str(bundle.resolve()), "--all"],
             LOGS / key / "bundle-create",
