@@ -79,7 +79,7 @@ def certificate_details(verification: dict, expected_identity: str) -> dict:
 
     cert_strings = list(strings(cert))
     issuer_ok = any(
-        "token.actions.githubusercontent.com" in value for value in cert_strings
+        value == "https://token.actions.githubusercontent.com" for value in cert_strings
     )
     san_candidates = _certificate_sans(cert, cert_strings)
 
