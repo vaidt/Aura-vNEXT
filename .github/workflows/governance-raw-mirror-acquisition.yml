@@ -4,6 +4,9 @@ on:
   push:
     branches:
       - governance-raw-mirror-acquisition-20261013
+  pull_request:
+    branches:
+      - claude/aura-vnext-genesis-xerti8
   workflow_dispatch:
 
 permissions:
@@ -29,6 +32,12 @@ jobs:
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # actions/checkout v4.4.0
         with:
           persist-credentials: false
+
+      - name: Refuse untrusted fork execution
+        if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name != github.repository
+        run: |
+          echo "Fork acquisition/attestation requires a separately reviewed trusted execution path." >&2
+          exit 1
 
       - name: Set up Python 3.11
         uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # actions/setup-python v5.6.0

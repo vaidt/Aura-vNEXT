@@ -80,9 +80,7 @@ def certificate_details(verification: dict, expected_workflow_identity: str) -> 
     cert = _certificate_object(verification)
 
     cert_strings = list(strings(cert))
-    issuer_ok = any(
-        value == "https://token.actions.githubusercontent.com" for value in cert_strings
-    )
+    issuer_ok = cert.get("issuer") == "https://token.actions.githubusercontent.com"
     san_candidates = _certificate_sans(cert, cert_strings)
 
     san_match = any(expected_workflow_identity in value for value in san_candidates)
@@ -127,6 +125,7 @@ def validate_archive(archive: Path, sidecar: Path | None, expected: dict) -> dic
     _verify_source_pins(source_pin, expected)
 
     _verify_receipt_checksum(contents, receipt_bytes)
+    _verify_output_log(receipt, contents)
 
     exit_code = int(contents["test-runner-exit-code.txt"].decode("ascii").strip())
 
@@ -516,6 +515,13 @@ def _load_verified_statements(args, bundle_info):
     return slsa, custom, slsa_statement, custom_statement
 
 
+def _verify_output_log(receipt, contents):
+    if receipt.get("output_artifact") != "test-output.log":
+        raise ValueError("receipt output_artifact does not identify test-output.log")
+    if receipt.get("output_sha256") != sha256_bytes(contents["test-output.log"]):
+        raise ValueError("receipt output_sha256 does not match test-output.log")
+
+
 def _execution_result(receipt, exit_code):
     requirement_statuses = {
         key: value.get("execution_status")
@@ -524,7 +530,8 @@ def _execution_result(receipt, exit_code):
     execution_status = (
         "PASS"
         if exit_code == 0
-        and set(requirement_statuses) == {
+        and set(requirement_statuses)
+        == {
             "M0-PKG-BOUNDARY-001",
             "M0-PKG-BOUNDARY-002",
             "M0-PKG-BOUNDARY-003",

@@ -31,6 +31,23 @@ class IssuerTests(unittest.TestCase):
                     certificate("https://token.actions.githubusercontent.com"), identity
                 )["issuer_match"]
             )
+            for wrong in ("https://evil.example", None):
+                forged = certificate(wrong)
+                forged["signature"]["certificate"]["unrelated"] = (
+                    "https://token.actions.githubusercontent.com"
+                )
+                with (
+                    self.subTest(file=filename, issuer=wrong),
+                    self.assertRaisesRegex(ValueError, "issuer"),
+                ):
+                    module.certificate_details(forged, identity)
+            missing = certificate("https://token.actions.githubusercontent.com")
+            del missing["signature"]["certificate"]["issuer"]
+            missing["signature"]["certificate"]["unrelated"] = (
+                "https://token.actions.githubusercontent.com"
+            )
+            with self.assertRaisesRegex(ValueError, "issuer"):
+                module.certificate_details(missing, identity)
             for issuer in (
                 "https://evil.example/?issuer=token.actions.githubusercontent.com",
                 "https://token.actions.githubusercontent.com.evil.example",

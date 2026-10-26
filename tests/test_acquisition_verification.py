@@ -8,6 +8,8 @@ from pathlib import Path
 import tarfile
 import tempfile
 import unittest
+import subprocess
+import os
 from unittest.mock import patch
 
 SCRIPTS = Path(__file__).resolve().parents[1] / ".github/scripts"
@@ -25,17 +27,44 @@ acquire = load("acquire_aura_governance_mirrors")
 
 
 class AcquisitionTests(unittest.TestCase):
-    def archive(self, root, mutate):
+    def archive(self, root, mutate, bundle_override=None):
         payload = {}
         repos = []
-        oid = "a" * 40
+        seed = root / "seed"
+        seed.mkdir()
+        env = {
+            **os.environ,
+            "GIT_AUTHOR_NAME": "Fixture",
+            "GIT_COMMITTER_NAME": "Fixture",
+            "GIT_AUTHOR_EMAIL": "fixture@example.test",
+            "GIT_COMMITTER_EMAIL": "fixture@example.test",
+        }
+
+        def git(*args):
+            return subprocess.run(
+                ["git", *args],
+                cwd=seed,
+                env=env,
+                check=True,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+            ).stdout
+
+        git("init", "-b", "main")
+        git("-c", "commit.gpgsign=false", "commit", "--allow-empty", "-m", "fixture")
+        oid = git("rev-parse", "HEAD").decode().strip()
+        bundle_path = root / "fixture.bundle"
+        git("bundle", "create", str(bundle_path), "--all")
+        bundle_data = (
+            bundle_path.read_bytes() if bundle_override is None else bundle_override
+        )
         for key, url in verify.EXPECTED_REPOSITORIES.items():
             raw = f"ref: refs/heads/main\tHEAD\n{oid}\tHEAD\n{oid}\trefs/heads/main\n".encode()
             refs = f"refs/heads/main\t{oid}\tcommit\n".encode()
             for name, value in [
                 ("ls", raw),
                 ("refs", refs),
-                ("bundle", b"bundle"),
+                ("bundle", bundle_data),
                 ("heads", f"{oid} refs/heads/main\n".encode()),
             ]:
                 payload[f"{key}/{name}"] = value
@@ -59,7 +88,7 @@ class AcquisitionTests(unittest.TestCase):
                     fsck_status="PASS",
                     bundle_verify_status="PASS",
                     bundle_path=f"{key}/bundle",
-                    bundle_path_sha256=verify.sha256_bytes(b"bundle"),
+                    bundle_path_sha256=verify.sha256_bytes(bundle_data),
                     local_refs_path=f"{key}/refs",
                     local_refs_sha256=verify.sha256_bytes(refs),
                     local_ref_count=1,
@@ -105,6 +134,35 @@ class AcquisitionTests(unittest.TestCase):
                 run_attempt="1",
             ),
         )
+
+    def test_fake_bundle_rejected_with_consistent_metadata(self):
+        with tempfile.TemporaryDirectory() as td:
+            args = self.archive(Path(td), lambda m: None, bundle_override=b"bundle")
+            with self.assertRaisesRegex(ValueError, "Git verification failed"):
+                verify.verify_archive(*args)
+
+    def test_truncated_real_bundle_rejected(self):
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            args = self.archive(root, lambda m: None)
+            raw = (root / "fixture.bundle").read_bytes()
+            with self.assertRaises(ValueError):
+                verify._verify_bundle_bytes(raw[:-12], "fixture")
+
+    def test_actual_bundle_refs_cannot_be_replaced_by_saved_metadata(self):
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            self.archive(root, lambda m: None)
+            data = (root / "fixture.bundle").read_bytes()
+            forged = {"refs/heads/forged": "a" * 40}
+            with self.assertRaisesRegex(ValueError, "actual bundle refs differ"):
+                verify._verify_bundle_refs(
+                    {"bundle_path": "bundle"},
+                    "fixture",
+                    {"acquisition/bundle": data},
+                    "acquisition/",
+                    forged,
+                )
 
     def test_valid_transport_archive(self):
         with tempfile.TemporaryDirectory() as td:

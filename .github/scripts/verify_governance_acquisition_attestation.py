@@ -17,6 +17,8 @@ import os
 from pathlib import Path, PurePosixPath
 import re
 import tarfile
+import subprocess
+import tempfile
 
 SLSA_PREDICATE = "https://slsa.dev/provenance/v1"
 CUSTOM_PREDICATE = "https://github.com/vaidt/Aura-vNEXT/attestations/aura-governance-raw-mirror-acquisition/v1"
@@ -78,9 +80,7 @@ def certificate_details(verification: dict, expected_identity: str) -> dict:
     cert = _certificate_object(verification)
 
     cert_strings = list(strings(cert))
-    issuer_ok = any(
-        value == "https://token.actions.githubusercontent.com" for value in cert_strings
-    )
+    issuer_ok = cert.get("issuer") == "https://token.actions.githubusercontent.com"
     san_candidates = _certificate_sans(cert, cert_strings)
 
     matched = [value for value in san_candidates if expected_identity in value]
@@ -519,6 +519,11 @@ def _verify_local_refs(repo, key, refs_data, advertised_rows):
 
 
 def _verify_bundle_refs(repo, key, content_map, base, local_ref_map):
+    actual_refs = _verify_bundle_bytes(
+        content_map[base + str(repo.get("bundle_path"))], key
+    )
+    if actual_refs != local_ref_map:
+        raise ValueError(f"{key}: actual bundle refs differ from local ref inventory")
     heads_rel = repo.get("bundle_heads_path")
     heads_data = content_map.get(base + str(heads_rel))
     if heads_data is None:
@@ -531,6 +536,76 @@ def _verify_bundle_refs(repo, key, content_map, base, local_ref_map):
     for ref, oid in local_ref_map.items():
         if bundle_ref_map.get(ref) != oid:
             raise ValueError(f"{key}: ref missing/mismatched in portable bundle: {ref}")
+
+
+def _run_isolated_git(repository, environment, *args):
+    result = subprocess.run(
+        [
+            "git",
+            "-c",
+            "core.hooksPath=/dev/null",
+            "-c",
+            "protocol.allow=never",
+            "-C",
+            str(repository),
+            *args,
+        ],
+        env=environment,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        check=False,
+        timeout=120,
+    )
+    if result.returncode != 0:
+        raise ValueError(f"archived bundle Git verification failed: {args[0]}")
+    return result.stdout
+
+
+def _verify_bundle_bytes(data, key):
+    """Validate only Git data in a fresh bare repository; never check out source."""
+    with tempfile.TemporaryDirectory(prefix="aura-bundle-check-") as temporary:
+        root = Path(temporary)
+        bare = root / "objects.git"
+        bundle = root / "archive.bundle"
+        bundle.write_bytes(data)
+        environment = {
+            "PATH": os.environ.get("PATH", os.defpath),
+            "HOME": str(root),
+            "GIT_CONFIG_NOSYSTEM": "1",
+            "GIT_CONFIG_GLOBAL": os.devnull,
+            "GIT_NO_REPLACE_OBJECTS": "1",
+            "GIT_TERMINAL_PROMPT": "0",
+        }
+        _run_isolated_git(root, environment, "init", "--bare", "--template=", str(bare))
+        # Verification in an empty repository rejects bundles with missing prerequisites.
+        _run_isolated_git(bare, environment, "bundle", "verify", str(bundle))
+        heads = _run_isolated_git(
+            bare, environment, "bundle", "list-heads", str(bundle)
+        )
+        refs = _parse_bundle_heads(heads, key)
+        _run_isolated_git(bare, environment, "bundle", "unbundle", str(bundle))
+        for ref, oid in refs.items():
+            _run_isolated_git(bare, environment, "update-ref", ref, oid)
+        _run_isolated_git(
+            bare, environment, "fsck", "--full", "--strict", "--no-reflogs"
+        )
+        return refs
+
+
+def _parse_bundle_heads(data, key):
+    refs = {}
+    for line in data.decode("utf-8", errors="strict").splitlines():
+        oid, ref = line.split(" ", 1)
+        if ref == "HEAD":
+            continue
+        if not ref.startswith("refs/") or ref in refs:
+            raise ValueError(f"{key}: invalid or duplicate actual bundle ref")
+        if re.fullmatch(r"[0-9a-f]{40}|[0-9a-f]{64}", oid) is None:
+            raise ValueError(f"{key}: invalid actual bundle object ID")
+        refs[ref] = oid
+    if not refs:
+        raise ValueError(f"{key}: bundle has no reference inventory")
+    return refs
 
 
 def _verify_manifest_run_binding(manifest, expected):
