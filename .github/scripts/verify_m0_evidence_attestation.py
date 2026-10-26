@@ -524,7 +524,13 @@ def _execution_result(receipt, exit_code):
     execution_status = (
         "PASS"
         if exit_code == 0
-        and len(requirement_statuses) == 5
+        and set(requirement_statuses) == {
+            "M0-PKG-BOUNDARY-001",
+            "M0-PKG-BOUNDARY-002",
+            "M0-PKG-BOUNDARY-003",
+            "M0-PKG-BOUNDARY-004",
+            "M0-PKG-BOUNDARY-005",
+        }
         and all(value == "TESTED" for value in requirement_statuses.values())
         else "FAIL_OR_BLOCKED"
     )
