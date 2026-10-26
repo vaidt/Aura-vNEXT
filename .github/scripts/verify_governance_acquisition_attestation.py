@@ -65,30 +65,16 @@ def find_verification(value, predicate_type: str) -> dict | None:
     return _find_statement(value, predicate_type)
 
 
-def strings(value):
-    if isinstance(value, str):
-        yield value
-    elif isinstance(value, dict):
-        for nested in value.values():
-            yield from strings(nested)
-    elif isinstance(value, list):
-        for nested in value:
-            yield from strings(nested)
-
-
 def certificate_details(verification: dict, expected_identity: str) -> dict:
     cert = _certificate_object(verification)
 
-    cert_strings = list(strings(cert))
     issuer_ok = cert.get("issuer") == "https://token.actions.githubusercontent.com"
-    san_candidates = _certificate_sans(cert, cert_strings)
-
-    matched = [value for value in san_candidates if expected_identity in value]
+    actual_identity = cert.get("subjectAlternativeName")
     timestamp_count = _verified_timestamp_count(verification)
 
     if not issuer_ok:
         raise ValueError("certificate does not identify the GitHub Actions OIDC issuer")
-    if not matched:
+    if not isinstance(actual_identity, str) or actual_identity != expected_identity:
         raise ValueError(
             "certificate SAN is not bound to the expected repository/workflow/ref"
         )
@@ -97,7 +83,7 @@ def certificate_details(verification: dict, expected_identity: str) -> dict:
     return {
         "status": "PASS",
         "issuer_match": True,
-        "certificate_identity": matched[0],
+        "certificate_identity": actual_identity,
         "verified_timestamp_count": timestamp_count,
         "certificate_fields_observed": sorted(cert.keys()),
     }
@@ -628,25 +614,6 @@ def _certificate_object(verification):
     if not isinstance(cert, dict) or not cert:
         raise ValueError("verified CLI result lacks signing certificate")
     return cert
-
-
-def _certificate_sans(cert, cert_strings):
-    san_candidates = []
-    for key in (
-        "san",
-        "subjectAlternativeName",
-        "subject_alternative_name",
-        "subjectAltName",
-    ):
-        if key in cert:
-            san_candidates.extend(list(strings(cert[key])))
-    if not san_candidates:
-        san_candidates = [
-            value
-            for value in cert_strings
-            if "github.com/vaidt/Aura-vNEXT/.github/workflows/" in value
-        ]
-    return san_candidates
 
 
 def _verified_timestamp_count(verification):
