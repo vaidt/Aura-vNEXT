@@ -1,0 +1,231 @@
+name: M0 package-boundary evidence
+
+on:
+  push:
+    branches:
+      - m0-package-boundary-evidence-20261013
+
+permissions:
+  contents: read
+
+jobs:
+  package-boundary:
+    name: Pinned M0 package-boundary tests
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    env:
+      SOURCE_SHA: bdec831c165b3a5465bc25f325ed801558cbf81a
+    steps:
+      - name: Checkout runner definition
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Checkout exact source commit under test
+        uses: actions/checkout@v4
+        with:
+          repository: vaidt/Aura-vNEXT
+          ref: ${{ env.SOURCE_SHA }}
+          path: source
+          fetch-depth: 1
+          persist-credentials: false
+
+      - name: Verify source commit and protected blob identities
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd source
+          actual="$(git rev-parse HEAD)"
+          test "$actual" = "$SOURCE_SHA"
+          declare -A expected=(
+            ["tests/conformance/test_package_boundary.py"]="3ce5b030326661eb66cbd6016a9ad4fe1812db6e"
+            ["app/verifier/__init__.py"]="0091a7aca79c1f5aef1358399ab393da98c9a1b2"
+            ["docs/contract/M0-EVIDENCE-CONTRACT.md"]="daa1201232ebe0a75082ac71806042d59ca46b62"
+          )
+          for path in "${!expected[@]}"; do
+            observed="$(git rev-parse "HEAD:$path")"
+            if [[ "$observed" != "${expected[$path]}" ]]; then
+              echo "BLOB MISMATCH: $path expected=${expected[$path]} observed=$observed" >&2
+              exit 20
+            fi
+            printf '%s %s\n' "$path" "$observed"
+          done
+          test -z "$(git status --porcelain --untracked-files=all)"
+          python3 --version
+          git status --short
+
+      - name: Record test start time
+        shell: bash
+        run: echo "AURA_TEST_STARTED_AT=$(date -u +%Y-%m-%dT%H:%M:%SZ)" >> "$GITHUB_ENV"
+
+      - name: Execute the focused test command and preserve output
+        id: test
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p evidence
+          printf 'command=python3 -m unittest discover -s tests/conformance -p test_package_boundary.py -v\n' > evidence/test-output.log
+          printf 'source_sha=%s\n' "$SOURCE_SHA" >> evidence/test-output.log
+          printf 'runner_definition_sha=%s\n\n' "$GITHUB_SHA" >> evidence/test-output.log
+          set +e
+          # The specified discovery command keeps its exact argv. PYTHONPATH=tests
+          # makes tests/_m0.py importable when discovery starts below tests/.
+          (cd source && PYTHONPATH=tests python3 -m unittest discover -s tests/conformance -p test_package_boundary.py -v) >> evidence/test-output.log 2>&1
+          rc=$?
+          set -e
+          echo "$rc" > evidence/test-runner-exit-code.txt
+          echo "exit_code=$rc" >> "$GITHUB_STEP_SUMMARY"
+          exit 0
+
+      - name: Generate machine-readable execution receipt
+        if: always()
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import datetime, hashlib, json, os, pathlib, platform, re, subprocess, sys
+          root = pathlib.Path("evidence")
+          log_path = root / "test-output.log"
+          code_path = root / "test-runner-exit-code.txt"
+          source_sha = os.environ["SOURCE_SHA"]
+          log = log_path.read_text(encoding="utf-8", errors="replace") if log_path.exists() else ""
+          rc = int(code_path.read_text().strip()) if code_path.exists() else None
+          outcome_re = re.compile(r"\.\.\.\s+(ok|FAIL|ERROR|skipped(?:\s+\([^)]*\))?|expected failure|unexpected success)\s*$")
+          start_re = re.compile(r"\((?:[A-Za-z_][A-Za-z0-9_]*\.)*(?P<class>[A-Za-z_][A-Za-z0-9_]*)\.(?P<method>test_[A-Za-z0-9_]+)\)(?:\s+\.\.\.\s+(?P<inline>ok|FAIL|ERROR|skipped(?:\s+\([^)]*\))?|expected failure|unexpected success))?\s*$")
+          lines = log.splitlines()
+          results = {}
+          for i, line in enumerate(lines):
+            m = start_re.search(line.rstrip())
+            if not m:
+              continue
+            sym = f"{m.group('class')}.{m.group('method')}"
+            out = m.group("inline")
+            if out is None and i + 1 < len(lines):
+              om = outcome_re.search(lines[i + 1].strip())
+              if om:
+                out = om.group(1)
+            if out is not None:
+              results[sym] = out.split(" ", 1)[0]
+          requirements = {
+            "M0-PKG-BOUNDARY-001": [
+              "ParentTraversalTest.test_parent_traversal_is_invalid",
+              "ParentTraversalTest.test_deep_parent_traversal_is_invalid",
+              "ParentTraversalTest.test_nested_traversal_is_invalid",
+              "ParentTraversalTest.test_traversal_that_lands_back_inside_is_still_invalid"
+            ],
+            "M0-PKG-BOUNDARY-002": [
+              "AbsolutePathTest.test_absolute_path_is_invalid",
+              "AbsolutePathTest.test_absolute_system_path_is_invalid",
+              "AbsolutePathTest.test_root_itself_is_invalid"
+            ],
+            "M0-PKG-BOUNDARY-003": [
+              "ParentTraversalTest.test_non_canonical_spellings_are_invalid",
+              "AbsolutePathTest.test_backslash_separator_is_invalid",
+              "AbsolutePathTest.test_empty_and_non_string_paths_are_invalid"
+            ],
+            "M0-PKG-BOUNDARY-004": [
+              "SymlinkEscapeTest.test_symlink_to_a_file_outside_the_package_is_invalid",
+              "SymlinkEscapeTest.test_symlink_to_a_directory_outside_the_package_is_invalid"
+            ],
+            "M0-PKG-BOUNDARY-005": [
+              "SymlinkEscapeTest.test_a_symlink_staying_inside_the_package_is_not_an_escape",
+              "LegitimateInternalPathTest.test_an_additional_declared_file_inside_the_package_verifies",
+              "LegitimateInternalPathTest.test_the_reference_package_still_verifies",
+              "LegitimateInternalPathTest.test_a_package_reached_through_a_symlinked_root_verifies"
+            ]
+          }
+          mapped = {}
+          for req, symbols in requirements.items():
+            observed = {s: results.get(s, "NOT_OBSERVED") for s in symbols}
+            if any(v in ("FAIL", "ERROR", "unexpected") for v in observed.values()):
+              status, matched = "FAIL", False
+            elif rc != 0:
+              status, matched = "BLOCKED", None
+            elif all(v == "ok" for v in observed.values()):
+              status, matched = "TESTED", True
+            else:
+              status, matched = "BLOCKED", None
+            mapped[req] = {"execution_status": status, "matched_expected": matched, "tests": observed}
+          summary = re.search(r"Ran (\d+) tests? in ([0-9.]+)s", log)
+          receipt = {
+            "receipt_schema": "aura.execution-receipt/0.1.0",
+            "execution_id": os.environ.get("GITHUB_RUN_ID"),
+            "run_attempt": os.environ.get("GITHUB_RUN_ATTEMPT"),
+            "run_url": f"https://github.com/{os.environ.get('GITHUB_REPOSITORY')}/actions/runs/{os.environ.get('GITHUB_RUN_ID')}",
+            "repository": os.environ.get("GITHUB_REPOSITORY"),
+            "provenance_status": "SELF_REPORTED_UNSIGNED",
+            "provenance_attestation": {
+              "issuer": "GitHub Actions job (run metadata and artifacts; no signed runner attestation verified)",
+              "runner_identity": os.environ.get("RUNNER_NAME"),
+              "signature_scheme": None,
+              "signature_or_attestation_reference": None,
+              "validation_status": "NOT_RUN"
+            },
+            "runner_definition_commit_sha": os.environ.get("GITHUB_SHA"),
+            "source_commit_sha_expected": source_sha,
+            "source_commit_sha_observed": subprocess.check_output(["git", "-C", "source", "rev-parse", "HEAD"], text=True).strip() if pathlib.Path("source/.git").exists() else None,
+            "source_blobs_expected_and_observed": {
+              "tests/conformance/test_package_boundary.py": "3ce5b030326661eb66cbd6016a9ad4fe1812db6e",
+              "app/verifier/__init__.py": "0091a7aca79c1f5aef1358399ab393da98c9a1b2",
+              "docs/contract/M0-EVIDENCE-CONTRACT.md": "daa1201232ebe0a75082ac71806042d59ca46b62"
+            },
+            "command": "python3 -m unittest discover -s tests/conformance -p test_package_boundary.py -v",
+            "environment_overrides": {"PYTHONPATH": "tests"},
+            "started_at": os.environ.get("AURA_TEST_STARTED_AT"),
+            "completed_at": datetime.datetime.now(datetime.timezone.utc).isoformat().replace("+00:00", "Z"),
+            "environment": {
+              "runner_os": os.environ.get("RUNNER_OS"),
+              "runner_arch": os.environ.get("RUNNER_ARCH"),
+              "image_os": platform.platform(),
+              "python": sys.version.split()[0],
+              "implementation": platform.python_implementation(),
+              "test_import_path": "PYTHONPATH=tests (required for tests/_m0.py when starting discovery in tests/conformance)"
+            },
+            "test_runner_exit_code": rc,
+            "test_summary": {"tests_run": int(summary.group(1)) if summary else None, "duration_seconds": float(summary.group(2)) if summary else None},
+            "observed_test_results": results,
+            "requirements": mapped,
+            "output_artifact": "test-output.log",
+            "output_sha256": hashlib.sha256(log_path.read_bytes()).hexdigest() if log_path.exists() else None,
+            "independent_verification_status": "NOT_RUN",
+            "limits": [
+              "The receipt is unsigned and self-reported; no cryptographic runner attestation was verified.",
+              "The command was executed with PYTHONPATH=tests so the existing tests/conformance module can import tests/_m0.py."
+              "TESTED is the maximum status supported by this run; VERIFIED and CONFORMANT are not asserted.",
+              "The test command executes the source checkout pinned above; the workflow definition lives on a separate harness branch."
+            ]
+          }
+          (root / "execution-receipt.json").write_text(json.dumps(receipt, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+          digest = hashlib.sha256((root / "execution-receipt.json").read_bytes()).hexdigest()
+          (root / "execution-receipt.sha256").write_text(digest + "  execution-receipt.json\n", encoding="ascii")
+          print(json.dumps({"test_runner_exit_code": rc, "test_count": receipt["test_summary"]["tests_run"], "output_sha256": receipt["output_sha256"], "receipt_sha256": digest, "requirements": mapped}, indent=2))
+          PY
+
+      - name: Upload execution evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: aura-m0-package-boundary-evidence-${{ github.run_id }}
+          path: evidence/
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Fail the job if any requirement was not TESTED
+        if: always()
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import json, pathlib, sys
+          p = pathlib.Path("evidence/execution-receipt.json")
+          if not p.is_file():
+            print("No execution receipt; fail closed.", file=sys.stderr)
+            raise SystemExit(1)
+          r = json.loads(p.read_text())
+          failed = [k for k,v in r["requirements"].items() if v["execution_status"] != "TESTED"]
+          if r["test_runner_exit_code"] != 0 or failed:
+            print("BLOCKED/FAIL: " + ", ".join(failed), file=sys.stderr)
+            raise SystemExit(1)
+          print("PASS: all five pilot requirements reached TESTED; VERIFIED/CONFORMANT remain unavailable.")
+          PY
